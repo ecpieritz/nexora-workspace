@@ -1,0 +1,29 @@
+<main class="auth-layout">
+  <section class="auth-layout__panel" aria-label="Authentication">
+    <header class="auth-layout__header">
+      <a class="auth-layout__brand" routerLink="/" aria-label="Nexora home">
+        <app-brand [showName]="false" size="large" />
+      </a>
+    </header>
+
+    <div class="auth-layout__content">
+      <router-outlet />
+    </div>
+
+    <footer class="auth-layout__footer">© {{ currentYear }} Nexora</footer>
+  </section>
+
+  <aside class="auth-layout__visual" aria-label="A connected workspace for your business">
+    <div class="auth-layout__visual-copy">
+      <span class="auth-layout__eyebrow">One connected workspace</span>
+      <h1>Turn everyday work into meaningful progress.</h1>
+      <p>Plan tasks, organize customers, and follow your business in one clear view.</p>
+    </div>
+
+    <img
+      class="auth-layout__illustration"
+      src="illustrations/auth-workspace.svg"
+      alt="Dashboard cards connected around a central Nexora workspace"
+    />
+  </aside>
+</main>

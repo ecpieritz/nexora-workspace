@@ -1,0 +1,111 @@
+@use 'styles/tokens';
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(24rem, 31rem) minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--color-surface);
+}
+
+.auth-layout__panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--space-10) clamp(var(--space-6), 5vw, var(--space-16)) var(--space-6);
+  background: var(--color-surface);
+}
+
+.auth-layout__header {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-layout__content {
+  display: grid;
+  width: 100%;
+  max-width: 24rem;
+  margin-inline: auto;
+  place-content: center stretch;
+}
+
+.auth-layout__footer {
+  color: var(--color-text-subtle);
+  text-align: center;
+}
+
+.auth-layout__visual {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding: clamp(var(--space-10), 7vw, var(--space-20));
+  overflow: hidden;
+  place-content: center;
+  background:
+    radial-gradient(circle at 18% 20%, rgb(119 115 255 / 24%), transparent 24rem),
+    radial-gradient(circle at 82% 78%, rgb(39 185 214 / 16%), transparent 22rem),
+    linear-gradient(145deg, #f7f6ff 0%, #eef3ff 100%);
+}
+
+.auth-layout__visual-copy,
+.auth-layout__illustration {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-layout__visual-copy {
+  width: min(100%, 38rem);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.auth-layout__eyebrow {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-layout__visual-copy h1 {
+  font-size: clamp(var(--font-size-2xl), 3vw, 2.5rem);
+  letter-spacing: -0.04em;
+}
+
+.auth-layout__visual-copy p {
+  max-width: 32rem;
+  margin: var(--space-4) auto 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+}
+
+.auth-layout__illustration {
+  width: min(100%, 43rem);
+  margin: clamp(var(--space-8), 5vh, var(--space-16)) auto 0;
+}
+
+@media (max-width: tokens.$breakpoint-medium) {
+  .auth-layout {
+    display: block;
+  }
+
+  .auth-layout__panel {
+    min-height: 100vh;
+    padding: var(--space-8) var(--space-6) var(--space-5);
+  }
+
+  .auth-layout__visual {
+    display: none;
+  }
+}
+
+@media (max-width: tokens.$breakpoint-small) {
+  .auth-layout__panel {
+    padding-inline: var(--space-4);
+  }
+}

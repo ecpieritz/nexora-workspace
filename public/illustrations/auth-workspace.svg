@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" role="img" aria-labelledby="title description">
+  <title id="title">Nexora connected workspace</title>
+  <desc id="description">A central workspace window connected to task, customer, calendar, and analytics cards.</desc>
+  <defs>
+    <linearGradient id="panel" x1="234" y1="100" x2="536" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7773ff" />
+      <stop offset="1" stop-color="#514ceb" />
+    </linearGradient>
+    <linearGradient id="screen" x1="286" y1="161" x2="480" y2="326" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f5f4ff" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#302b8d" flood-opacity=".14" />
+    </filter>
+  </defs>
+
+  <g fill="none" stroke="#aaa7ef" stroke-width="2" stroke-dasharray="6 8">
+    <path d="M263 175 142 124" />
+    <path d="m503 178 121-62" />
+    <path d="m265 319-132 62" />
+    <path d="m506 317 125 59" />
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="44" y="62" width="196" height="122" rx="18" fill="#fff" />
+    <rect x="520" y="54" width="196" height="122" rx="18" fill="#fff" />
+    <rect x="34" y="318" width="210" height="110" rx="18" fill="#fff" />
+    <rect x="516" y="312" width="208" height="116" rx="18" fill="#fff" />
+  </g>
+
+  <g>
+    <circle cx="78" cy="96" r="16" fill="#eef0ff" />
+    <path d="M71 96h14M78 89v14" stroke="#625df5" stroke-width="2.5" stroke-linecap="round" />
+    <rect x="105" y="85" width="88" height="9" rx="4.5" fill="#29283f" opacity=".9" />
+    <rect x="105" y="103" width="110" height="7" rx="3.5" fill="#d9d8e6" />
+    <rect x="68" y="136" width="78" height="12" rx="6" fill="#e9f8ee" />
+    <rect x="155" y="136" width="54" height="12" rx="6" fill="#fff2df" />
+  </g>
+
+  <g>
+    <circle cx="554" cy="88" r="16" fill="#e8f8fc" />
+    <path d="M546 92c4-11 8 7 13-5 3-7 7 1 11-7" stroke="#27b9d6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="580" y="78" width="92" height="9" rx="4.5" fill="#29283f" opacity=".9" />
+    <rect x="580" y="96" width="112" height="7" rx="3.5" fill="#d9d8e6" />
+    <rect x="550" y="129" width="18" height="18" rx="4" fill="#ff876c" />
+    <rect x="576" y="119" width="18" height="28" rx="4" fill="#f2b43f" />
+    <rect x="602" y="109" width="18" height="38" rx="4" fill="#625df5" />
+    <rect x="628" y="98" width="18" height="49" rx="4" fill="#27b9d6" />
+  </g>
+
+  <g>
+    <circle cx="72" cy="354" r="15" fill="#fff0f2" />
+    <circle cx="72" cy="350" r="5" fill="#ee4f62" opacity=".7" />
+    <path d="M62 365c2-7 18-7 20 0" fill="#ee4f62" opacity=".7" />
+    <rect x="99" y="346" width="94" height="9" rx="4.5" fill="#29283f" opacity=".9" />
+    <rect x="99" y="364" width="119" height="7" rx="3.5" fill="#d9d8e6" />
+    <circle cx="74" cy="398" r="8" fill="#e9f8ee" />
+    <path d="m70 398 3 3 6-7" fill="none" stroke="#329b5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="92" y="394" width="85" height="7" rx="3.5" fill="#c9c8d7" />
+  </g>
+
+  <g>
+    <rect x="544" y="338" width="50" height="50" rx="12" fill="#f1f0ff" />
+    <path d="M554 353h30M554 361h30M562 345v8M576 345v8" stroke="#625df5" stroke-width="2.3" stroke-linecap="round" />
+    <rect x="551" y="369" width="8" height="8" rx="2" fill="#625df5" />
+    <rect x="606" y="342" width="87" height="9" rx="4.5" fill="#29283f" opacity=".9" />
+    <rect x="606" y="360" width="101" height="7" rx="3.5" fill="#d9d8e6" />
+    <rect x="606" y="388" width="64" height="12" rx="6" fill="#f1f0ff" />
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="238" y="112" width="292" height="248" rx="28" fill="url(#panel)" />
+    <rect x="260" y="134" width="248" height="192" rx="18" fill="url(#screen)" />
+    <circle cx="281" cy="154" r="4" fill="#ff876c" />
+    <circle cx="295" cy="154" r="4" fill="#f2b43f" />
+    <circle cx="309" cy="154" r="4" fill="#329b5b" />
+    <rect x="280" y="181" width="92" height="14" rx="7" fill="#29283f" />
+    <rect x="280" y="207" width="208" height="1" fill="#e6e5ef" />
+    <rect x="280" y="229" width="88" height="70" rx="12" fill="#eef0ff" />
+    <rect x="380" y="229" width="108" height="70" rx="12" fill="#fff" stroke="#e7e7ef" />
+    <path d="m393 280 19-22 17 9 19-27 26 16" fill="none" stroke="#625df5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="324" cy="257" r="17" fill="#625df5" />
+    <path d="m314 258 7 7 14-17" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="334" y="349" width="100" height="15" rx="7.5" fill="#413ccc" />
+  </g>
+</svg>
