@@ -1,0 +1,15 @@
+.app-placeholder {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-3);
+  background:
+    radial-gradient(circle at 50% 42%, var(--color-primary-100), transparent 24rem),
+    var(--color-background);
+}
+
+.app-placeholder p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+}
