@@ -1,0 +1,14 @@
+<label class="form-field__label" [for]="controlId()">
+  {{ label() }}
+  @if (required()) {
+    <span class="form-field__required" aria-hidden="true">*</span>
+  }
+</label>
+
+<ng-content />
+
+@if (error()) {
+  <p class="form-field__message form-field__message--error" role="alert">{{ error() }}</p>
+} @else if (hint()) {
+  <p class="form-field__message">{{ hint() }}</p>
+}

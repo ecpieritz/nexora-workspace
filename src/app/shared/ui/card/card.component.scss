@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+:host(.ui-card--elevated) {
+  border-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+:host(.ui-card--padding-none) {
+  padding: 0;
+}
+
+:host(.ui-card--padding-small) {
+  padding: var(--space-4);
+}
+
+:host(.ui-card--padding-medium) {
+  padding: var(--space-6);
+}
+
+:host(.ui-card--padding-large) {
+  padding: var(--space-8);
+}

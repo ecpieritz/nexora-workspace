@@ -1,0 +1,111 @@
+.ui-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: max-content;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.ui-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ui-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ui-button--small {
+  min-height: 2.25rem;
+  padding-inline: var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.ui-button--medium {
+  min-height: 2.75rem;
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-sm);
+}
+
+.ui-button--large {
+  min-height: 3.25rem;
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-md);
+}
+
+.ui-button--block {
+  width: 100%;
+}
+
+.ui-button--primary {
+  background: var(--color-primary-500);
+  color: var(--color-white);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background: var(--color-primary-600);
+}
+
+.ui-button--secondary {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.ui-button--secondary:hover:not(:disabled),
+.ui-button--ghost:hover:not(:disabled) {
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
+
+.ui-button--ghost {
+  background: transparent;
+  color: var(--color-primary-600);
+}
+
+.ui-button--danger {
+  background: var(--color-danger-500);
+  color: var(--color-white);
+}
+
+.ui-button--danger:hover:not(:disabled) {
+  background: #d94052;
+}
+
+.ui-button--loading {
+  color: transparent;
+}
+
+.ui-button--loading::after {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 0.125rem solid currentcolor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--color-white);
+  animation: button-spin 800ms linear infinite;
+  content: '';
+}
+
+.ui-button--secondary.ui-button--loading::after,
+.ui-button--ghost.ui-button--loading::after {
+  color: var(--color-primary-600);
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,55 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+:host(.spinner--small) .spinner__icon {
+  width: 1rem;
+}
+
+:host(.spinner--medium) .spinner__icon {
+  width: 1.5rem;
+}
+
+:host(.spinner--large) .spinner__icon {
+  width: 2rem;
+}
+
+.spinner__icon {
+  height: auto;
+  animation: spin 800ms linear infinite;
+}
+
+.spinner__track,
+.spinner__indicator {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+}
+
+.spinner__track {
+  opacity: 0.25;
+}
+
+.spinner__indicator {
+  stroke-linecap: round;
+}
+
+.spinner__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
