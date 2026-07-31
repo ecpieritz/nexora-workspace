@@ -1,0 +1,102 @@
+$breakpoint-small: 36rem;
+$breakpoint-medium: 48rem;
+$breakpoint-large: 64rem;
+$breakpoint-extra-large: 80rem;
+
+:root {
+  color-scheme: light;
+
+  // Brand
+  --color-primary-50: #f1f0ff;
+  --color-primary-100: #e3e1ff;
+  --color-primary-300: #a9a5ff;
+  --color-primary-500: #625df5;
+  --color-primary-600: #514ceb;
+  --color-primary-700: #413ccc;
+
+  // Neutrals
+  --color-white: #ffffff;
+  --color-gray-25: #fcfcfe;
+  --color-gray-50: #f8f8fb;
+  --color-gray-100: #f2f2f7;
+  --color-gray-200: #e7e7ef;
+  --color-gray-300: #d4d3df;
+  --color-gray-400: #aaa9b9;
+  --color-gray-500: #7b7a90;
+  --color-gray-600: #5d5c73;
+  --color-gray-700: #424158;
+  --color-gray-800: #29283f;
+  --color-gray-900: #17162f;
+
+  // Semantic
+  --color-success-50: #edf8f1;
+  --color-success-500: #329b5b;
+  --color-warning-50: #fff7e8;
+  --color-warning-500: #f2b43f;
+  --color-danger-50: #fff0f2;
+  --color-danger-500: #ee4f62;
+  --color-info-50: #eaf9fc;
+  --color-info-500: #27b9d6;
+  --color-coral-500: #ff876c;
+
+  // Surfaces and content
+  --color-background: var(--color-gray-50);
+  --color-surface: var(--color-white);
+  --color-surface-muted: var(--color-gray-25);
+  --color-border: var(--color-gray-200);
+  --color-text: var(--color-gray-900);
+  --color-text-muted: var(--color-gray-600);
+  --color-text-subtle: var(--color-gray-400);
+  --color-focus-ring: rgb(98 93 245 / 28%);
+
+  // Typography
+  --font-family-sans: 'Poppins', Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  // Spacing
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  // Shape and elevation
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 3px rgb(23 22 47 / 6%);
+  --shadow-md: 0 8px 24px rgb(23 22 47 / 8%);
+  --shadow-lg: 0 20px 50px rgb(23 22 47 / 12%);
+
+  // Motion and layout
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --sidebar-width: 15rem;
+  --content-max-width: 90rem;
+  --z-dropdown: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}
