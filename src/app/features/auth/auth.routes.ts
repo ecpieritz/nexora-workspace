@@ -4,6 +4,13 @@ import { AuthLayoutComponent } from './layout/auth-layout.component';
 
 export const AUTH_ROUTES: Routes = [
   {
+    path: 'account-created',
+    loadComponent: () =>
+      import('./pages/account-created/account-created.component').then(
+        ({ AccountCreatedComponent }) => AccountCreatedComponent,
+      ),
+  },
+  {
     path: '',
     component: AuthLayoutComponent,
     children: [

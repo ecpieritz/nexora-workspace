@@ -1,0 +1,104 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.account-created {
+  display: grid;
+  min-height: 100vh;
+  padding: var(--space-6);
+  overflow: hidden;
+  place-items: center;
+  background:
+    radial-gradient(circle at 20% 20%, rgb(98 93 245 / 12%), transparent 26rem),
+    radial-gradient(circle at 80% 80%, rgb(39 185 214 / 10%), transparent 24rem),
+    var(--color-background);
+}
+
+.account-created__card {
+  position: relative;
+  display: grid;
+  width: min(100%, 34rem);
+  min-height: 27rem;
+  justify-items: center;
+  align-content: center;
+  gap: var(--space-6);
+  text-align: center;
+}
+
+.account-created__brand {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+}
+
+.account-created__celebration {
+  position: relative;
+  width: 6rem;
+  color: var(--color-primary-500);
+}
+
+.account-created__celebration svg {
+  width: 100%;
+}
+
+.account-created__confetti {
+  position: absolute;
+  width: 0.5rem;
+  height: 1rem;
+  border-radius: var(--radius-full);
+  transform: rotate(35deg);
+}
+
+.account-created__confetti--one {
+  top: -0.5rem;
+  left: 0;
+  background: var(--color-coral-500);
+}
+
+.account-created__confetti--two {
+  top: -1rem;
+  right: 0.25rem;
+  transform: rotate(-40deg);
+  background: var(--color-warning-500);
+}
+
+.account-created__confetti--three {
+  top: 1.25rem;
+  right: -1rem;
+  transform: rotate(75deg);
+  background: var(--color-info-500);
+}
+
+.account-created__copy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.account-created__copy h1 {
+  font-size: var(--font-size-2xl);
+  letter-spacing: -0.03em;
+}
+
+.account-created__copy > p:last-child {
+  max-width: 28rem;
+  color: var(--color-text-muted);
+}
+
+.account-created__eyebrow {
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 36rem) {
+  .account-created {
+    padding: var(--space-4);
+  }
+
+  .account-created__card {
+    min-height: 24rem;
+  }
+}

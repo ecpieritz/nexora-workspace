@@ -1,5 +1,4 @@
-.sign-up,
-.sign-up-success {
+.sign-up {
   width: 100%;
 }
 
@@ -8,14 +7,12 @@
   text-align: center;
 }
 
-.sign-up__header h1,
-.sign-up-success h1 {
+.sign-up__header h1 {
   font-size: var(--font-size-2xl);
   letter-spacing: -0.03em;
 }
 
 .sign-up__header > p:last-child,
-.sign-up-success p,
 .sign-up__demo-note {
   color: var(--color-text-muted);
 }
@@ -104,27 +101,4 @@
   margin-top: var(--space-5);
   font-size: var(--font-size-xs);
   text-align: center;
-}
-
-.sign-up-success {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-4);
-  text-align: center;
-}
-
-.sign-up-success__icon {
-  display: grid;
-  width: 4rem;
-  height: 4rem;
-  border-radius: var(--radius-full);
-  background: var(--color-success-50);
-  color: var(--color-success-500);
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  place-items: center;
-}
-
-.sign-up-success button {
-  margin-top: var(--space-3);
 }

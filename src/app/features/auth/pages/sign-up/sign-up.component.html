@@ -1,130 +1,114 @@
-@if (success()) {
-  <section class="sign-up-success" aria-labelledby="sign-up-success-title">
-    <div class="sign-up-success__icon" aria-hidden="true">✓</div>
-    <h1 id="sign-up-success-title">Account created</h1>
-    <p>Your demo account is safely stored in this browser and is ready for testing.</p>
-    <button appButton type="button" fullWidth variant="secondary" (click)="reset()">
-      Create another account
+<section class="sign-up" aria-labelledby="sign-up-title">
+  <header class="sign-up__header">
+    <p class="sign-up__eyebrow">Get started</p>
+    <h1 id="sign-up-title">Create your account</h1>
+    <p>Bring your work together with Nexora.</p>
+  </header>
+
+  <form class="sign-up__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field
+      label="Full name"
+      controlId="full-name"
+      required
+      [error]="fieldError('fullName')"
+    >
+      <input
+        appInput
+        id="full-name"
+        type="text"
+        formControlName="fullName"
+        autocomplete="name"
+        placeholder="Jane Doe"
+        [invalid]="fieldHasError('fullName')"
+      />
+    </app-form-field>
+
+    <app-form-field label="Email address" controlId="email" required [error]="fieldError('email')">
+      <input
+        appInput
+        id="email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="jane@example.com"
+        [invalid]="fieldHasError('email')"
+      />
+    </app-form-field>
+
+    <app-form-field
+      label="Username"
+      controlId="username"
+      hint="3–24 characters"
+      required
+      [error]="fieldError('username')"
+    >
+      <input
+        appInput
+        id="username"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        placeholder="janedoe"
+        [invalid]="fieldHasError('username')"
+      />
+    </app-form-field>
+
+    <app-form-field
+      label="Password"
+      controlId="password"
+      hint="At least 8 characters with uppercase, lowercase, and a number"
+      required
+      [error]="fieldError('password')"
+    >
+      <div class="sign-up__password">
+        <input
+          appInput
+          id="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          autocomplete="new-password"
+          placeholder="Create a strong password"
+          [invalid]="fieldHasError('password')"
+        />
+        <button
+          class="sign-up__password-toggle"
+          type="button"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="showPassword()"
+          (click)="togglePasswordVisibility()"
+        >
+          {{ showPassword() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+    </app-form-field>
+
+    <label class="sign-up__terms">
+      <input type="checkbox" formControlName="acceptTerms" />
+      <span>I agree to the terms of service and privacy policy.</span>
+    </label>
+
+    @if (form.controls.acceptTerms.invalid && submitted()) {
+      <p class="sign-up__terms-error" role="alert">You must accept the terms to continue.</p>
+    }
+
+    @if (errorMessage()) {
+      <p class="sign-up__error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <button
+      appButton
+      type="submit"
+      fullWidth
+      size="large"
+      loadingLabel="Creating your account"
+      [loading]="submitting()"
+    >
+      Create account
     </button>
-  </section>
-} @else {
-  <section class="sign-up" aria-labelledby="sign-up-title">
-    <header class="sign-up__header">
-      <p class="sign-up__eyebrow">Get started</p>
-      <h1 id="sign-up-title">Create your account</h1>
-      <p>Bring your work together with Nexora.</p>
-    </header>
+  </form>
 
-    <form class="sign-up__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <app-form-field
-        label="Full name"
-        controlId="full-name"
-        required
-        [error]="fieldError('fullName')"
-      >
-        <input
-          appInput
-          id="full-name"
-          type="text"
-          formControlName="fullName"
-          autocomplete="name"
-          placeholder="Jane Doe"
-          [invalid]="fieldHasError('fullName')"
-        />
-      </app-form-field>
-
-      <app-form-field
-        label="Email address"
-        controlId="email"
-        required
-        [error]="fieldError('email')"
-      >
-        <input
-          appInput
-          id="email"
-          type="email"
-          formControlName="email"
-          autocomplete="email"
-          placeholder="jane@example.com"
-          [invalid]="fieldHasError('email')"
-        />
-      </app-form-field>
-
-      <app-form-field
-        label="Username"
-        controlId="username"
-        hint="3–24 characters"
-        required
-        [error]="fieldError('username')"
-      >
-        <input
-          appInput
-          id="username"
-          type="text"
-          formControlName="username"
-          autocomplete="username"
-          placeholder="janedoe"
-          [invalid]="fieldHasError('username')"
-        />
-      </app-form-field>
-
-      <app-form-field
-        label="Password"
-        controlId="password"
-        hint="At least 8 characters with uppercase, lowercase, and a number"
-        required
-        [error]="fieldError('password')"
-      >
-        <div class="sign-up__password">
-          <input
-            appInput
-            id="password"
-            [type]="showPassword() ? 'text' : 'password'"
-            formControlName="password"
-            autocomplete="new-password"
-            placeholder="Create a strong password"
-            [invalid]="fieldHasError('password')"
-          />
-          <button
-            class="sign-up__password-toggle"
-            type="button"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-            [attr.aria-pressed]="showPassword()"
-            (click)="togglePasswordVisibility()"
-          >
-            {{ showPassword() ? 'Hide' : 'Show' }}
-          </button>
-        </div>
-      </app-form-field>
-
-      <label class="sign-up__terms">
-        <input type="checkbox" formControlName="acceptTerms" />
-        <span>I agree to the terms of service and privacy policy.</span>
-      </label>
-
-      @if (form.controls.acceptTerms.invalid && submitted()) {
-        <p class="sign-up__terms-error" role="alert">You must accept the terms to continue.</p>
-      }
-
-      @if (errorMessage()) {
-        <p class="sign-up__error" role="alert">{{ errorMessage() }}</p>
-      }
-
-      <button
-        appButton
-        type="submit"
-        fullWidth
-        size="large"
-        loadingLabel="Creating your account"
-        [loading]="submitting()"
-      >
-        Create account
-      </button>
-    </form>
-
-    <p class="sign-up__demo-note">Demo only — your account remains on this device.</p>
-    <p class="sign-up__login-link">
-      Already have an account? <a routerLink="/auth/login">Sign in</a>
-    </p>
-  </section>
-}
+  <p class="sign-up__demo-note">Demo only — your account remains on this device.</p>
+  <p class="sign-up__login-link">
+    Already have an account? <a routerLink="/auth/login">Sign in</a>
+  </p>
+</section>

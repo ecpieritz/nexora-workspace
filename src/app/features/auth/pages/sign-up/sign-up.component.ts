@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
@@ -23,6 +23,7 @@ type SignUpField = 'fullName' | 'email' | 'username' | 'password';
 export class SignUpComponent {
   private readonly authRepository = inject(MockAuthRepository);
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly router = inject(Router);
 
   protected readonly form = this.formBuilder.group({
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
@@ -51,7 +52,6 @@ export class SignUpComponent {
   protected readonly showPassword = signal(false);
   protected readonly submitted = signal(false);
   protected readonly submitting = signal(false);
-  protected readonly success = signal(false);
 
   protected async submit(): Promise<void> {
     this.submitted.set(true);
@@ -73,7 +73,7 @@ export class SignUpComponent {
 
     try {
       await this.authRepository.register(registration);
-      this.success.set(true);
+      await this.router.navigate(['/auth/account-created']);
     } catch (error: unknown) {
       if (error instanceof AuthConflictError) {
         this.form.controls[error.field].setErrors({ conflict: true });
@@ -85,13 +85,6 @@ export class SignUpComponent {
     } finally {
       this.submitting.set(false);
     }
-  }
-
-  protected reset(): void {
-    this.form.reset();
-    this.errorMessage.set(null);
-    this.submitted.set(false);
-    this.success.set(false);
   }
 
   protected togglePasswordVisibility(): void {

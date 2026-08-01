@@ -1,4 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 
 import { MockAuthRepository } from '../../data-access/mock-auth.repository';
 import { SignUpComponent } from './sign-up.component';
@@ -19,7 +20,7 @@ describe('SignUpComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [SignUpComponent],
-      providers: [{ provide: MockAuthRepository, useValue: repository }],
+      providers: [provideRouter([]), { provide: MockAuthRepository, useValue: repository }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SignUpComponent);
@@ -36,6 +37,8 @@ describe('SignUpComponent', () => {
   });
 
   it('should register a valid demo account', fakeAsync(() => {
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigate').and.resolveTo(true);
     const component = fixture.componentInstance as unknown as {
       form: {
         setValue(value: Record<string, string | boolean>): void;
@@ -56,6 +59,6 @@ describe('SignUpComponent', () => {
     fixture.detectChanges();
 
     expect(repository.register).toHaveBeenCalled();
-    expect(fixture.nativeElement.textContent).toContain('Account created');
+    expect(navigate).toHaveBeenCalledWith(['/auth/account-created']);
   }));
 });
