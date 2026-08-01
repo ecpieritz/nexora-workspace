@@ -5,6 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
@@ -14,7 +15,7 @@ type SignUpField = 'fullName' | 'email' | 'username' | 'password';
 
 @Component({
   selector: 'app-sign-up',
-  imports: [ButtonDirective, FormFieldComponent, InputDirective, ReactiveFormsModule],
+  imports: [ButtonDirective, FormFieldComponent, InputDirective, ReactiveFormsModule, RouterLink],
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

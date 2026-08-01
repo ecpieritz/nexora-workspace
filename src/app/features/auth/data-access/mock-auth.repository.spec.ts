@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AuthConflictError, MockAuthRepository } from './mock-auth.repository';
+import { AuthConflictError, AuthenticationError, MockAuthRepository } from './mock-auth.repository';
 
 describe('MockAuthRepository', () => {
   let repository: MockAuthRepository;
@@ -35,5 +35,24 @@ describe('MockAuthRepository', () => {
     await expectAsync(
       repository.register({ ...registration, username: 'another-user' }),
     ).toBeRejectedWith(jasmine.any(AuthConflictError));
+  });
+
+  it('should authenticate a registered user', async () => {
+    await repository.register(registration);
+
+    const user = await repository.authenticate({
+      email: registration.email,
+      password: registration.password,
+    });
+
+    expect(user.username).toBe(registration.username);
+  });
+
+  it('should reject invalid credentials without revealing which field failed', async () => {
+    await repository.register(registration);
+
+    await expectAsync(
+      repository.authenticate({ email: registration.email, password: 'WrongPassword1' }),
+    ).toBeRejectedWith(jasmine.any(AuthenticationError));
   });
 });

@@ -1,0 +1,90 @@
+@if (session.currentUser(); as user) {
+  <section class="login-success" aria-labelledby="login-success-title">
+    <div class="login-success__avatar" aria-hidden="true">
+      {{ user.fullName.charAt(0).toUpperCase() }}
+    </div>
+    <p class="login__eyebrow">Session active</p>
+    <h1 id="login-success-title">Welcome, {{ user.fullName }}</h1>
+    <p>You are signed in as {{ user.email }}.</p>
+    <button appButton type="button" fullWidth variant="secondary" (click)="signOut()">
+      Sign out
+    </button>
+  </section>
+} @else {
+  <section class="login" aria-labelledby="login-title">
+    <header class="login__header">
+      <p class="login__eyebrow">Welcome back</p>
+      <h1 id="login-title">Sign in to Nexora</h1>
+      <p>Enter the account you created in this browser.</p>
+    </header>
+
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <app-form-field
+        label="Email address"
+        controlId="login-email"
+        required
+        [error]="fieldError('email')"
+      >
+        <input
+          appInput
+          id="login-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="jane@example.com"
+          [invalid]="fieldHasError('email')"
+        />
+      </app-form-field>
+
+      <app-form-field
+        label="Password"
+        controlId="login-password"
+        required
+        [error]="fieldError('password')"
+      >
+        <div class="login__password">
+          <input
+            appInput
+            id="login-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="Enter your password"
+            [invalid]="fieldHasError('password')"
+          />
+          <button
+            class="login__password-toggle"
+            type="button"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
+            (click)="togglePasswordVisibility()"
+          >
+            {{ showPassword() ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+      </app-form-field>
+
+      <label class="login__remember">
+        <input type="checkbox" formControlName="rememberMe" />
+        <span>Remember me on this device</span>
+      </label>
+
+      @if (errorMessage()) {
+        <p class="login__error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button
+        appButton
+        type="submit"
+        fullWidth
+        size="large"
+        loadingLabel="Signing you in"
+        [loading]="submitting()"
+      >
+        Sign in
+      </button>
+    </form>
+
+    <p class="login__sign-up">New to Nexora? <a routerLink="/auth/sign-up">Create account</a></p>
+  </section>
+}

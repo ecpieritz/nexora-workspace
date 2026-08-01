@@ -12,6 +12,11 @@ export interface RegistrationInput {
   password: string;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
 export interface RegisteredUser {
   id: string;
   fullName: string;
@@ -29,6 +34,13 @@ export class AuthConflictError extends Error {
   constructor(readonly field: 'email' | 'username') {
     super(`An account with this ${field} already exists.`);
     this.name = 'AuthConflictError';
+  }
+}
+
+export class AuthenticationError extends Error {
+  constructor() {
+    super('The email or password you entered is incorrect.');
+    this.name = 'AuthenticationError';
   }
 }
 
@@ -65,6 +77,25 @@ export class MockAuthRepository {
     this.storage.setItem(USERS_STORAGE_KEY, JSON.stringify([...users, storedUser]));
 
     return this.toRegisteredUser(storedUser);
+  }
+
+  async authenticate(credentials: LoginCredentials): Promise<RegisteredUser> {
+    await this.simulateLatency();
+
+    const email = credentials.email.trim().toLowerCase();
+    const user = this.readUsers().find((candidate) => candidate.email === email);
+
+    if (!user) {
+      throw new AuthenticationError();
+    }
+
+    const passwordHash = await this.hashPassword(credentials.password, user.passwordSalt);
+
+    if (passwordHash !== user.passwordHash) {
+      throw new AuthenticationError();
+    }
+
+    return this.toRegisteredUser(user);
   }
 
   private get storage(): Storage {
