@@ -6,5 +6,19 @@ export const AUTH_ROUTES: Routes = [
   {
     path: '',
     component: AuthLayoutComponent,
+    children: [
+      {
+        path: 'sign-up',
+        loadComponent: () =>
+          import('./pages/sign-up/sign-up.component').then(
+            ({ SignUpComponent }) => SignUpComponent,
+          ),
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'sign-up',
+      },
+    ],
   },
 ];
