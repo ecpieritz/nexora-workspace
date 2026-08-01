@@ -13,6 +13,20 @@ export const AUTH_ROUTES: Routes = [
           import('./pages/login/login.component').then(({ LoginComponent }) => LoginComponent),
       },
       {
+        path: 'recover-password',
+        loadComponent: () =>
+          import('./pages/recover-password/recover-password.component').then(
+            ({ RecoverPasswordComponent }) => RecoverPasswordComponent,
+          ),
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./pages/reset-password/reset-password.component').then(
+            ({ ResetPasswordComponent }) => ResetPasswordComponent,
+          ),
+      },
+      {
         path: 'sign-up',
         loadComponent: () =>
           import('./pages/sign-up/sign-up.component').then(

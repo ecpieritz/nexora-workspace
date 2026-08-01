@@ -64,10 +64,13 @@
         </div>
       </app-form-field>
 
-      <label class="login__remember">
-        <input type="checkbox" formControlName="rememberMe" />
-        <span>Remember me on this device</span>
-      </label>
+      <div class="login__options">
+        <label class="login__remember">
+          <input type="checkbox" formControlName="rememberMe" />
+          <span>Remember me</span>
+        </label>
+        <a routerLink="/auth/recover-password">Forgot password?</a>
+      </div>
 
       @if (errorMessage()) {
         <p class="login__error" role="alert">{{ errorMessage() }}</p>

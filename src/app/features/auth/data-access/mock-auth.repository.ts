@@ -4,6 +4,8 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 
 const USERS_STORAGE_KEY = 'nexora:mock-users';
+const RESET_TOKENS_STORAGE_KEY = 'nexora:password-reset-tokens';
+const RESET_TOKEN_DURATION = 15 * 60 * 1000;
 
 export interface RegistrationInput {
   fullName: string;
@@ -30,6 +32,12 @@ interface StoredUser extends RegisteredUser {
   passwordSalt: string;
 }
 
+interface PasswordResetToken {
+  token: string;
+  userId: string;
+  expiresAt: string;
+}
+
 export class AuthConflictError extends Error {
   constructor(readonly field: 'email' | 'username') {
     super(`An account with this ${field} already exists.`);
@@ -41,6 +49,13 @@ export class AuthenticationError extends Error {
   constructor() {
     super('The email or password you entered is incorrect.');
     this.name = 'AuthenticationError';
+  }
+}
+
+export class PasswordResetTokenError extends Error {
+  constructor() {
+    super('This password reset link is invalid or has expired.');
+    this.name = 'PasswordResetTokenError';
   }
 }
 
@@ -98,6 +113,57 @@ export class MockAuthRepository {
     return this.toRegisteredUser(user);
   }
 
+  async requestPasswordReset(emailInput: string): Promise<string | null> {
+    await this.simulateLatency();
+
+    const email = emailInput.trim().toLowerCase();
+    const user = this.readUsers().find((candidate) => candidate.email === email);
+
+    if (!user) {
+      return null;
+    }
+
+    const resetToken: PasswordResetToken = {
+      token: this.crypto.randomUUID(),
+      userId: user.id,
+      expiresAt: new Date(Date.now() + RESET_TOKEN_DURATION).toISOString(),
+    };
+    const activeTokens = this.readResetTokens().filter((token) => token.userId !== user.id);
+    this.storage.setItem(RESET_TOKENS_STORAGE_KEY, JSON.stringify([...activeTokens, resetToken]));
+
+    return resetToken.token;
+  }
+
+  async resetPassword(tokenValue: string, password: string): Promise<void> {
+    await this.simulateLatency();
+
+    const tokens = this.readResetTokens();
+    const resetToken = tokens.find((candidate) => candidate.token === tokenValue);
+
+    if (!resetToken || new Date(resetToken.expiresAt).getTime() <= Date.now()) {
+      this.removeResetToken(tokenValue, tokens);
+      throw new PasswordResetTokenError();
+    }
+
+    const users = this.readUsers();
+    const userIndex = users.findIndex((user) => user.id === resetToken.userId);
+
+    if (userIndex < 0) {
+      this.removeResetToken(tokenValue, tokens);
+      throw new PasswordResetTokenError();
+    }
+
+    const passwordSalt = this.createSalt();
+    users[userIndex] = {
+      ...users[userIndex],
+      passwordHash: await this.hashPassword(password, passwordSalt),
+      passwordSalt,
+    };
+
+    this.storage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    this.removeResetToken(tokenValue, tokens);
+  }
+
   private get storage(): Storage {
     const storage = this.document.defaultView?.localStorage;
 
@@ -131,6 +197,26 @@ export class MockAuthRepository {
     } catch {
       return [];
     }
+  }
+
+  private readResetTokens(): PasswordResetToken[] {
+    const storedValue = this.storage.getItem(RESET_TOKENS_STORAGE_KEY);
+
+    if (!storedValue) {
+      return [];
+    }
+
+    try {
+      const tokens: unknown = JSON.parse(storedValue);
+      return Array.isArray(tokens) ? (tokens as PasswordResetToken[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private removeResetToken(tokenValue: string, tokens: PasswordResetToken[]): void {
+    const remainingTokens = tokens.filter((token) => token.token !== tokenValue);
+    this.storage.setItem(RESET_TOKENS_STORAGE_KEY, JSON.stringify(remainingTokens));
   }
 
   private createSalt(): string {

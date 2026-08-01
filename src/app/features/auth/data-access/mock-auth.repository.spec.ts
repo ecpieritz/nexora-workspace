@@ -55,4 +55,25 @@ describe('MockAuthRepository', () => {
       repository.authenticate({ email: registration.email, password: 'WrongPassword1' }),
     ).toBeRejectedWith(jasmine.any(AuthenticationError));
   });
+
+  it('should reset the password with a single-use token', async () => {
+    await repository.register(registration);
+    const token = await repository.requestPasswordReset(registration.email);
+
+    expect(token).not.toBeNull();
+    await repository.resetPassword(token ?? '', 'UpdatedPassword1');
+
+    const user = await repository.authenticate({
+      email: registration.email,
+      password: 'UpdatedPassword1',
+    });
+    expect(user.email).toBe(registration.email);
+
+    await expectAsync(repository.resetPassword(token ?? '', 'AnotherPassword1')).toBeRejected();
+  });
+
+  it('should not reveal whether an unknown email exists', async () => {
+    const token = await repository.requestPasswordReset('missing@example.com');
+    expect(token).toBeNull();
+  });
 });
