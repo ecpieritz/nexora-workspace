@@ -27,6 +27,7 @@ describe('AuthSessionService', () => {
     service.start(user, false);
 
     expect(service.currentUser()?.email).toBe(user.email);
+    expect(service.accessToken()).not.toBeNull();
     expect(sessionStorage.getItem('nexora:tab-session')).not.toBeNull();
     expect(localStorage.getItem('nexora:persistent-session')).toBeNull();
   });
@@ -46,6 +47,7 @@ describe('AuthSessionService', () => {
     service.clear();
 
     expect(service.isAuthenticated()).toBeFalse();
+    expect(service.accessToken()).toBeNull();
     expect(localStorage.getItem('nexora:persistent-session')).toBeNull();
   });
 });

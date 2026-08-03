@@ -21,6 +21,7 @@ export class AuthSessionService {
   private readonly session = signal<AuthSession | null>(this.restore());
 
   readonly currentUser = computed(() => this.session()?.user ?? null);
+  readonly accessToken = computed(() => this.session()?.token ?? null);
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
   start(user: RegisteredUser, persistent: boolean): void {
