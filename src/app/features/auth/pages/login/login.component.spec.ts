@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 
 import { AuthSessionService } from '../../data-access/auth-session.service';
 import { AuthenticationError, MockAuthRepository } from '../../data-access/mock-auth.repository';
@@ -28,6 +29,7 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
+        provideRouter([]),
         { provide: MockAuthRepository, useValue: repository },
         { provide: AuthSessionService, useValue: session },
       ],
@@ -47,6 +49,8 @@ describe('LoginComponent', () => {
   });
 
   it('should authenticate and start a remembered session', fakeAsync(() => {
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigateByUrl').and.resolveTo(true);
     repository.authenticate.and.resolveTo(user);
     const component = fixture.componentInstance as unknown as {
       form: {
@@ -67,6 +71,7 @@ describe('LoginComponent', () => {
       password: 'Nexora123',
     });
     expect(session.start).toHaveBeenCalledWith(user, true);
+    expect(navigate).toHaveBeenCalledWith('/dashboard');
   }));
 
   it('should show a generic message for invalid credentials', fakeAsync(() => {

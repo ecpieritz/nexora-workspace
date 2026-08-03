@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from '@core/auth';
+
 export const routes: Routes = [
   {
     path: 'auth',
@@ -7,11 +9,25 @@ export const routes: Routes = [
   },
   {
     path: '',
-    pathMatch: 'full',
-    redirectTo: 'auth',
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
+    loadComponent: () =>
+      import('@core/layout/dashboard-shell/dashboard-shell.component').then(
+        ({ DashboardShellComponent }) => DashboardShellComponent,
+      ),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('@features/dashboard/pages/dashboard-home/dashboard-home.component').then(
+            ({ DashboardHomeComponent }) => DashboardHomeComponent,
+          ),
+      },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+    ],
   },
   {
     path: '**',
-    redirectTo: 'auth',
+    redirectTo: 'dashboard',
   },
 ];

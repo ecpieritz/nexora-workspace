@@ -1,0 +1,99 @@
+<div class="dashboard-shell" [class.dashboard-shell--navigation-open]="navigationOpen()">
+  <aside class="dashboard-shell__sidebar" aria-label="Primary navigation">
+    <a class="dashboard-shell__brand" routerLink="/dashboard" (click)="closeNavigation()">
+      <app-brand size="medium" />
+    </a>
+
+    <nav class="dashboard-shell__navigation">
+      @for (item of navigation; track item.route) {
+        <a
+          class="dashboard-shell__navigation-link"
+          [routerLink]="item.route"
+          routerLinkActive="dashboard-shell__navigation-link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeNavigation()"
+        >
+          <span class="dashboard-shell__navigation-icon" aria-hidden="true">
+            @switch (item.icon) {
+              @case ('dashboard') {
+                <span>◆</span>
+              }
+              @case ('analytics') {
+                <span>▥</span>
+              }
+              @case ('invoice') {
+                <span>▤</span>
+              }
+              @case ('schedule') {
+                <span>☷</span>
+              }
+              @case ('calendar') {
+                <span>▦</span>
+              }
+              @case ('messages') {
+                <span>●</span>
+              }
+              @case ('settings') {
+                <span>⚙</span>
+              }
+            }
+          </span>
+          <span>{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="dashboard-shell__badge" [attr.aria-label]="item.badge + ' unread'">
+              {{ item.badge }}
+            </span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="dashboard-shell__upgrade" aria-label="Nexora demo plan">
+      <span aria-hidden="true">◇</span>
+      <strong>Explore Nexora</strong>
+      <p>Portfolio demo workspace</p>
+    </div>
+
+    <div class="dashboard-shell__profile">
+      <span class="dashboard-shell__avatar" aria-hidden="true">{{ userInitials() }}</span>
+      <span class="dashboard-shell__profile-copy">
+        <strong>{{ session.currentUser()?.fullName }}</strong>
+        <span>Demo account</span>
+      </span>
+      <button type="button" aria-label="Sign out" title="Sign out" (click)="signOut()">↪</button>
+    </div>
+  </aside>
+
+  <button
+    class="dashboard-shell__backdrop"
+    type="button"
+    aria-label="Close navigation"
+    (click)="closeNavigation()"
+  ></button>
+
+  <div class="dashboard-shell__workspace">
+    <header class="dashboard-shell__header">
+      <button
+        class="dashboard-shell__menu-button"
+        type="button"
+        aria-label="Toggle navigation"
+        [attr.aria-expanded]="navigationOpen()"
+        (click)="toggleNavigation()"
+      >
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="dashboard-shell__mobile-brand"><app-brand size="small" /></div>
+
+      <div class="dashboard-shell__header-actions">
+        <button type="button" aria-label="Search"><span aria-hidden="true">⌕</span></button>
+        <button type="button" aria-label="Notifications"><span aria-hidden="true">●</span></button>
+        <span class="dashboard-shell__avatar" aria-hidden="true">{{ userInitials() }}</span>
+      </div>
+    </header>
+
+    <main class="dashboard-shell__content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

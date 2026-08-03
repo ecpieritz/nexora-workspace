@@ -1,0 +1,40 @@
+.dashboard-home {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.dashboard-home h1 {
+  margin-top: var(--space-2);
+  font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-3xl));
+}
+
+.dashboard-home > div:first-child > p:last-child,
+.dashboard-home__placeholder p {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.dashboard-home__eyebrow {
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-home__placeholder {
+  display: grid;
+  min-height: 24rem;
+  padding: var(--space-8);
+  border: 1px dashed var(--color-primary-300);
+  border-radius: var(--radius-xl);
+  align-content: center;
+  justify-items: center;
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.dashboard-home__placeholder > span {
+  color: var(--color-primary-500);
+  font-size: 4rem;
+}

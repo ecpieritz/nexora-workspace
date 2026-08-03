@@ -1,0 +1,226 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.dashboard-shell {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  background: var(--color-background);
+}
+
+.dashboard-shell__sidebar {
+  position: sticky;
+  z-index: var(--z-overlay);
+  top: 0;
+  display: flex;
+  height: 100vh;
+  padding: var(--space-6) var(--space-4);
+  border-right: 1px solid var(--color-border);
+  flex-direction: column;
+  background: var(--color-surface);
+}
+
+.dashboard-shell__brand {
+  width: fit-content;
+  margin: 0 var(--space-3) var(--space-8);
+  color: inherit;
+  text-decoration: none;
+}
+
+.dashboard-shell__navigation {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.dashboard-shell__navigation-link {
+  display: grid;
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  align-items: center;
+  grid-template-columns: 1.5rem 1fr auto;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.dashboard-shell__navigation-link:hover,
+.dashboard-shell__navigation-link--active {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.dashboard-shell__navigation-icon {
+  text-align: center;
+}
+
+.dashboard-shell__badge {
+  min-width: 1.25rem;
+  padding: 0.1rem var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-danger-50);
+  color: var(--color-danger-500);
+  font-size: 0.625rem;
+  text-align: center;
+}
+
+.dashboard-shell__upgrade {
+  display: grid;
+  margin-top: auto;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  justify-items: center;
+  gap: var(--space-2);
+  background: var(--color-primary-50);
+  text-align: center;
+}
+
+.dashboard-shell__upgrade p,
+.dashboard-shell__profile-copy span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.dashboard-shell__profile {
+  display: grid;
+  padding-top: var(--space-5);
+  align-items: center;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+}
+
+.dashboard-shell__avatar {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  place-items: center;
+}
+
+.dashboard-shell__profile-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.dashboard-shell__profile-copy strong {
+  overflow: hidden;
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-shell button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.dashboard-shell__workspace {
+  min-width: 0;
+}
+
+.dashboard-shell__header {
+  position: sticky;
+  z-index: var(--z-dropdown);
+  top: 0;
+  display: flex;
+  height: 4.5rem;
+  padding: 0 clamp(var(--space-4), 3vw, var(--space-8));
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  justify-content: flex-end;
+  background: rgb(255 255 255 / 92%);
+}
+
+.dashboard-shell__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dashboard-shell__header-actions button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  place-items: center;
+}
+
+.dashboard-shell__content {
+  width: min(100%, var(--content-max-width));
+  margin: 0 auto;
+  padding: clamp(var(--space-5), 3vw, var(--space-10));
+}
+
+.dashboard-shell__menu-button,
+.dashboard-shell__mobile-brand,
+.dashboard-shell__backdrop {
+  display: none;
+}
+
+@media (max-width: 64rem) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-shell__sidebar {
+    position: fixed;
+    left: 0;
+    width: min(19rem, 86vw);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(-105%);
+    transition: transform var(--transition-base);
+  }
+
+  .dashboard-shell--navigation-open .dashboard-shell__sidebar {
+    transform: translateX(0);
+  }
+
+  .dashboard-shell__backdrop {
+    position: fixed;
+    z-index: calc(var(--z-overlay) - 1);
+    inset: 0;
+    background: rgb(23 22 47 / 42%);
+  }
+
+  .dashboard-shell--navigation-open .dashboard-shell__backdrop {
+    display: block;
+  }
+
+  .dashboard-shell__header {
+    justify-content: space-between;
+  }
+
+  .dashboard-shell__menu-button {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: var(--space-2);
+    align-content: center;
+    gap: 0.25rem;
+  }
+
+  .dashboard-shell__menu-button span {
+    height: 2px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+  }
+
+  .dashboard-shell__mobile-brand {
+    display: block;
+  }
+}
+
+@media (max-width: 36rem) {
+  .dashboard-shell__header-actions button {
+    display: none;
+  }
+}

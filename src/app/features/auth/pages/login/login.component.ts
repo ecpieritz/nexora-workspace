@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
@@ -19,6 +19,8 @@ type LoginField = 'email' | 'password';
 export class LoginComponent {
   private readonly authRepository = inject(MockAuthRepository);
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   protected readonly session = inject(AuthSessionService);
 
   protected readonly form = this.formBuilder.group({
@@ -48,6 +50,7 @@ export class LoginComponent {
       const user = await this.authRepository.authenticate({ email, password });
       this.session.start(user, rememberMe);
       this.form.controls.password.reset();
+      await this.router.navigateByUrl(this.getSafeReturnUrl());
     } catch (error: unknown) {
       this.errorMessage.set(
         error instanceof AuthenticationError
@@ -91,5 +94,10 @@ export class LoginComponent {
     }
 
     return 'Check this field and try again.';
+  }
+
+  private getSafeReturnUrl(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    return returnUrl?.startsWith('/') && !returnUrl.startsWith('//') ? returnUrl : '/dashboard';
   }
 }
