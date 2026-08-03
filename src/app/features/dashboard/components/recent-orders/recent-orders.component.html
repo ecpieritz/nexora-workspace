@@ -1,0 +1,67 @@
+<article class="recent-orders">
+  <header>
+    <div>
+      <p>Activity</p>
+      <h2>Recent orders</h2>
+    </div>
+    <button type="button" aria-label="Recent orders options">•••</button>
+  </header>
+
+  <div
+    class="recent-orders__table-container"
+    tabindex="0"
+    aria-label="Scrollable recent orders table"
+  >
+    <table>
+      <caption>
+        Most recent product orders
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Tracking no.</th>
+          <th scope="col">Product</th>
+          <th scope="col">Price</th>
+          <th scope="col">Total order</th>
+          <th scope="col">Total amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of orders(); track order.id) {
+          <tr>
+            <td>{{ order.trackingNumber }}</td>
+            <td>
+              <span class="recent-orders__product">
+                <span
+                  class="recent-orders__product-icon"
+                  [attr.data-visual]="order.productVisual"
+                  aria-hidden="true"
+                >
+                  @switch (order.productVisual) {
+                    @case ('camera') {
+                      <span>◉</span>
+                    }
+                    @case ('dress') {
+                      <span>♠</span>
+                    }
+                    @case ('bottle') {
+                      <span>▥</span>
+                    }
+                    @default {
+                      <span>◆</span>
+                    }
+                  }
+                </span>
+                {{ order.productName }}
+              </span>
+            </td>
+            <td>{{ order.price | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+            <td>
+              <span class="recent-orders__quantity">{{ order.quantity }}</span>
+            </td>
+            <td>{{ order.totalAmount | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</article>

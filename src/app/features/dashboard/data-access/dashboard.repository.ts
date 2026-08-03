@@ -4,6 +4,7 @@ import { MockApiService } from '@core/mock-api';
 
 import { SalesReportPoint, TransactionAnalytics } from '../models/dashboard-chart.model';
 import { DashboardSummary } from '../models/dashboard-summary.model';
+import { RecentOrder, TopProduct } from '../models/dashboard-widget.model';
 
 const DASHBOARD_SUMMARY: readonly DashboardSummary[] = [
   {
@@ -63,6 +64,64 @@ const TRANSACTION_ANALYTICS: TransactionAnalytics = {
   ],
 };
 
+const RECENT_ORDERS: readonly RecentOrder[] = [
+  {
+    id: 'order-1',
+    trackingNumber: '#876364',
+    productName: 'Camera Lens',
+    productVisual: 'camera',
+    price: 178,
+    quantity: 325,
+    totalAmount: 146660,
+  },
+  {
+    id: 'order-2',
+    trackingNumber: '#876368',
+    productName: 'Black Sleep Dress',
+    productVisual: 'dress',
+    price: 14,
+    quantity: 53,
+    totalAmount: 46660,
+  },
+  {
+    id: 'order-3',
+    trackingNumber: '#876412',
+    productName: 'Argan Oil',
+    productVisual: 'bottle',
+    price: 21,
+    quantity: 78,
+    totalAmount: 346676,
+  },
+  {
+    id: 'order-4',
+    trackingNumber: '#876621',
+    productName: 'Eau de Parfum',
+    productVisual: 'perfume',
+    price: 32,
+    quantity: 98,
+    totalAmount: 346981,
+  },
+];
+
+const TOP_PRODUCTS: readonly TopProduct[] = [
+  {
+    id: 'product-1',
+    name: 'Nike Shoes Black Pattern',
+    productVisual: 'shoe',
+    price: 87,
+    rating: 5,
+    reviews: 128,
+  },
+  {
+    id: 'product-2',
+    name: 'iPhone 12',
+    productVisual: 'phone',
+    price: 987,
+    rating: 4,
+    reviews: 96,
+  },
+];
+
 @Injectable({ providedIn: 'root' })
 export class DashboardRepository {
   private readonly mockApi = inject(MockApiService);
@@ -80,5 +139,13 @@ export class DashboardRepository {
       ...TRANSACTION_ANALYTICS,
       segments: TRANSACTION_ANALYTICS.segments.map((segment) => ({ ...segment })),
     }));
+  }
+
+  getRecentOrders(): Promise<RecentOrder[]> {
+    return this.mockApi.execute(() => RECENT_ORDERS.map((order) => ({ ...order })));
+  }
+
+  getTopProducts(): Promise<TopProduct[]> {
+    return this.mockApi.execute(() => TOP_PRODUCTS.map((product) => ({ ...product })));
   }
 }

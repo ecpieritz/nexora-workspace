@@ -70,10 +70,15 @@
   cursor: pointer;
 }
 
-.dashboard-home__charts {
+.dashboard-home__charts,
+.dashboard-home__widgets {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
   gap: var(--space-4);
+}
+
+.dashboard-home__widgets {
+  grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
 }
 
 @keyframes summary-loading {
@@ -87,7 +92,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .dashboard-home__charts {
+  .dashboard-home__charts,
+  .dashboard-home__widgets {
     grid-template-columns: 1fr;
   }
 }

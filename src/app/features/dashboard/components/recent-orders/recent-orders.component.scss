@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.recent-orders {
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.recent-orders header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.recent-orders header p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.recent-orders h2 {
+  font-size: var(--font-size-lg);
+}
+.recent-orders button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.recent-orders__table-container {
+  margin-top: var(--space-4);
+  overflow-x: auto;
+}
+.recent-orders table {
+  width: 100%;
+  min-width: 42rem;
+  border-collapse: collapse;
+}
+.recent-orders caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.recent-orders th {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+}
+.recent-orders th,
+.recent-orders td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-gray-100);
+  white-space: nowrap;
+}
+.recent-orders td {
+  font-size: var(--font-size-xs);
+}
+.recent-orders tbody tr:last-child td {
+  border-bottom: 0;
+}
+.recent-orders__product {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.recent-orders__product-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-gray-100);
+  color: var(--color-primary-600);
+  place-items: center;
+}
+.recent-orders__product-icon[data-visual='bottle'],
+.recent-orders__product-icon[data-visual='perfume'] {
+  background: var(--color-warning-50);
+  color: var(--color-warning-500);
+}
+.recent-orders__quantity {
+  display: inline-grid;
+  min-width: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-info-50);
+  color: var(--color-info-500);
+  place-items: center;
+}

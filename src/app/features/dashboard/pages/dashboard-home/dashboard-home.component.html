@@ -34,5 +34,9 @@
       <app-sales-report-chart [data]="salesReport()" />
       <app-transaction-chart [analytics]="analytics" />
     </div>
+    <div class="dashboard-home__widgets">
+      <app-recent-orders [orders]="recentOrders()" />
+      <app-top-products [products]="topProducts()" />
+    </div>
   }
 </section>

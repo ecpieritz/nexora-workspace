@@ -34,4 +34,18 @@ describe('DashboardRepository', () => {
     expect(sales.length).toBe(10);
     expect(analytics.segments.reduce((total, segment) => total + segment.value, 0)).toBe(100);
   });
+
+  it('should return recent orders and ranked products', async () => {
+    TestBed.configureTestingModule({
+      providers: [DashboardRepository, { provide: MockApiService, useClass: MockApiStub }],
+    });
+    const repository = TestBed.inject(DashboardRepository);
+    const [orders, products] = await Promise.all([
+      repository.getRecentOrders(),
+      repository.getTopProducts(),
+    ]);
+
+    expect(orders.length).toBe(4);
+    expect(products[0].rating).toBe(5);
+  });
 });
