@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 
-import { environment } from '@env/environment';
+import { MockApiService, MockStorageService } from '@core/mock-api';
 
 const USERS_STORAGE_KEY = 'nexora:mock-users';
 const RESET_TOKENS_STORAGE_KEY = 'nexora:password-reset-tokens';
@@ -62,116 +62,107 @@ export class PasswordResetTokenError extends Error {
 @Injectable({ providedIn: 'root' })
 export class MockAuthRepository {
   private readonly document = inject(DOCUMENT);
+  private readonly mockApi = inject(MockApiService);
+  private readonly mockStorage = inject(MockStorageService);
 
   async register(input: RegistrationInput): Promise<RegisteredUser> {
-    await this.simulateLatency();
+    return this.mockApi.execute(async () => {
+      const users = this.readUsers();
+      const email = input.email.trim().toLowerCase();
+      const username = input.username.trim().toLowerCase();
 
-    const users = this.readUsers();
-    const email = input.email.trim().toLowerCase();
-    const username = input.username.trim().toLowerCase();
+      if (users.some((user) => user.email === email)) {
+        throw new AuthConflictError('email');
+      }
 
-    if (users.some((user) => user.email === email)) {
-      throw new AuthConflictError('email');
-    }
+      if (users.some((user) => user.username === username)) {
+        throw new AuthConflictError('username');
+      }
 
-    if (users.some((user) => user.username === username)) {
-      throw new AuthConflictError('username');
-    }
+      const passwordSalt = this.createSalt();
+      const storedUser: StoredUser = {
+        id: this.mockApi.createId(),
+        fullName: input.fullName.trim(),
+        email,
+        username,
+        passwordHash: await this.hashPassword(input.password, passwordSalt),
+        passwordSalt,
+        createdAt: new Date().toISOString(),
+      };
 
-    const passwordSalt = this.createSalt();
-    const storedUser: StoredUser = {
-      id: this.crypto.randomUUID(),
-      fullName: input.fullName.trim(),
-      email,
-      username,
-      passwordHash: await this.hashPassword(input.password, passwordSalt),
-      passwordSalt,
-      createdAt: new Date().toISOString(),
-    };
-
-    this.storage.setItem(USERS_STORAGE_KEY, JSON.stringify([...users, storedUser]));
-
-    return this.toRegisteredUser(storedUser);
+      this.mockStorage.write(USERS_STORAGE_KEY, [...users, storedUser]);
+      return this.toRegisteredUser(storedUser);
+    });
   }
 
   async authenticate(credentials: LoginCredentials): Promise<RegisteredUser> {
-    await this.simulateLatency();
+    return this.mockApi.execute(async () => {
+      const email = credentials.email.trim().toLowerCase();
+      const user = this.readUsers().find((candidate) => candidate.email === email);
 
-    const email = credentials.email.trim().toLowerCase();
-    const user = this.readUsers().find((candidate) => candidate.email === email);
+      if (!user) {
+        throw new AuthenticationError();
+      }
 
-    if (!user) {
-      throw new AuthenticationError();
-    }
+      const passwordHash = await this.hashPassword(credentials.password, user.passwordSalt);
 
-    const passwordHash = await this.hashPassword(credentials.password, user.passwordSalt);
+      if (passwordHash !== user.passwordHash) {
+        throw new AuthenticationError();
+      }
 
-    if (passwordHash !== user.passwordHash) {
-      throw new AuthenticationError();
-    }
-
-    return this.toRegisteredUser(user);
+      return this.toRegisteredUser(user);
+    });
   }
 
   async requestPasswordReset(emailInput: string): Promise<string | null> {
-    await this.simulateLatency();
+    return this.mockApi.execute(() => {
+      const email = emailInput.trim().toLowerCase();
+      const user = this.readUsers().find((candidate) => candidate.email === email);
 
-    const email = emailInput.trim().toLowerCase();
-    const user = this.readUsers().find((candidate) => candidate.email === email);
+      if (!user) {
+        return null;
+      }
 
-    if (!user) {
-      return null;
-    }
+      const resetToken: PasswordResetToken = {
+        token: this.mockApi.createId(),
+        userId: user.id,
+        expiresAt: new Date(Date.now() + RESET_TOKEN_DURATION).toISOString(),
+      };
+      const activeTokens = this.readResetTokens().filter((token) => token.userId !== user.id);
+      this.mockStorage.write(RESET_TOKENS_STORAGE_KEY, [...activeTokens, resetToken]);
 
-    const resetToken: PasswordResetToken = {
-      token: this.crypto.randomUUID(),
-      userId: user.id,
-      expiresAt: new Date(Date.now() + RESET_TOKEN_DURATION).toISOString(),
-    };
-    const activeTokens = this.readResetTokens().filter((token) => token.userId !== user.id);
-    this.storage.setItem(RESET_TOKENS_STORAGE_KEY, JSON.stringify([...activeTokens, resetToken]));
-
-    return resetToken.token;
+      return resetToken.token;
+    });
   }
 
   async resetPassword(tokenValue: string, password: string): Promise<void> {
-    await this.simulateLatency();
+    return this.mockApi.execute(async () => {
+      const tokens = this.readResetTokens();
+      const resetToken = tokens.find((candidate) => candidate.token === tokenValue);
 
-    const tokens = this.readResetTokens();
-    const resetToken = tokens.find((candidate) => candidate.token === tokenValue);
+      if (!resetToken || new Date(resetToken.expiresAt).getTime() <= Date.now()) {
+        this.removeResetToken(tokenValue, tokens);
+        throw new PasswordResetTokenError();
+      }
 
-    if (!resetToken || new Date(resetToken.expiresAt).getTime() <= Date.now()) {
+      const users = this.readUsers();
+      const userIndex = users.findIndex((user) => user.id === resetToken.userId);
+
+      if (userIndex < 0) {
+        this.removeResetToken(tokenValue, tokens);
+        throw new PasswordResetTokenError();
+      }
+
+      const passwordSalt = this.createSalt();
+      users[userIndex] = {
+        ...users[userIndex],
+        passwordHash: await this.hashPassword(password, passwordSalt),
+        passwordSalt,
+      };
+
+      this.mockStorage.write(USERS_STORAGE_KEY, users);
       this.removeResetToken(tokenValue, tokens);
-      throw new PasswordResetTokenError();
-    }
-
-    const users = this.readUsers();
-    const userIndex = users.findIndex((user) => user.id === resetToken.userId);
-
-    if (userIndex < 0) {
-      this.removeResetToken(tokenValue, tokens);
-      throw new PasswordResetTokenError();
-    }
-
-    const passwordSalt = this.createSalt();
-    users[userIndex] = {
-      ...users[userIndex],
-      passwordHash: await this.hashPassword(password, passwordSalt),
-      passwordSalt,
-    };
-
-    this.storage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    this.removeResetToken(tokenValue, tokens);
-  }
-
-  private get storage(): Storage {
-    const storage = this.document.defaultView?.localStorage;
-
-    if (!storage) {
-      throw new Error('Browser storage is not available.');
-    }
-
-    return storage;
+    });
   }
 
   private get crypto(): Crypto {
@@ -185,38 +176,18 @@ export class MockAuthRepository {
   }
 
   private readUsers(): StoredUser[] {
-    const storedValue = this.storage.getItem(USERS_STORAGE_KEY);
-
-    if (!storedValue) {
-      return [];
-    }
-
-    try {
-      const users: unknown = JSON.parse(storedValue);
-      return Array.isArray(users) ? (users as StoredUser[]) : [];
-    } catch {
-      return [];
-    }
+    const users = this.mockStorage.read<unknown>(USERS_STORAGE_KEY, []);
+    return Array.isArray(users) ? (users as StoredUser[]) : [];
   }
 
   private readResetTokens(): PasswordResetToken[] {
-    const storedValue = this.storage.getItem(RESET_TOKENS_STORAGE_KEY);
-
-    if (!storedValue) {
-      return [];
-    }
-
-    try {
-      const tokens: unknown = JSON.parse(storedValue);
-      return Array.isArray(tokens) ? (tokens as PasswordResetToken[]) : [];
-    } catch {
-      return [];
-    }
+    const tokens = this.mockStorage.read<unknown>(RESET_TOKENS_STORAGE_KEY, []);
+    return Array.isArray(tokens) ? (tokens as PasswordResetToken[]) : [];
   }
 
   private removeResetToken(tokenValue: string, tokens: PasswordResetToken[]): void {
     const remainingTokens = tokens.filter((token) => token.token !== tokenValue);
-    this.storage.setItem(RESET_TOKENS_STORAGE_KEY, JSON.stringify(remainingTokens));
+    this.mockStorage.write(RESET_TOKENS_STORAGE_KEY, remainingTokens);
   }
 
   private createSalt(): string {
@@ -236,17 +207,5 @@ export class MockAuthRepository {
   private toRegisteredUser(user: StoredUser): RegisteredUser {
     const { id, fullName, email, username, createdAt } = user;
     return { id, fullName, email, username, createdAt };
-  }
-
-  private async simulateLatency(): Promise<void> {
-    if (!environment.mockApi.enabled) {
-      return;
-    }
-
-    const delay: number = environment.mockApi.delay;
-
-    if (delay > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
   }
 }
