@@ -70,6 +70,12 @@
   cursor: pointer;
 }
 
+.dashboard-home__charts {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
+  gap: var(--space-4);
+}
+
 @keyframes summary-loading {
   to {
     background-position: -200% 0;
@@ -79,6 +85,10 @@
 @media (max-width: 75rem) {
   .dashboard-home__summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-home__charts {
+    grid-template-columns: 1fr;
   }
 }
 

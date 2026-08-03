@@ -1,0 +1,68 @@
+<article class="sales-report">
+  <header>
+    <div>
+      <p class="sales-report__eyebrow">Performance</p>
+      <h2>Sales report</h2>
+    </div>
+    <button type="button" aria-label="Sales report options">•••</button>
+  </header>
+
+  <div class="sales-report__canvas">
+    <svg
+      viewBox="0 0 720 270"
+      role="img"
+      aria-labelledby="sales-chart-title sales-chart-description"
+    >
+      <title id="sales-chart-title">Hourly sales report</title>
+      <desc id="sales-chart-description">Sales values from 10am through 7pm.</desc>
+      <defs>
+        <linearGradient id="sales-area" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#625df5" stop-opacity=".2" />
+          <stop offset="1" stop-color="#625df5" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+
+      @for (value of gridValues; track value) {
+        <line
+          class="sales-report__grid"
+          x1="48"
+          x2="688"
+          [attr.y1]="valueToY(value)"
+          [attr.y2]="valueToY(value)"
+        />
+        <text class="sales-report__axis" x="36" [attr.y]="valueToY(value) + 4">{{ value }}</text>
+      }
+
+      <path class="sales-report__area" [attr.d]="areaPath()" />
+      <path class="sales-report__line" [attr.d]="linePath()" />
+
+      @for (point of points(); track point.label; let index = $index) {
+        <g
+          class="sales-report__point"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="point.label + ': ' + point.value + ' sales'"
+          (mouseenter)="activeIndex.set(index)"
+          (mouseleave)="activeIndex.set(null)"
+          (focus)="activeIndex.set(index)"
+          (blur)="activeIndex.set(null)"
+        >
+          <circle [attr.cx]="point.x" [attr.cy]="point.y" r="5" />
+        </g>
+        <text class="sales-report__axis sales-report__axis--x" [attr.x]="point.x" y="250">
+          {{ point.label }}
+        </text>
+      }
+
+      @if (activePoint(); as point) {
+        <g
+          class="sales-report__tooltip"
+          [attr.transform]="'translate(' + (point.x - 34) + ' ' + (point.y - 42) + ')'"
+        >
+          <rect width="68" height="30" rx="7" />
+          <text x="34" y="20">{{ point.value }} sales</text>
+        </g>
+      }
+    </svg>
+  </div>
+</article>

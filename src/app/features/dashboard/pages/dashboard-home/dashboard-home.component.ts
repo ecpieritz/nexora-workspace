@@ -3,12 +3,15 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 
 import { SummaryCardComponent } from '../../components/summary-card/summary-card.component';
+import { SalesReportChartComponent } from '../../components/sales-report-chart/sales-report-chart.component';
+import { TransactionChartComponent } from '../../components/transaction-chart/transaction-chart.component';
 import { DashboardRepository } from '../../data-access/dashboard.repository';
+import { SalesReportPoint, TransactionAnalytics } from '../../models/dashboard-chart.model';
 import { DashboardSummary } from '../../models/dashboard-summary.model';
 
 @Component({
   selector: 'app-dashboard-home',
-  imports: [SummaryCardComponent],
+  imports: [SalesReportChartComponent, SummaryCardComponent, TransactionChartComponent],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,19 +20,28 @@ export class DashboardHomeComponent implements OnInit {
   private readonly dashboardRepository = inject(DashboardRepository);
   protected readonly session = inject(AuthSessionService);
   protected readonly summary = signal<DashboardSummary[]>([]);
+  protected readonly salesReport = signal<SalesReportPoint[]>([]);
+  protected readonly transactionAnalytics = signal<TransactionAnalytics | null>(null);
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
 
   ngOnInit(): void {
-    void this.loadSummary();
+    void this.loadDashboard();
   }
 
-  protected async loadSummary(): Promise<void> {
+  protected async loadDashboard(): Promise<void> {
     this.loading.set(true);
     this.loadError.set(false);
 
     try {
-      this.summary.set(await this.dashboardRepository.getSummary());
+      const [summary, salesReport, transactionAnalytics] = await Promise.all([
+        this.dashboardRepository.getSummary(),
+        this.dashboardRepository.getSalesReport(),
+        this.dashboardRepository.getTransactionAnalytics(),
+      ]);
+      this.summary.set(summary);
+      this.salesReport.set(salesReport);
+      this.transactionAnalytics.set(transactionAnalytics);
     } catch {
       this.loadError.set(true);
     } finally {

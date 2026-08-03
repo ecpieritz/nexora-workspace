@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+.transaction-chart {
+  height: 100%;
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.transaction-chart header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.transaction-chart header p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.transaction-chart h2 {
+  font-size: var(--font-size-lg);
+}
+.transaction-chart button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.transaction-chart__visual {
+  position: relative;
+  width: min(14rem, 75%);
+  margin: var(--space-6) auto;
+}
+.transaction-chart svg {
+  display: block;
+  width: 100%;
+  transform: rotate(-90deg);
+}
+.transaction-chart circle {
+  fill: none;
+  stroke-width: 13;
+}
+.transaction-chart__track {
+  stroke: var(--color-gray-100);
+}
+.transaction-chart__segment {
+  stroke-linecap: butt;
+}
+.transaction-chart__center {
+  position: absolute;
+  display: grid;
+  inset: 0;
+  align-content: center;
+  justify-items: center;
+}
+.transaction-chart__center strong {
+  font-size: var(--font-size-2xl);
+}
+.transaction-chart__center span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.transaction-chart__legend {
+  display: flex;
+  padding: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  list-style: none;
+}
+.transaction-chart__legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.transaction-chart__legend li > span {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: var(--radius-sm);
+}
+.transaction-chart__legend strong {
+  color: var(--color-text);
+}

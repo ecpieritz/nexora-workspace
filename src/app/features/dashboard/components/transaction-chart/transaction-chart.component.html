@@ -1,0 +1,45 @@
+<article class="transaction-chart">
+  <header>
+    <div>
+      <p>Overview</p>
+      <h2>Analytics</h2>
+    </div>
+    <button type="button" aria-label="Analytics options">•••</button>
+  </header>
+
+  <div class="transaction-chart__visual">
+    <svg
+      viewBox="0 0 120 120"
+      role="img"
+      aria-labelledby="transaction-title transaction-description"
+    >
+      <title id="transaction-title">Transaction distribution</title>
+      <desc id="transaction-description">Distribution of sales, distribution, and returns.</desc>
+      <circle class="transaction-chart__track" cx="60" cy="60" r="44" />
+      @for (segment of segments(); track segment.id) {
+        <circle
+          class="transaction-chart__segment"
+          cx="60"
+          cy="60"
+          r="44"
+          [attr.stroke]="segment.color"
+          [attr.stroke-dasharray]="segment.dasharray"
+          [attr.stroke-dashoffset]="segment.dashoffset"
+        />
+      }
+    </svg>
+    <div class="transaction-chart__center">
+      <strong>{{ analytics().headline }}%</strong>
+      <span>{{ analytics().label }}</span>
+    </div>
+  </div>
+
+  <ul class="transaction-chart__legend">
+    @for (segment of analytics().segments; track segment.id) {
+      <li>
+        <span [style.background]="segment.color"></span>{{ segment.label }}
+        <strong>{{ segment.value }}%</strong>
+      </li>
+    }
+  </ul>
+</article>

@@ -14,7 +14,7 @@
     } @else if (loadError()) {
       <div class="dashboard-home__error" role="alert">
         <p>We could not load your workspace summary.</p>
-        <button type="button" (click)="loadSummary()">Try again</button>
+        <button type="button" (click)="loadDashboard()">Try again</button>
       </div>
     } @else {
       @for (item of summary(); track item.id) {
@@ -28,4 +28,11 @@
       }
     }
   </div>
+
+  @if (!loading() && !loadError() && transactionAnalytics(); as analytics) {
+    <div class="dashboard-home__charts">
+      <app-sales-report-chart [data]="salesReport()" />
+      <app-transaction-chart [analytics]="analytics" />
+    </div>
+  }
 </section>

@@ -1,0 +1,81 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.sales-report {
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.sales-report header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sales-report h2 {
+  font-size: var(--font-size-lg);
+}
+.sales-report__eyebrow {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.sales-report button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.sales-report__canvas {
+  margin-top: var(--space-5);
+  overflow-x: auto;
+}
+.sales-report svg {
+  display: block;
+  min-width: 36rem;
+  width: 100%;
+}
+.sales-report__grid {
+  stroke: var(--color-gray-100);
+  stroke-width: 1;
+}
+.sales-report__axis {
+  fill: var(--color-text-subtle);
+  font-size: 10px;
+  text-anchor: end;
+}
+.sales-report__axis--x {
+  text-anchor: middle;
+}
+.sales-report__area {
+  fill: url('#sales-area');
+}
+.sales-report__line {
+  fill: none;
+  stroke: var(--color-primary-500);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+.sales-report__point circle {
+  fill: var(--color-surface);
+  stroke: var(--color-primary-500);
+  stroke-width: 3;
+  cursor: pointer;
+}
+.sales-report__point:focus {
+  outline: none;
+}
+.sales-report__point:focus circle {
+  stroke: var(--color-primary-700);
+  stroke-width: 5;
+}
+.sales-report__tooltip rect {
+  fill: var(--color-gray-900);
+}
+.sales-report__tooltip text {
+  fill: var(--color-white);
+  font-size: 10px;
+  text-anchor: middle;
+}

@@ -20,4 +20,18 @@ describe('DashboardRepository', () => {
     expect(summary.length).toBe(4);
     expect(summary.map((item) => item.id)).toContain('sales-products');
   });
+
+  it('should return sales and transaction chart data', async () => {
+    TestBed.configureTestingModule({
+      providers: [DashboardRepository, { provide: MockApiService, useClass: MockApiStub }],
+    });
+    const repository = TestBed.inject(DashboardRepository);
+    const [sales, analytics] = await Promise.all([
+      repository.getSalesReport(),
+      repository.getTransactionAnalytics(),
+    ]);
+
+    expect(sales.length).toBe(10);
+    expect(analytics.segments.reduce((total, segment) => total + segment.value, 0)).toBe(100);
+  });
 });
