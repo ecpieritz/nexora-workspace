@@ -1,8 +1,22 @@
-<div class="dashboard-shell" [class.dashboard-shell--navigation-open]="navigationOpen()">
+<div
+  class="dashboard-shell"
+  [class.dashboard-shell--navigation-open]="navigationOpen()"
+  [class.dashboard-shell--collapsed]="sidebarCollapsed()"
+>
   <aside class="dashboard-shell__sidebar" aria-label="Primary navigation">
     <a class="dashboard-shell__brand" routerLink="/dashboard" (click)="closeNavigation()">
-      <app-brand size="medium" />
+      <app-brand size="medium" [showName]="!sidebarCollapsed()" />
     </a>
+
+    <button
+      class="dashboard-shell__collapse"
+      type="button"
+      [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-expanded]="!sidebarCollapsed()"
+      (click)="toggleSidebar()"
+    >
+      <span aria-hidden="true">{{ sidebarCollapsed() ? '›' : '‹' }}</span>
+    </button>
 
     <nav class="dashboard-shell__navigation">
       @for (item of navigation; track item.route) {
@@ -11,7 +25,8 @@
           [routerLink]="item.route"
           routerLinkActive="dashboard-shell__navigation-link--active"
           [routerLinkActiveOptions]="{ exact: true }"
-          (click)="closeNavigation()"
+          [attr.title]="sidebarCollapsed() ? item.label : null"
+          (click)="closeTransientUi()"
         >
           <span class="dashboard-shell__navigation-icon" aria-hidden="true">
             @switch (item.icon) {
@@ -38,7 +53,7 @@
               }
             }
           </span>
-          <span>{{ item.label }}</span>
+          <span class="dashboard-shell__navigation-label">{{ item.label }}</span>
           @if (item.badge) {
             <span class="dashboard-shell__badge" [attr.aria-label]="item.badge + ' unread'">
               {{ item.badge }}
@@ -54,13 +69,35 @@
       <p>Portfolio demo workspace</p>
     </div>
 
-    <div class="dashboard-shell__profile">
-      <span class="dashboard-shell__avatar" aria-hidden="true">{{ userInitials() }}</span>
-      <span class="dashboard-shell__profile-copy">
-        <strong>{{ session.currentUser()?.fullName }}</strong>
-        <span>Demo account</span>
-      </span>
-      <button type="button" aria-label="Sign out" title="Sign out" (click)="signOut()">↪</button>
+    <div class="dashboard-shell__account">
+      <button
+        class="dashboard-shell__profile"
+        type="button"
+        aria-haspopup="menu"
+        [attr.aria-expanded]="userMenuOpen()"
+        [attr.title]="sidebarCollapsed() ? 'Open user menu' : null"
+        (click)="toggleUserMenu()"
+      >
+        <span class="dashboard-shell__avatar" aria-hidden="true">{{ userInitials() }}</span>
+        <span class="dashboard-shell__profile-copy">
+          <strong>{{ session.currentUser()?.fullName }}</strong>
+          <span>Demo account</span>
+        </span>
+        <span class="dashboard-shell__profile-chevron" aria-hidden="true">⌃</span>
+      </button>
+
+      @if (userMenuOpen()) {
+        <div class="dashboard-shell__user-menu" role="menu">
+          <div class="dashboard-shell__user-summary">
+            <strong>{{ session.currentUser()?.fullName }}</strong>
+            <span>{{ session.currentUser()?.email }}</span>
+          </div>
+          <a routerLink="/settings" role="menuitem" (click)="closeTransientUi()"
+            >Profile settings</a
+          >
+          <button type="button" role="menuitem" (click)="signOut()">Sign out</button>
+        </div>
+      }
     </div>
   </aside>
 

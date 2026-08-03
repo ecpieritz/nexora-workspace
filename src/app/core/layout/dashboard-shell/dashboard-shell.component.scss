@@ -86,10 +86,12 @@
 
 .dashboard-shell__profile {
   display: grid;
+  width: 100%;
   padding-top: var(--space-5);
   align-items: center;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: var(--space-3);
+  text-align: left;
 }
 
 .dashboard-shell__avatar {

@@ -18,7 +18,7 @@ interface NavigationItem {
   styleUrl: './dashboard-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '(document:keydown.escape)': 'closeNavigation()',
+    '(document:keydown.escape)': 'closeTransientUi()',
   },
 })
 export class DashboardShellComponent {
@@ -26,6 +26,8 @@ export class DashboardShellComponent {
   protected readonly session = inject(AuthSessionService);
 
   protected readonly navigationOpen = signal(false);
+  protected readonly sidebarCollapsed = signal(false);
+  protected readonly userMenuOpen = signal(false);
   protected readonly userInitials = computed(() => {
     const name = this.session.currentUser()?.fullName ?? 'Nexora User';
     return name
@@ -48,13 +50,29 @@ export class DashboardShellComponent {
 
   protected toggleNavigation(): void {
     this.navigationOpen.update((open) => !open);
+    this.userMenuOpen.set(false);
   }
 
   protected closeNavigation(): void {
     this.navigationOpen.set(false);
   }
 
+  protected toggleSidebar(): void {
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
+    this.userMenuOpen.set(false);
+  }
+
+  protected toggleUserMenu(): void {
+    this.userMenuOpen.update((open) => !open);
+  }
+
+  protected closeTransientUi(): void {
+    this.navigationOpen.set(false);
+    this.userMenuOpen.set(false);
+  }
+
   protected async signOut(): Promise<void> {
+    this.closeTransientUi();
     this.session.clear();
     await this.router.navigate(['/auth/login']);
   }

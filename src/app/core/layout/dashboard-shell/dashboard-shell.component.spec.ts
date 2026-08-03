@@ -39,12 +39,31 @@ describe('DashboardShellComponent', () => {
     const router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
 
+    const profileButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector('[aria-haspopup="menu"]');
+    profileButton.click();
+    fixture.detectChanges();
+
     const signOutButton: HTMLButtonElement =
-      fixture.nativeElement.querySelector('[title="Sign out"]');
+      fixture.nativeElement.querySelector('[role="menu"] button');
     signOutButton.click();
     await fixture.whenStable();
 
     expect(session.clear).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+  });
+
+  it('should collapse and expand the desktop navigation', () => {
+    const collapseButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.dashboard-shell__collapse',
+    );
+
+    collapseButton.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dashboard-shell--collapsed')).not.toBeNull();
+
+    collapseButton.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dashboard-shell--collapsed')).toBeNull();
   });
 });
