@@ -1,0 +1,63 @@
+:host {
+  display: grid;
+  min-height: 7.5rem;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-card__icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  place-items: center;
+}
+
+.summary-card__icon svg {
+  width: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.summary-card__content {
+  display: grid;
+}
+
+.summary-card__content strong {
+  color: var(--color-text);
+  font-size: var(--font-size-xl);
+}
+
+.summary-card__content > span:last-child {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+:host(.summary-card--blue) .summary-card__icon {
+  background: var(--color-primary-50);
+  color: var(--color-primary-500);
+}
+
+:host(.summary-card--yellow) .summary-card__icon {
+  background: var(--color-warning-50);
+  color: var(--color-warning-500);
+}
+
+:host(.summary-card--coral) .summary-card__icon {
+  background: var(--color-danger-50);
+  color: var(--color-coral-500);
+}
+
+:host(.summary-card--purple) .summary-card__icon {
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+}

@@ -5,9 +5,27 @@
     <p>Your dashboard foundation is ready for products, customers, schedules, and analytics.</p>
   </div>
 
-  <div class="dashboard-home__placeholder" aria-label="Dashboard content coming next">
-    <span aria-hidden="true">◇</span>
-    <strong>Workspace ready</strong>
-    <p>Business insights and activity will appear here.</p>
+  <div class="dashboard-home__summary" aria-label="Workspace summary" aria-live="polite">
+    @if (loading()) {
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="dashboard-home__skeleton" aria-hidden="true"></div>
+      }
+      <span class="dashboard-home__loading-copy">Loading workspace summary</span>
+    } @else if (loadError()) {
+      <div class="dashboard-home__error" role="alert">
+        <p>We could not load your workspace summary.</p>
+        <button type="button" (click)="loadSummary()">Try again</button>
+      </div>
+    } @else {
+      @for (item of summary(); track item.id) {
+        <app-summary-card
+          [label]="item.label"
+          [value]="item.value"
+          [suffix]="item.suffix"
+          [icon]="item.icon"
+          [tone]="item.tone"
+        />
+      }
+    }
   </div>
 </section>

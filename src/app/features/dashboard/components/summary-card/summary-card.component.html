@@ -1,0 +1,26 @@
+<span class="summary-card__icon" aria-hidden="true">
+  @switch (icon()) {
+    @case ('saved') {
+      <svg viewBox="0 0 24 24">
+        <path d="M12 21S4 16.5 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5C20 16.5 12 21 12 21Z" />
+      </svg>
+    }
+    @case ('stock') {
+      <svg viewBox="0 0 24 24"><path d="M5 8h14v11H5zM8 8V5h8v3M9 12h6" /></svg>
+    }
+    @case ('sales') {
+      <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 11H7L6 8Zm3 0a3 3 0 0 1 6 0" /></svg>
+    }
+    @case ('applications') {
+      <svg viewBox="0 0 24 24"><path d="M4 8h16v11H4zM9 8V5h6v3M4 12h16M10 15h4" /></svg>
+    }
+  }
+</span>
+
+<span class="summary-card__content">
+  <strong
+    ><span class="summary-card__value">{{ value() }}</span
+    >{{ suffix() }}</strong
+  >
+  <span>{{ label() }}</span>
+</span>
