@@ -23,6 +23,13 @@ export const routes: Routes = [
             ({ DashboardHomeComponent }) => DashboardHomeComponent,
           ),
       },
+      {
+        path: 'invoices',
+        loadComponent: () =>
+          import('@features/invoices/pages/invoice-list/invoice-list.component').then(
+            ({ InvoiceListComponent }) => InvoiceListComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

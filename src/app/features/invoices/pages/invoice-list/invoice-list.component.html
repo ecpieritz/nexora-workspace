@@ -1,0 +1,132 @@
+<section class="invoice-list" aria-labelledby="invoice-list-title">
+  <header class="invoice-list__header">
+    <div>
+      <p>Billing</p>
+      <h1 id="invoice-list-title">Invoice list</h1>
+    </div>
+    <button appButton type="button"><span aria-hidden="true">＋</span> Add new</button>
+  </header>
+
+  <div class="invoice-list__toolbar" role="search">
+    <label>
+      <span>Search invoices</span>
+      <input
+        appInput
+        type="search"
+        placeholder="Name, email, or invoice ID"
+        [value]="searchTerm()"
+        (input)="updateSearch($event)"
+      />
+    </label>
+    <label>
+      <span>Status</span>
+      <select appInput [value]="statusFilter()" (change)="updateStatus($event)">
+        <option value="all">All statuses</option>
+        <option value="complete">Complete</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </label>
+    <span class="invoice-list__result-count" aria-live="polite">
+      {{ filteredInvoices().length }} {{ filteredInvoices().length === 1 ? 'invoice' : 'invoices' }}
+    </span>
+  </div>
+
+  @if (loading()) {
+    <div class="invoice-list__state" role="status">Loading invoices…</div>
+  } @else if (loadError()) {
+    <div class="invoice-list__state invoice-list__state--error" role="alert">
+      <p>We could not load the invoice list.</p>
+      <button appButton type="button" size="small" (click)="loadInvoices()">Try again</button>
+    </div>
+  } @else {
+    <div class="invoice-list__table-container" tabindex="0" aria-label="Scrollable invoice list">
+      <table>
+        <caption>
+          Invoices matching the selected filters
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="invoice-list__checkbox">
+              <input
+                type="checkbox"
+                aria-label="Select all filtered invoices"
+                [checked]="allFilteredSelected()"
+                (change)="toggleAllFiltered()"
+              />
+            </th>
+            <th scope="col">Invoice ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="invoice-list__visually-hidden">Favorite</span></th>
+            <th scope="col"><span class="invoice-list__visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of filteredInvoices(); track invoice.id) {
+            <tr [class.invoice-list__row--selected]="selectedIds().has(invoice.id)">
+              <td class="invoice-list__checkbox">
+                <input
+                  type="checkbox"
+                  [attr.aria-label]="'Select invoice ' + invoice.id"
+                  [checked]="selectedIds().has(invoice.id)"
+                  (change)="toggleSelection(invoice.id)"
+                />
+              </td>
+              <td>
+                <strong>#{{ invoice.id }}</strong>
+              </td>
+              <td>
+                <span class="invoice-list__customer"
+                  ><span aria-hidden="true">{{ initials(invoice.customerName) }}</span
+                  >{{ invoice.customerName }}</span
+                >
+              </td>
+              <td>
+                <a [href]="'mailto:' + invoice.email">{{ invoice.email }}</a>
+              </td>
+              <td>{{ invoice.issuedAt | date: 'dd MMM, yyyy' }}</td>
+              <td>
+                <span class="invoice-list__status" [attr.data-status]="invoice.status">{{
+                  invoice.status
+                }}</span>
+              </td>
+              <td>
+                <button
+                  class="invoice-list__favorite"
+                  type="button"
+                  [attr.aria-label]="
+                    (invoice.favorite ? 'Remove' : 'Add') +
+                    ' invoice ' +
+                    invoice.id +
+                    (invoice.favorite ? ' from' : ' to') +
+                    ' favorites'
+                  "
+                  [attr.aria-pressed]="invoice.favorite"
+                  (click)="toggleFavorite(invoice.id)"
+                >
+                  {{ invoice.favorite ? '★' : '☆' }}
+                </button>
+              </td>
+              <td>
+                <button
+                  class="invoice-list__actions"
+                  type="button"
+                  [attr.aria-label]="'Actions for invoice ' + invoice.id"
+                >
+                  •••
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="invoice-list__empty">No invoices match your filters.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
