@@ -12,7 +12,7 @@ import { TaskRepository } from '../../data-access/task.repository';
 import { TaskStatus, WorkspaceTask } from '../../models/task.model';
 
 const STATUSES: readonly TaskStatus[] = ['todo', 'doing', 'done'];
-type TaskView = 'list' | 'board';
+type TaskView = 'list' | 'board' | 'timeline';
 @Component({
   selector: 'app-task-list',
   imports: [ButtonDirective, DatePipe, InputDirective],
@@ -35,6 +35,26 @@ export class TaskListComponent implements OnInit {
     return this.tasks().filter(
       (task) => !term || task.name.toLowerCase().includes(term) || task.category.includes(term),
     );
+  });
+  protected readonly timelineDays = computed(() => {
+    const tasks = this.filteredTasks();
+    if (!tasks.length) return [];
+    const first = tasks.reduce(
+      (earliest, task) => (task.startsAt < earliest ? task.startsAt : earliest),
+      tasks[0].startsAt,
+    );
+    const last = tasks.reduce(
+      (latest, task) => (task.dueAt > latest ? task.dueAt : latest),
+      tasks[0].dueAt,
+    );
+    const days: string[] = [];
+    const cursor = new Date(first);
+    const end = new Date(last);
+    while (cursor <= end) {
+      days.push(cursor.toISOString());
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+    return days;
   });
   ngOnInit(): void {
     void this.load();
@@ -61,6 +81,12 @@ export class TaskListComponent implements OnInit {
   }
   protected statusLabel(status: TaskStatus): string {
     return { todo: 'To do', doing: 'Doing', done: 'Done' }[status];
+  }
+  protected timelineColumn(task: WorkspaceTask): string {
+    const days = this.timelineDays();
+    const start = days.findIndex((day) => day.slice(0, 10) === task.startsAt.slice(0, 10));
+    const end = days.findIndex((day) => day.slice(0, 10) === task.dueAt.slice(0, 10));
+    return `${start + 2} / ${end + 3}`;
   }
   protected async advance(task: WorkspaceTask): Promise<void> {
     const index = STATUSES.indexOf(task.status);

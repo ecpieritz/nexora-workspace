@@ -24,7 +24,15 @@
         (click)="setView('board')"
       >
         Board</button
-      ><span class="task-list__view task-list__view--disabled">Timeline</span>
+      ><button
+        class="task-list__view"
+        [class.task-list__view--active]="activeView() === 'timeline'"
+        [attr.aria-pressed]="activeView() === 'timeline'"
+        type="button"
+        (click)="setView('timeline')"
+      >
+        Timeline
+      </button>
     </nav>
     <label
       ><span class="task-list__sr-only">Search tasks</span
@@ -114,7 +122,7 @@
         </div>
       </section>
     }
-  } @else {
+  } @else if (activeView() === 'board') {
     <div class="task-board" aria-label="Kanban task board">
       @for (status of statuses; track status) {
         <section
@@ -192,6 +200,61 @@
             }
           </div>
         </section>
+      }
+    </div>
+  } @else {
+    <div class="task-timeline" aria-label="Task timeline">
+      @if (timelineDays().length) {
+        <div
+          class="task-timeline__grid task-timeline__header"
+          [style.--timeline-days]="timelineDays().length"
+        >
+          <strong>Task</strong>
+          @for (day of timelineDays(); track day) {
+            <time [attr.datetime]="day"
+              >{{ day | date: 'dd' }}<small>{{ day | date: 'EEE' }}</small></time
+            >
+          }
+        </div>
+        @for (status of statuses; track status) {
+          <section class="task-timeline__section" [attr.aria-label]="statusLabel(status)">
+            <header>
+              <h2>{{ statusLabel(status) }}</h2>
+              <span>{{ tasksFor(status).length }}</span>
+            </header>
+            @for (task of tasksFor(status); track task.id) {
+              <div
+                class="task-timeline__grid task-timeline__row"
+                [style.--timeline-days]="timelineDays().length"
+              >
+                <div class="task-timeline__label">
+                  <strong>{{ task.name }}</strong
+                  ><span>{{ task.memberCount }} members</span>
+                </div>
+                <button
+                  class="task-timeline__bar"
+                  type="button"
+                  [attr.data-status]="task.status"
+                  [style.grid-column]="timelineColumn(task)"
+                  [attr.aria-label]="
+                    task.name +
+                    ', ' +
+                    (task.startsAt | date: 'mediumDate') +
+                    ' to ' +
+                    (task.dueAt | date: 'mediumDate')
+                  "
+                >
+                  <span>{{ task.name }}</span
+                  ><small>{{ task.dueAt | date: 'MMM d' }}</small>
+                </button>
+              </div>
+            } @empty {
+              <p class="task-timeline__empty">No tasks in this section.</p>
+            }
+          </section>
+        }
+      } @else {
+        <div class="task-list__state">No tasks match your search.</div>
       }
     </div>
   }

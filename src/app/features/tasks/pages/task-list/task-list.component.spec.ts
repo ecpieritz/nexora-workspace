@@ -86,4 +86,19 @@ describe('TaskListComponent', () => {
 
     expect(repository.updateStatus).toHaveBeenCalledOnceWith('one', 'doing');
   });
+
+  it('should display tasks across their date range in the timeline', () => {
+    const timelineButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'button.task-list__view:nth-child(3)',
+    );
+    timelineButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.task-timeline__section').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('.task-timeline__bar').length).toBe(2);
+    const uiDesign: HTMLElement = fixture.nativeElement.querySelector(
+      '.task-timeline__bar[aria-label^="UI design"]',
+    );
+    expect(uiDesign.style.gridColumn).toBeTruthy();
+  });
 });

@@ -180,6 +180,145 @@
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
 }
+.task-timeline {
+  min-width: 52rem;
+  overflow: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.task-timeline__grid {
+  display: grid;
+  grid-template-columns: 14rem repeat(var(--timeline-days), minmax(4.5rem, 1fr));
+  min-width: max-content;
+}
+.task-timeline__header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.task-timeline__header > strong {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+}
+.task-timeline__header time {
+  display: grid;
+  place-items: center;
+  gap: 0.15rem;
+  min-height: 4rem;
+  color: var(--color-text);
+  border-left: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+.task-timeline__header time small {
+  color: var(--color-text-subtle);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.task-timeline__section > header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-border);
+}
+.task-timeline__section > header h2 {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+.task-timeline__section > header span {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+}
+.task-timeline__row {
+  position: relative;
+  min-height: 5rem;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc((100% - 14rem) / var(--timeline-days) - 1px),
+    var(--color-border) calc((100% - 14rem) / var(--timeline-days) - 1px),
+    var(--color-border) calc((100% - 14rem) / var(--timeline-days))
+  );
+  border-bottom: 1px solid var(--color-border);
+}
+.task-timeline__label {
+  position: sticky;
+  z-index: 1;
+  left: 0;
+  display: grid;
+  align-content: center;
+  gap: 0.2rem;
+  grid-column: 1;
+  grid-row: 1;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+}
+.task-timeline__label strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+}
+.task-timeline__label span {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-xs);
+}
+.task-timeline__bar {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  grid-row: 1;
+  min-width: 0;
+  height: 2.6rem;
+  margin-inline: 0.3rem;
+  padding: 0.55rem 0.8rem;
+  color: var(--color-warning-500);
+  background: var(--color-warning-50);
+  border: 1px solid color-mix(in srgb, var(--color-warning-500) 28%, transparent);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.task-timeline__bar[data-status='doing'] {
+  color: var(--color-primary-600);
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-300);
+}
+.task-timeline__bar[data-status='done'] {
+  color: var(--color-success-500);
+  background: var(--color-success-50);
+  border-color: color-mix(in srgb, var(--color-success-500) 28%, transparent);
+}
+.task-timeline__bar span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.task-timeline__bar small {
+  flex: 0 0 auto;
+  opacity: 0.8;
+}
+.task-timeline__empty {
+  margin: 0;
+  padding: 1.5rem;
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-sm);
+}
 .task-list__view--active {
   color: var(--color-white);
   background: var(--color-primary-500);
