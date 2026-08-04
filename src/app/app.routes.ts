@@ -44,6 +44,13 @@ export const routes: Routes = [
             ({ ScheduleListComponent }) => ScheduleListComponent,
           ),
       },
+      {
+        path: 'tasks',
+        loadComponent: () =>
+          import('@features/tasks/pages/task-list/task-list.component').then(
+            ({ TaskListComponent }) => TaskListComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

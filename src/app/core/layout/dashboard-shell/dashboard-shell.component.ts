@@ -7,7 +7,15 @@ import { BrandComponent } from '@shared/components/brand/brand.component';
 interface NavigationItem {
   label: string;
   route: string;
-  icon: 'dashboard' | 'analytics' | 'invoice' | 'schedule' | 'calendar' | 'messages' | 'settings';
+  icon:
+    | 'dashboard'
+    | 'analytics'
+    | 'invoice'
+    | 'schedule'
+    | 'tasks'
+    | 'calendar'
+    | 'messages'
+    | 'settings';
   badge?: number;
 }
 
@@ -43,6 +51,7 @@ export class DashboardShellComponent {
     { label: 'Analytics', route: '/analytics', icon: 'analytics' },
     { label: 'Invoices', route: '/invoices', icon: 'invoice' },
     { label: 'Schedule', route: '/schedule', icon: 'schedule' },
+    { label: 'Tasks', route: '/tasks', icon: 'tasks' },
     { label: 'Calendar', route: '/calendar', icon: 'calendar' },
     { label: 'Messages', route: '/messages', icon: 'messages', badge: 4 },
     { label: 'Settings', route: '/settings', icon: 'settings' },
