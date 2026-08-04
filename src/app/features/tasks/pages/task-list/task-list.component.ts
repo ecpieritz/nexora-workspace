@@ -12,6 +12,7 @@ import { TaskRepository } from '../../data-access/task.repository';
 import { TaskStatus, WorkspaceTask } from '../../models/task.model';
 
 const STATUSES: readonly TaskStatus[] = ['todo', 'doing', 'done'];
+type TaskView = 'list' | 'board';
 @Component({
   selector: 'app-task-list',
   imports: [ButtonDirective, DatePipe, InputDirective],
@@ -24,6 +25,8 @@ export class TaskListComponent implements OnInit {
   protected readonly statuses = STATUSES;
   protected readonly tasks = signal<WorkspaceTask[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly activeView = signal<TaskView>('list');
+  protected readonly draggedTaskId = signal<string | null>(null);
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly mutatingId = signal<string | null>(null);
@@ -50,6 +53,9 @@ export class TaskListComponent implements OnInit {
   protected updateSearch(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
   }
+  protected setView(view: TaskView): void {
+    this.activeView.set(view);
+  }
   protected tasksFor(status: TaskStatus): WorkspaceTask[] {
     return this.filteredTasks().filter((task) => task.status === status);
   }
@@ -62,6 +68,33 @@ export class TaskListComponent implements OnInit {
     this.mutatingId.set(task.id);
     try {
       this.replace(await this.repository.updateStatus(task.id, STATUSES[index + 1]));
+    } finally {
+      this.mutatingId.set(null);
+    }
+  }
+  protected startDragging(taskId: string): void {
+    this.draggedTaskId.set(taskId);
+  }
+  protected stopDragging(): void {
+    this.draggedTaskId.set(null);
+  }
+  protected dropIn(status: TaskStatus): void {
+    const task = this.tasks().find(({ id }) => id === this.draggedTaskId());
+    this.stopDragging();
+    if (task && task.status !== status) void this.moveTask(task, status);
+  }
+  protected previousStatus(task: WorkspaceTask): TaskStatus | null {
+    const index = STATUSES.indexOf(task.status);
+    return index > 0 ? STATUSES[index - 1] : null;
+  }
+  protected nextStatus(task: WorkspaceTask): TaskStatus | null {
+    const index = STATUSES.indexOf(task.status);
+    return index < STATUSES.length - 1 ? STATUSES[index + 1] : null;
+  }
+  protected async moveTask(task: WorkspaceTask, status: TaskStatus): Promise<void> {
+    this.mutatingId.set(task.id);
+    try {
+      this.replace(await this.repository.updateStatus(task.id, status));
     } finally {
       this.mutatingId.set(null);
     }

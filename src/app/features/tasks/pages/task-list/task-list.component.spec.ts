@@ -66,4 +66,24 @@ describe('TaskListComponent', () => {
     fixture.detectChanges();
     expect(repository.updateStatus).toHaveBeenCalledOnceWith('one', 'doing');
   });
+
+  it('should display tasks in kanban columns and move them forward', async () => {
+    const boardButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'button.task-list__view:nth-child(2)',
+    );
+    boardButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.task-board__column').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('.task-board__card').length).toBe(2);
+
+    const moveForward: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[aria-label="Move UI design forward"]',
+    );
+    moveForward.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(repository.updateStatus).toHaveBeenCalledOnceWith('one', 'doing');
+  });
 });

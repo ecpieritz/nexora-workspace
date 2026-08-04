@@ -8,8 +8,22 @@
   </header>
   <div class="task-list__toolbar">
     <nav aria-label="Task views">
-      <a class="task-list__view task-list__view--active" aria-current="page">List</a
-      ><span class="task-list__view task-list__view--disabled">Board</span
+      <button
+        class="task-list__view"
+        [class.task-list__view--active]="activeView() === 'list'"
+        [attr.aria-pressed]="activeView() === 'list'"
+        type="button"
+        (click)="setView('list')"
+      >
+        List</button
+      ><button
+        class="task-list__view"
+        [class.task-list__view--active]="activeView() === 'board'"
+        [attr.aria-pressed]="activeView() === 'board'"
+        type="button"
+        (click)="setView('board')"
+      >
+        Board</button
       ><span class="task-list__view task-list__view--disabled">Timeline</span>
     </nav>
     <label
@@ -28,7 +42,7 @@
     <div class="task-list__state" role="alert">
       Unable to load tasks. <button type="button" (click)="load()">Try again</button>
     </div>
-  } @else {
+  } @else if (activeView() === 'list') {
     @for (status of statuses; track status) {
       <section class="task-list__group" [attr.aria-labelledby]="'task-group-' + status">
         <header>
@@ -100,5 +114,85 @@
         </div>
       </section>
     }
+  } @else {
+    <div class="task-board" aria-label="Kanban task board">
+      @for (status of statuses; track status) {
+        <section
+          class="task-board__column"
+          [attr.data-status]="status"
+          (dragover)="$event.preventDefault()"
+          (drop)="dropIn(status)"
+        >
+          <header>
+            <div>
+              <h2>{{ statusLabel(status) }}</h2>
+              <span>{{ tasksFor(status).length }}</span>
+            </div>
+            <button type="button" aria-label="Add task to this column">+</button>
+          </header>
+          <div class="task-board__cards">
+            @for (task of tasksFor(status); track task.id) {
+              <article
+                class="task-board__card"
+                draggable="true"
+                [class.task-board__card--dragging]="draggedTaskId() === task.id"
+                (dragstart)="startDragging(task.id)"
+                (dragend)="stopDragging()"
+              >
+                <header>
+                  <span class="task-board__check" [attr.data-status]="task.status">&#10003;</span
+                  ><strong>{{ task.name }}</strong
+                  ><button
+                    type="button"
+                    [attr.aria-label]="'Delete ' + task.name"
+                    (click)="deleteTask(task.id)"
+                  >
+                    &hellip;
+                  </button>
+                </header>
+                <p>
+                  {{
+                    task.category === 'development'
+                      ? 'Build and validate the workspace experience.'
+                      : 'Create a clear and consistent product experience.'
+                  }}
+                </p>
+                <div class="task-board__badges">
+                  <span [attr.data-category]="task.category">{{ task.category }}</span
+                  ><span>{{ task.dueAt | date: 'MMM d' }}</span>
+                </div>
+                <footer>
+                  <span class="task-board__members">{{ task.memberCount }} members</span>
+                  <div>
+                    @if (previousStatus(task); as previous) {
+                      <button
+                        type="button"
+                        [disabled]="mutatingId() === task.id"
+                        [attr.aria-label]="'Move ' + task.name + ' backward'"
+                        (click)="moveTask(task, previous)"
+                      >
+                        &#8592;
+                      </button>
+                    }
+                    @if (nextStatus(task); as next) {
+                      <button
+                        type="button"
+                        [disabled]="mutatingId() === task.id"
+                        [attr.aria-label]="'Move ' + task.name + ' forward'"
+                        (click)="moveTask(task, next)"
+                      >
+                        &#8594;
+                      </button>
+                    }
+                  </div>
+                </footer>
+              </article>
+            } @empty {
+              <div class="task-board__empty">Drop tasks here</div>
+            }
+          </div>
+        </section>
+      }
+    </div>
   }
 </section>
