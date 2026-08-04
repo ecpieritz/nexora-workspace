@@ -51,6 +51,13 @@ export const routes: Routes = [
             ({ TaskListComponent }) => TaskListComponent,
           ),
       },
+      {
+        path: 'calendar',
+        loadComponent: () =>
+          import('@features/calendar/pages/month-calendar/month-calendar.component').then(
+            ({ MonthCalendarComponent }) => MonthCalendarComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

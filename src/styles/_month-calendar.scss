@@ -1,0 +1,262 @@
+.month-calendar__page-header,
+.month-calendar__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.month-calendar__page-header {
+  margin-bottom: 1.5rem;
+}
+.month-calendar__page-header p {
+  margin: 0 0 0.25rem;
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.month-calendar__page-header h1 {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+}
+.month-calendar__page-header nav {
+  display: flex;
+  gap: 0.35rem;
+}
+.month-calendar__page-header nav span,
+.month-calendar__page-header nav button {
+  padding: 0.55rem 1rem;
+  color: var(--color-text-muted);
+  background: var(--color-primary-50);
+  border: 0;
+  border-radius: var(--radius-md);
+}
+.month-calendar__page-header nav button {
+  color: var(--color-white);
+  background: var(--color-primary-500);
+}
+.month-calendar__layout {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.month-calendar__sidebar,
+.month-calendar__main {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.month-calendar__sidebar {
+  padding: 1.25rem;
+}
+.month-calendar__sidebar > [appButton] {
+  width: 100%;
+}
+.month-calendar__mini {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
+}
+.month-calendar__mini > div {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.2rem;
+  margin-top: 0.6rem;
+  text-align: center;
+  font-size: 0.68rem;
+}
+.month-calendar__mini > div span {
+  display: grid;
+  place-items: center;
+  min-height: 1.5rem;
+}
+.month-calendar__mini-muted {
+  color: var(--color-text-subtle);
+}
+.month-calendar__mini-today {
+  color: var(--color-white);
+  background: var(--color-primary-500);
+  border-radius: var(--radius-full);
+}
+.month-calendar__sidebar h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: var(--font-size-md);
+}
+.month-calendar__person {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.55rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.month-calendar__person:hover,
+.month-calendar__person--active {
+  background: var(--color-primary-50);
+}
+.month-calendar__person > span:first-child {
+  display: grid;
+  flex: 0 0 2rem;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-white);
+  background: var(--color-primary-500);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+}
+.month-calendar__person > span:last-child {
+  display: grid;
+  min-width: 0;
+}
+.month-calendar__person strong,
+.month-calendar__person small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.month-calendar__person small {
+  color: var(--color-text-subtle);
+  font-size: 0.65rem;
+}
+.month-calendar__main {
+  min-width: 0;
+  overflow: hidden;
+}
+.month-calendar__controls {
+  min-height: 4.5rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.month-calendar__controls div {
+  display: flex;
+  gap: 0.35rem;
+}
+.month-calendar__controls button {
+  padding: 0.45rem 0.7rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.month-calendar__weekdays,
+.month-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(7rem, 1fr));
+  min-width: 49rem;
+}
+.month-calendar__weekdays {
+  color: var(--color-text-muted);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+.month-calendar__weekdays span {
+  padding: 0.8rem;
+  font-size: var(--font-size-sm);
+}
+.month-calendar__grid {
+  grid-template-rows: repeat(6, minmax(7rem, 1fr));
+}
+.month-calendar__day {
+  min-width: 0;
+  padding: 0.55rem;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.month-calendar__day time {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+.month-calendar__day--outside {
+  background: var(--color-gray-25);
+}
+.month-calendar__day--outside time {
+  color: var(--color-text-subtle);
+}
+.month-calendar__day--today time {
+  color: var(--color-white);
+  background: var(--color-primary-500);
+  border-radius: var(--radius-full);
+}
+.month-calendar__event {
+  display: grid;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.3rem 0.45rem;
+  overflow: hidden;
+  color: var(--color-primary-700);
+  text-align: left;
+  background: var(--color-primary-50);
+  border: 0;
+  border-left: 3px solid var(--color-primary-500);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.month-calendar__event[data-color='1'] {
+  color: var(--color-info-500);
+  background: var(--color-info-50);
+  border-color: var(--color-info-500);
+}
+.month-calendar__event[data-color='2'] {
+  color: var(--color-warning-500);
+  background: var(--color-warning-50);
+  border-color: var(--color-warning-500);
+}
+.month-calendar__event[data-color='3'] {
+  color: var(--color-success-500);
+  background: var(--color-success-50);
+  border-color: var(--color-success-500);
+}
+.month-calendar__event strong,
+.month-calendar__event span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.65rem;
+}
+.month-calendar__state {
+  min-height: 25rem;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+}
+.month-calendar__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 68rem) {
+  .month-calendar__layout {
+    grid-template-columns: 1fr;
+  }
+  .month-calendar__sidebar {
+    display: none;
+  }
+  .month-calendar__main {
+    overflow: auto;
+  }
+}
+@media (max-width: 40rem) {
+  .month-calendar__page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

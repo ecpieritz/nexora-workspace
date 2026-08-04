@@ -1,0 +1,114 @@
+<section class="month-calendar" aria-labelledby="calendar-title">
+  <header class="month-calendar__page-header">
+    <div>
+      <p>Workspace</p>
+      <h1 id="calendar-title">Calendar</h1>
+    </div>
+    <nav aria-label="Calendar views">
+      <span>Day</span><span>Week</span><button type="button" aria-pressed="true">Month</button
+      ><span>Year</span>
+    </nav>
+  </header>
+  <div class="month-calendar__layout">
+    <aside class="month-calendar__sidebar">
+      <button appButton type="button">+ Create schedule</button>
+      <div class="month-calendar__mini">
+        <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
+        <div>
+          @for (weekday of weekdays; track weekday) {
+            <span>{{ weekday.charAt(0) }}</span>
+          }
+        </div>
+        <div>
+          @for (day of days().slice(0, 35); track day.key) {
+            <span
+              [class.month-calendar__mini-muted]="!day.currentMonth"
+              [class.month-calendar__mini-today]="day.today"
+              >{{ day.date | date: 'd' : 'UTC' }}</span
+            >
+          }
+        </div>
+      </div>
+      <h2>People</h2>
+      <label
+        ><span class="month-calendar__sr-only">Search people</span
+        ><input
+          appInput
+          type="search"
+          placeholder="Search for people"
+          [value]="peopleSearch()"
+          (input)="updatePeopleSearch($event)"
+      /></label>
+      <button
+        class="month-calendar__person"
+        type="button"
+        [class.month-calendar__person--active]="selectedPersonId() === null"
+        (click)="selectPerson(null)"
+      >
+        <span>All</span><strong>All schedules</strong>
+      </button>
+      @for (person of filteredPeople(); track person.id) {
+        <button
+          class="month-calendar__person"
+          type="button"
+          [class.month-calendar__person--active]="selectedPersonId() === person.id"
+          (click)="selectPerson(person.id)"
+        >
+          <span [style.background]="person.color">{{ person.name.charAt(0) }}</span
+          ><span
+            ><strong>{{ person.name }}</strong
+            ><small>{{ person.email }}</small></span
+          >
+        </button>
+      }
+    </aside>
+    <div class="month-calendar__main">
+      <header class="month-calendar__controls">
+        <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
+        <div>
+          <button type="button" (click)="goToToday()">Today</button
+          ><button type="button" aria-label="Previous month" (click)="changeMonth(-1)">
+            &#8249;</button
+          ><button type="button" aria-label="Next month" (click)="changeMonth(1)">&#8250;</button>
+        </div>
+      </header>
+      @if (loading()) {
+        <div class="month-calendar__state" role="status">Loading calendar&hellip;</div>
+      } @else if (loadError()) {
+        <div class="month-calendar__state" role="alert">
+          Unable to load the calendar. <button type="button" (click)="load()">Try again</button>
+        </div>
+      } @else {
+        <div class="month-calendar__weekdays">
+          @for (weekday of weekdays; track weekday) {
+            <span>{{ weekday }}</span>
+          }
+        </div>
+        <div class="month-calendar__grid">
+          @for (day of days(); track day.key) {
+            <article
+              class="month-calendar__day"
+              [class.month-calendar__day--outside]="!day.currentMonth"
+              [class.month-calendar__day--today]="day.today"
+            >
+              <time [attr.datetime]="day.key">{{ day.date | date: 'dd' : 'UTC' }}</time>
+              <div>
+                @for (event of eventsFor(day); track event.id; let index = $index) {
+                  <button
+                    class="month-calendar__event"
+                    type="button"
+                    [attr.data-color]="index % 4"
+                    [title]="event.title + ' at ' + event.location"
+                  >
+                    <strong>{{ event.title }}</strong
+                    ><span>{{ event.startsAt | date: 'shortTime' : 'UTC' }}</span>
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
