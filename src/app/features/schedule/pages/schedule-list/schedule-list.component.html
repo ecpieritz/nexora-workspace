@@ -1,0 +1,134 @@
+<section class="schedule-list" aria-labelledby="schedule-title">
+  <header class="schedule-list__header">
+    <div>
+      <p>Workspace</p>
+      <h1 id="schedule-title">Schedule list</h1>
+    </div>
+    <button appButton type="button">+ Add new</button>
+  </header>
+  <div class="schedule-list__layout">
+    <aside class="schedule-list__people" aria-labelledby="people-title">
+      <div class="schedule-list__mini-calendar">
+        <strong>August 2026</strong>
+        <div class="schedule-list__week">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span
+          ><span>S</span>
+        </div>
+        <div class="schedule-list__days">
+          @for (day of [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]; track day) {
+            <span [class.schedule-list__today]="day === 4">{{ day }}</span>
+          }
+        </div>
+      </div>
+      <h2 id="people-title">People</h2>
+      <label
+        ><span class="schedule-list__sr-only">Search people</span
+        ><input
+          appInput
+          type="search"
+          placeholder="Search for people"
+          [value]="peopleSearch()"
+          (input)="updatePeopleSearch($event)"
+      /></label>
+      <button
+        class="schedule-list__person"
+        type="button"
+        [class.schedule-list__person--active]="selectedPersonId() === null"
+        (click)="selectPerson(null)"
+      >
+        <span class="schedule-list__avatar">A</span
+        ><span><strong>All people</strong><small>Show every meeting</small></span>
+      </button>
+      @for (person of filteredPeople(); track person.id) {
+        <button
+          class="schedule-list__person"
+          type="button"
+          [class.schedule-list__person--active]="selectedPersonId() === person.id"
+          (click)="selectPerson(person.id)"
+        >
+          <span class="schedule-list__avatar" [style.background]="person.color">{{
+            person.name.charAt(0)
+          }}</span
+          ><span
+            ><strong>{{ person.name }}</strong
+            ><small>{{ person.email }}</small></span
+          >
+        </button>
+      } @empty {
+        <p class="schedule-list__empty-people">No people found.</p>
+      }
+    </aside>
+
+    <div class="schedule-list__content">
+      <div class="schedule-list__result">
+        <span>{{ filteredSchedules().length }} scheduled meetings</span>
+        @if (selectedPersonId()) {
+          <button type="button" (click)="selectPerson(null)">Clear filter</button>
+        }
+      </div>
+      @if (loading()) {
+        <div class="schedule-list__state" role="status">Loading schedule&hellip;</div>
+      } @else if (loadError()) {
+        <div class="schedule-list__state" role="alert">
+          Unable to load the schedule. <button type="button" (click)="load()">Try again</button>
+        </div>
+      } @else {
+        <div class="schedule-list__table-wrap" tabindex="0">
+          <table>
+            <caption class="schedule-list__sr-only">
+              Upcoming scheduled meetings
+            </caption>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Meeting</th>
+                <th>Location</th>
+                <th>People</th>
+                <th><span class="schedule-list__sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of filteredSchedules(); track entry.id) {
+                <tr>
+                  <td>{{ entry.startsAt | date: 'dd MMM, yyyy' }}</td>
+                  <td>{{ entry.startsAt | date: 'hh.mma' }}</td>
+                  <td>
+                    <strong>{{ entry.title }}</strong>
+                  </td>
+                  <td>
+                    <span class="schedule-list__location">&#9679; {{ entry.location }}</span>
+                  </td>
+                  <td class="schedule-list__attendees" [title]="attendeeNames(entry)">
+                    {{ attendeeNames(entry) }}
+                  </td>
+                  <td>
+                    <button
+                      class="schedule-list__edit"
+                      type="button"
+                      [attr.aria-label]="'Edit ' + entry.title"
+                    >
+                      &#9998;</button
+                    ><button
+                      class="schedule-list__delete"
+                      type="button"
+                      [disabled]="deletingId() === entry.id"
+                      [attr.aria-label]="'Delete ' + entry.title"
+                      (click)="deleteSchedule(entry.id)"
+                    >
+                      &#128465;
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="schedule-list__empty">No meetings for this person.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</section>

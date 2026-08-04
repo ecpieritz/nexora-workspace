@@ -37,6 +37,13 @@ export const routes: Routes = [
             ({ InvoiceListComponent }) => InvoiceListComponent,
           ),
       },
+      {
+        path: 'schedule',
+        loadComponent: () =>
+          import('@features/schedule/pages/schedule-list/schedule-list.component').then(
+            ({ ScheduleListComponent }) => ScheduleListComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },
