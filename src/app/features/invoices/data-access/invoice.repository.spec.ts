@@ -40,4 +40,24 @@ describe('InvoiceRepository', () => {
     expect(invoices.some(({ id }) => id === '876987')).toBeFalse();
     expect(localStorage.getItem('nexora:invoices')).not.toBeNull();
   });
+
+  it('should create and persist an invoice with its calculated total', async () => {
+    TestBed.configureTestingModule({
+      providers: [InvoiceRepository, { provide: MockApiService, useClass: MockApiStub }],
+    });
+    const repository = TestBed.inject(InvoiceRepository);
+
+    const created = await repository.create({
+      customerName: 'New Customer',
+      email: 'new@example.com',
+      address: '123 Main Street',
+      issuedAt: '2026-08-04T00:00:00.000Z',
+      discount: 10,
+      items: [{ description: 'Angular dashboard', rate: 1000, quantity: 2 }],
+    });
+
+    expect(created.status).toBe('pending');
+    expect(created.total).toBe(1800);
+    expect((await repository.getAll())[0].id).toBe(created.id);
+  });
 });

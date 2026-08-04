@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { MockApiError, MockApiService, MockStorageService } from '@core/mock-api';
 
-import { Invoice, InvoiceStatus } from '../models/invoice.model';
+import { CreateInvoiceInput, Invoice, InvoiceStatus } from '../models/invoice.model';
 
 const INVOICES_STORAGE_KEY = 'nexora:invoices';
 
@@ -98,6 +98,24 @@ export class InvoiceRepository {
     return this.mockApi.execute(() => this.readInvoices());
   }
 
+  create(input: CreateInvoiceInput): Promise<Invoice> {
+    return this.mockApi.execute(() => {
+      const invoices = this.readInvoices();
+      const subtotal = input.items.reduce((total, item) => total + item.rate * item.quantity, 0);
+      const invoice: Invoice = {
+        ...input,
+        id: this.nextId(invoices),
+        status: 'pending',
+        favorite: false,
+        total: subtotal * (1 - input.discount / 100),
+        items: input.items.map((item) => ({ ...item })),
+      };
+
+      this.storage.write(INVOICES_STORAGE_KEY, [invoice, ...invoices]);
+      return { ...invoice, items: invoice.items?.map((item) => ({ ...item })) };
+    });
+  }
+
   updateStatus(id: string, status: InvoiceStatus): Promise<Invoice> {
     return this.update(id, (invoice) => ({ ...invoice, status }));
   }
@@ -142,5 +160,10 @@ export class InvoiceRepository {
       INVOICES_STORAGE_KEY,
       INVOICES.map((invoice) => ({ ...invoice })),
     );
+  }
+
+  private nextId(invoices: Invoice[]): string {
+    const greatestId = Math.max(...invoices.map(({ id }) => Number(id) || 0), 876000);
+    return String(greatestId + 1);
   }
 }

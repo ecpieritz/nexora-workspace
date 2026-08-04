@@ -24,6 +24,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'invoices/new',
+        loadComponent: () =>
+          import('@features/invoices/pages/invoice-create/invoice-create.component').then(
+            ({ InvoiceCreateComponent }) => InvoiceCreateComponent,
+          ),
+      },
+      {
         path: 'invoices',
         loadComponent: () =>
           import('@features/invoices/pages/invoice-list/invoice-list.component').then(

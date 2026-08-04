@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,7 +18,7 @@ type InvoiceStatusFilter = 'all' | InvoiceStatus;
 
 @Component({
   selector: 'app-invoice-list',
-  imports: [ButtonDirective, DatePipe, InputDirective],
+  imports: [ButtonDirective, DatePipe, InputDirective, RouterLink],
   templateUrl: './invoice-list.component.html',
   styleUrl: './invoice-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

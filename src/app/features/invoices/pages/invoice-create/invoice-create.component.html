@@ -1,0 +1,136 @@
+<section class="invoice-create" aria-labelledby="invoice-create-title">
+  <form class="invoice-create__form" [formGroup]="form" (ngSubmit)="submit()">
+    <header>
+      <div>
+        <p>Billing</p>
+        <h1 id="invoice-create-title">Create new invoice</h1>
+      </div>
+      <a routerLink="/invoices">Close</a>
+    </header>
+    <div class="invoice-create__grid">
+      <label class="invoice-create__wide"
+        ><span>Customer name</span
+        ><input appInput formControlName="customerName" placeholder="Alison Green"
+      /></label>
+      <label
+        ><span>Email</span
+        ><input appInput type="email" formControlName="email" placeholder="alison@example.com"
+      /></label>
+      <label
+        ><span>Invoice date</span><input appInput type="date" formControlName="issuedAt"
+      /></label>
+      <label class="invoice-create__wide"
+        ><span>Billing address</span
+        ><input appInput formControlName="address" placeholder="Street, city, country"
+      /></label>
+      <label
+        ><span>Discount (%)</span
+        ><input appInput type="number" min="0" max="100" formControlName="discount"
+      /></label>
+    </div>
+
+    <div class="invoice-create__items" formArrayName="items">
+      <div class="invoice-create__items-heading">
+        <h2>Invoice items</h2>
+        <button appButton type="button" size="small" (click)="addItem()">+ Add item</button>
+      </div>
+      @for (item of items.controls; track item; let index = $index) {
+        <div class="invoice-create__item" [formGroupName]="index">
+          <label
+            ><span>Description</span
+            ><input appInput formControlName="description" placeholder="Website redesign"
+          /></label>
+          <label
+            ><span>Rate</span
+            ><input appInput type="number" min="0.01" step="0.01" formControlName="rate"
+          /></label>
+          <label
+            ><span>Qty</span><input appInput type="number" min="1" formControlName="quantity"
+          /></label>
+          <strong>{{
+            item.controls.rate.value * item.controls.quantity.value | currency: 'USD'
+          }}</strong>
+          <button
+            type="button"
+            aria-label="Remove item"
+            [disabled]="items.length === 1"
+            (click)="removeItem(index)"
+          >
+            &times;
+          </button>
+        </div>
+      }
+    </div>
+    @if (form.invalid && form.touched) {
+      <p class="invoice-create__error" role="alert">
+        Complete all required fields with valid values.
+      </p>
+    }
+    @if (saveError()) {
+      <p class="invoice-create__error" role="alert">
+        We could not create the invoice. Please try again.
+      </p>
+    }
+    <footer>
+      <a appButton variant="secondary" routerLink="/invoices">Cancel</a
+      ><button appButton type="submit" [loading]="saving()" loadingLabel="Creating invoice">
+        Create invoice
+      </button>
+    </footer>
+  </form>
+
+  <aside class="invoice-preview" aria-label="Invoice preview">
+    <header>
+      <span class="invoice-preview__mark">N</span>
+      <div><strong>Nexora</strong><small>hello&#64;nexora.app</small></div>
+    </header>
+    <div class="invoice-preview__title">
+      <div>
+        <small>Recipient</small><strong>{{ formValue().customerName || 'Customer name' }}</strong
+        ><span>{{ formValue().email || 'customer@email.com' }}</span
+        ><span>{{ formValue().address || 'Billing address' }}</span>
+      </div>
+      <div>
+        <h2>Invoice</h2>
+        <span>{{ formValue().issuedAt | date: 'mediumDate' }}</span>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of formValue().items; track $index) {
+          <tr>
+            <td>{{ item.description || 'Service description' }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.rate | currency: 'USD' }}</td>
+            <td>{{ item.rate * item.quantity | currency: 'USD' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <dl>
+      <div>
+        <dt>Subtotal</dt>
+        <dd>{{ subtotal() | currency: 'USD' }}</dd>
+      </div>
+      <div>
+        <dt>Discount</dt>
+        <dd>{{ formValue().discount }}%</dd>
+      </div>
+      <div class="invoice-preview__total">
+        <dt>Total</dt>
+        <dd>{{ total() | currency: 'USD' }}</dd>
+      </div>
+    </dl>
+    <p class="invoice-preview__note">
+      Thank you for your business. Payment is due within 15 days of the invoice date.
+    </p>
+  </aside>
+</section>
