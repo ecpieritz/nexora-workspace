@@ -11,6 +11,9 @@ class MockApiStub {
 }
 
 describe('InvoiceRepository', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
   it('should return isolated invoice records', async () => {
     TestBed.configureTestingModule({
       providers: [InvoiceRepository, { provide: MockApiService, useClass: MockApiStub }],
@@ -19,5 +22,22 @@ describe('InvoiceRepository', () => {
     const invoices = await TestBed.inject(InvoiceRepository).getAll();
     expect(invoices.length).toBe(10);
     expect(invoices.map((invoice) => invoice.status)).toContain('pending');
+  });
+
+  it('should persist status, favorite, and deletion changes', async () => {
+    TestBed.configureTestingModule({
+      providers: [InvoiceRepository, { provide: MockApiService, useClass: MockApiStub }],
+    });
+
+    const repository = TestBed.inject(InvoiceRepository);
+    expect((await repository.updateStatus('876123', 'complete')).status).toBe('complete');
+    expect((await repository.toggleFavorite('876213')).favorite).toBeTrue();
+    await repository.delete('876987');
+
+    const invoices = await repository.getAll();
+    expect(invoices.find(({ id }) => id === '876123')?.status).toBe('complete');
+    expect(invoices.find(({ id }) => id === '876213')?.favorite).toBeTrue();
+    expect(invoices.some(({ id }) => id === '876987')).toBeFalse();
+    expect(localStorage.getItem('nexora:invoices')).not.toBeNull();
   });
 });

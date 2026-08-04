@@ -1,8 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 
-import { MockApiService } from '@core/mock-api';
+import { MockApiError, MockApiService, MockStorageService } from '@core/mock-api';
 
-import { Invoice } from '../models/invoice.model';
+import { Invoice, InvoiceStatus } from '../models/invoice.model';
+
+const INVOICES_STORAGE_KEY = 'nexora:invoices';
 
 const INVOICES: readonly Invoice[] = [
   {
@@ -90,8 +92,55 @@ const INVOICES: readonly Invoice[] = [
 @Injectable({ providedIn: 'root' })
 export class InvoiceRepository {
   private readonly mockApi = inject(MockApiService);
+  private readonly storage = inject(MockStorageService);
 
   getAll(): Promise<Invoice[]> {
-    return this.mockApi.execute(() => INVOICES.map((invoice) => ({ ...invoice })));
+    return this.mockApi.execute(() => this.readInvoices());
+  }
+
+  updateStatus(id: string, status: InvoiceStatus): Promise<Invoice> {
+    return this.update(id, (invoice) => ({ ...invoice, status }));
+  }
+
+  toggleFavorite(id: string): Promise<Invoice> {
+    return this.update(id, (invoice) => ({ ...invoice, favorite: !invoice.favorite }));
+  }
+
+  delete(id: string): Promise<void> {
+    return this.mockApi.execute(() => {
+      const invoices = this.readInvoices();
+
+      if (!invoices.some((invoice) => invoice.id === id)) {
+        throw new MockApiError(404, 'Invoice not found.');
+      }
+
+      this.storage.write(
+        INVOICES_STORAGE_KEY,
+        invoices.filter((invoice) => invoice.id !== id),
+      );
+    });
+  }
+
+  private update(id: string, updater: (invoice: Invoice) => Invoice): Promise<Invoice> {
+    return this.mockApi.execute(() => {
+      const invoices = this.readInvoices();
+      const index = invoices.findIndex((invoice) => invoice.id === id);
+
+      if (index < 0) {
+        throw new MockApiError(404, 'Invoice not found.');
+      }
+
+      const updated = updater(invoices[index]);
+      invoices[index] = updated;
+      this.storage.write(INVOICES_STORAGE_KEY, invoices);
+      return { ...updated };
+    });
+  }
+
+  private readInvoices(): Invoice[] {
+    return this.storage.read<Invoice[]>(
+      INVOICES_STORAGE_KEY,
+      INVOICES.map((invoice) => ({ ...invoice })),
+    );
   }
 }

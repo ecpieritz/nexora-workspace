@@ -21,6 +21,9 @@ type InvoiceStatusFilter = 'all' | InvoiceStatus;
   templateUrl: './invoice-list.component.html',
   styleUrl: './invoice-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'closeOverlays()',
+  },
 })
 export class InvoiceListComponent implements OnInit {
   private readonly repository = inject(InvoiceRepository);
@@ -29,6 +32,10 @@ export class InvoiceListComponent implements OnInit {
   protected readonly searchTerm = signal('');
   protected readonly statusFilter = signal<InvoiceStatusFilter>('all');
   protected readonly selectedIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly openActionId = signal<string | null>(null);
+  protected readonly pendingDelete = signal<Invoice | null>(null);
+  protected readonly mutatingId = signal<string | null>(null);
+  protected readonly actionError = signal<string | null>(null);
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly filteredInvoices = computed(() => {
@@ -104,12 +111,81 @@ export class InvoiceListComponent implements OnInit {
     });
   }
 
-  protected toggleFavorite(id: string): void {
-    this.invoices.update((invoices) =>
-      invoices.map((invoice) =>
-        invoice.id === id ? { ...invoice, favorite: !invoice.favorite } : invoice,
-      ),
-    );
+  protected toggleActions(id: string): void {
+    this.openActionId.update((openId) => (openId === id ? null : id));
+    this.actionError.set(null);
+  }
+
+  protected async changeStatus(id: string, status: InvoiceStatus): Promise<void> {
+    this.mutatingId.set(id);
+    this.actionError.set(null);
+
+    try {
+      const updated = await this.repository.updateStatus(id, status);
+      this.replaceInvoice(updated);
+      this.openActionId.set(null);
+    } catch {
+      this.actionError.set('We could not update this invoice. Please try again.');
+    } finally {
+      this.mutatingId.set(null);
+    }
+  }
+
+  protected async toggleFavorite(id: string): Promise<void> {
+    this.mutatingId.set(id);
+    this.actionError.set(null);
+
+    try {
+      this.replaceInvoice(await this.repository.toggleFavorite(id));
+    } catch {
+      this.actionError.set('We could not update this invoice. Please try again.');
+    } finally {
+      this.mutatingId.set(null);
+    }
+  }
+
+  protected requestDelete(invoice: Invoice): void {
+    this.pendingDelete.set(invoice);
+    this.openActionId.set(null);
+  }
+
+  protected cancelDelete(): void {
+    this.pendingDelete.set(null);
+  }
+
+  protected dismissActionError(): void {
+    this.actionError.set(null);
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    const invoice = this.pendingDelete();
+
+    if (!invoice) {
+      return;
+    }
+
+    this.mutatingId.set(invoice.id);
+    this.actionError.set(null);
+
+    try {
+      await this.repository.delete(invoice.id);
+      this.invoices.update((invoices) => invoices.filter((item) => item.id !== invoice.id));
+      this.selectedIds.update((selected) => {
+        const next = new Set(selected);
+        next.delete(invoice.id);
+        return next;
+      });
+      this.pendingDelete.set(null);
+    } catch {
+      this.actionError.set('We could not delete this invoice. Please try again.');
+    } finally {
+      this.mutatingId.set(null);
+    }
+  }
+
+  protected closeOverlays(): void {
+    this.openActionId.set(null);
+    this.pendingDelete.set(null);
   }
 
   protected initials(name: string): string {
@@ -119,5 +195,11 @@ export class InvoiceListComponent implements OnInit {
       .map((part) => part.charAt(0))
       .join('')
       .toUpperCase();
+  }
+
+  private replaceInvoice(updated: Invoice): void {
+    this.invoices.update((invoices) =>
+      invoices.map((invoice) => (invoice.id === updated.id ? updated : invoice)),
+    );
   }
 }

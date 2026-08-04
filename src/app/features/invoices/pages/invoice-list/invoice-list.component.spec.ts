@@ -25,9 +25,15 @@ const INVOICES: Invoice[] = [
 
 describe('InvoiceListComponent', () => {
   let fixture: ComponentFixture<InvoiceListComponent>;
+  let repository: jasmine.SpyObj<InvoiceRepository>;
 
   beforeEach(async () => {
-    const repository = jasmine.createSpyObj<InvoiceRepository>('InvoiceRepository', ['getAll']);
+    repository = jasmine.createSpyObj<InvoiceRepository>('InvoiceRepository', [
+      'getAll',
+      'updateStatus',
+      'toggleFavorite',
+      'delete',
+    ]);
     repository.getAll.and.resolveTo(INVOICES);
 
     await TestBed.configureTestingModule({
@@ -64,5 +70,50 @@ describe('InvoiceListComponent', () => {
 
     expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(1);
     expect(fixture.nativeElement.textContent).toContain('Jane Doe');
+  });
+
+  it('should update an invoice status from its actions menu', async () => {
+    repository.updateStatus.and.resolveTo({ ...INVOICES[1], status: 'complete' });
+    const actions: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[aria-label="Actions for invoice 100002"]',
+    );
+    actions.click();
+    fixture.detectChanges();
+
+    const complete: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-status-action="complete"]',
+    );
+    complete.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(repository.updateStatus).toHaveBeenCalledOnceWith('100002', 'complete');
+    expect(actions.closest('tr')?.textContent).toContain('complete');
+  });
+
+  it('should delete an invoice only after confirmation', async () => {
+    repository.delete.and.resolveTo();
+    const actions: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[aria-label="Actions for invoice 100001"]',
+    );
+    actions.click();
+    fixture.detectChanges();
+
+    const requestDelete: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.invoice-list__delete-action',
+    );
+    requestDelete.click();
+    fixture.detectChanges();
+    expect(repository.delete).not.toHaveBeenCalled();
+
+    const confirmDelete: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.invoice-list__confirm-delete',
+    );
+    confirmDelete.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(repository.delete).toHaveBeenCalledOnceWith('100001');
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(1);
   });
 });

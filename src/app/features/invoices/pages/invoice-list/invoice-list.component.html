@@ -4,7 +4,7 @@
       <p>Billing</p>
       <h1 id="invoice-list-title">Invoice list</h1>
     </div>
-    <button appButton type="button"><span aria-hidden="true">＋</span> Add new</button>
+    <button appButton type="button"><span aria-hidden="true">&#43;</span> Add new</button>
   </header>
 
   <div class="invoice-list__toolbar" role="search">
@@ -27,13 +27,23 @@
         <option value="cancelled">Cancelled</option>
       </select>
     </label>
-    <span class="invoice-list__result-count" aria-live="polite">
-      {{ filteredInvoices().length }} {{ filteredInvoices().length === 1 ? 'invoice' : 'invoices' }}
-    </span>
+    <span class="invoice-list__result-count" aria-live="polite"
+      >{{ filteredInvoices().length }}
+      {{ filteredInvoices().length === 1 ? 'invoice' : 'invoices' }}</span
+    >
   </div>
 
+  @if (actionError()) {
+    <div class="invoice-list__action-error" role="alert">
+      <span>{{ actionError() }}</span>
+      <button type="button" aria-label="Dismiss notification" (click)="dismissActionError()">
+        &times;
+      </button>
+    </div>
+  }
+
   @if (loading()) {
-    <div class="invoice-list__state" role="status">Loading invoices…</div>
+    <div class="invoice-list__state" role="status">Loading invoices&hellip;</div>
   } @else if (loadError()) {
     <div class="invoice-list__state invoice-list__state--error" role="alert">
       <p>We could not load the invoice list.</p>
@@ -105,19 +115,64 @@
                     ' favorites'
                   "
                   [attr.aria-pressed]="invoice.favorite"
+                  [disabled]="mutatingId() === invoice.id"
                   (click)="toggleFavorite(invoice.id)"
                 >
-                  {{ invoice.favorite ? '★' : '☆' }}
+                  {{ invoice.favorite ? '&#9733;' : '&#9734;' }}
                 </button>
               </td>
-              <td>
+              <td class="invoice-list__action-cell">
                 <button
                   class="invoice-list__actions"
                   type="button"
+                  aria-haspopup="menu"
+                  [attr.aria-expanded]="openActionId() === invoice.id"
                   [attr.aria-label]="'Actions for invoice ' + invoice.id"
+                  [disabled]="mutatingId() === invoice.id"
+                  (click)="toggleActions(invoice.id)"
                 >
-                  •••
+                  &bull;&bull;&bull;
                 </button>
+                @if (openActionId() === invoice.id) {
+                  <div class="invoice-list__action-menu" role="menu">
+                    <p>Change status</p>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      data-status-action="complete"
+                      [disabled]="invoice.status === 'complete'"
+                      (click)="changeStatus(invoice.id, 'complete')"
+                    >
+                      Mark as complete
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      data-status-action="pending"
+                      [disabled]="invoice.status === 'pending'"
+                      (click)="changeStatus(invoice.id, 'pending')"
+                    >
+                      Mark as pending
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      data-status-action="cancelled"
+                      [disabled]="invoice.status === 'cancelled'"
+                      (click)="changeStatus(invoice.id, 'cancelled')"
+                    >
+                      Mark as cancelled
+                    </button>
+                    <button
+                      class="invoice-list__delete-action"
+                      type="button"
+                      role="menuitem"
+                      (click)="requestDelete(invoice)"
+                    >
+                      Delete invoice
+                    </button>
+                  </div>
+                }
               </td>
             </tr>
           } @empty {
@@ -130,3 +185,35 @@
     </div>
   }
 </section>
+
+@if (pendingDelete(); as invoice) {
+  <div class="invoice-list__modal-backdrop">
+    <section
+      class="invoice-list__dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-invoice-title"
+      aria-describedby="delete-invoice-description"
+    >
+      <h2 id="delete-invoice-title">Delete invoice?</h2>
+      <p id="delete-invoice-description">
+        Invoice #{{ invoice.id }} for {{ invoice.customerName }} will be permanently removed from
+        this demo workspace.
+      </p>
+      <div class="invoice-list__dialog-actions">
+        <button appButton type="button" variant="secondary" (click)="cancelDelete()">Cancel</button>
+        <button
+          appButton
+          class="invoice-list__confirm-delete"
+          type="button"
+          variant="danger"
+          loadingLabel="Deleting invoice"
+          [loading]="mutatingId() === invoice.id"
+          (click)="confirmDelete()"
+        >
+          Delete invoice
+        </button>
+      </div>
+    </section>
+  </div>
+}
