@@ -11,12 +11,18 @@
     </div>
   </header>
   @if (loading()) {
-    <div class="product-analytics__loading" aria-label="Loading product analytics"></div>
+    <app-data-state
+      kind="loading"
+      title="Loading product analytics"
+      message="Preparing sales metrics and product performance."
+    />
   } @else if (loadError()) {
-    <div class="product-analytics__error" role="alert">
-      <p>We could not load product analytics.</p>
-      <button type="button" (click)="loadAnalytics()">Try again</button>
-    </div>
+    <app-data-state
+      kind="error"
+      title="Product analytics unavailable"
+      message="We could not load the product data. Please try again."
+      (action)="loadAnalytics()"
+    />
   } @else {
     @if (analytics(); as data) {
       <div class="product-analytics__layout">
@@ -64,35 +70,43 @@
               </div>
               <button type="button">See all</button>
             </header>
-            <div class="product-analytics__table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Total orders</th>
-                    <th>Total sales</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (product of data.ranking; track product.id; let rank = $index) {
+            @if (data.ranking.length === 0) {
+              <app-data-state
+                kind="empty"
+                title="No products yet"
+                message="Create your first product to start tracking its performance."
+              />
+            } @else {
+              <div class="product-analytics__table-scroll">
+                <table>
+                  <thead>
                     <tr>
-                      <td>
-                        <span class="product-analytics__rank">{{ rank + 1 }}</span>
-                      </td>
-                      <td>
-                        <strong>{{ product.name }}</strong
-                        ><small>{{ product.category }}</small>
-                      </td>
-                      <td>{{ currency(product.price) }}</td>
-                      <td>{{ product.orders.toLocaleString('en-US') }}</td>
-                      <td class="product-analytics__sales">{{ currency(product.sales) }}</td>
+                      <th>Rank</th>
+                      <th>Product</th>
+                      <th>Price</th>
+                      <th>Total orders</th>
+                      <th>Total sales</th>
                     </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    @for (product of data.ranking; track product.id; let rank = $index) {
+                      <tr>
+                        <td>
+                          <span class="product-analytics__rank">{{ rank + 1 }}</span>
+                        </td>
+                        <td>
+                          <strong>{{ product.name }}</strong
+                          ><small>{{ product.category }}</small>
+                        </td>
+                        <td>{{ currency(product.price) }}</td>
+                        <td>{{ product.orders.toLocaleString('en-US') }}</td>
+                        <td class="product-analytics__sales">{{ currency(product.sales) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
           </article>
         </div>
         <aside class="product-analytics__side">

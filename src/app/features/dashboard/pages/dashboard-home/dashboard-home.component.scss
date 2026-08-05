@@ -28,6 +28,10 @@
   gap: var(--space-4);
 }
 
+.dashboard-home__summary app-data-state {
+  grid-column: 1 / -1;
+}
+
 .dashboard-home__skeleton {
   min-height: 7.5rem;
   border-radius: var(--radius-lg);

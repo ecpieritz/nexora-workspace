@@ -1,0 +1,61 @@
+.data-state {
+  display: grid;
+  min-height: 14rem;
+  padding: var(--space-8);
+  place-items: center;
+  align-content: center;
+  gap: var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+.data-state strong {
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+}
+.data-state p {
+  max-width: 30rem;
+}
+.data-state__icon {
+  display: grid;
+  width: 3rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-gray-100);
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+.data-state button {
+  padding: var(--space-3) var(--space-5);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-500);
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+.data-state__spinner {
+  width: 2.5rem;
+  aspect-ratio: 1;
+  border: 0.2rem solid var(--color-primary-100);
+  border-top-color: var(--color-primary-500);
+  border-radius: 50%;
+  animation: data-state-spin 0.8s linear infinite;
+}
+.data-state--loading {
+  min-height: 20rem;
+}
+@keyframes data-state-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .data-state__spinner {
+    animation-duration: 1.8s;
+  }
+}

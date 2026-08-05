@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
+import { DataStateComponent } from '@shared/ui';
 
 import { SummaryCardComponent } from '../../components/summary-card/summary-card.component';
 import { SalesReportChartComponent } from '../../components/sales-report-chart/sales-report-chart.component';
@@ -15,6 +16,7 @@ import { RecentOrder, TopProduct } from '../../models/dashboard-widget.model';
 @Component({
   selector: 'app-dashboard-home',
   imports: [
+    DataStateComponent,
     RecentOrdersComponent,
     SalesReportChartComponent,
     SummaryCardComponent,

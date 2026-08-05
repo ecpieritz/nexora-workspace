@@ -7,12 +7,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DataStateComponent } from '@shared/ui';
 import { ProductRepository } from '../../data-access/product.repository';
 import { ProductAnalytics } from '../../models/product-analytics.model';
 
 @Component({
   selector: 'app-product-analytics',
-  imports: [ReactiveFormsModule],
+  imports: [DataStateComponent, ReactiveFormsModule],
   templateUrl: './product-analytics.component.html',
   styleUrl: './product-analytics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

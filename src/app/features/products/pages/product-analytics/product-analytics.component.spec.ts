@@ -17,16 +17,14 @@ class ProductRepositoryStub {
     monthlySales: [{ month: 'Jan', value: 10 }],
     distribution: [],
   });
-  create = jasmine
-    .createSpy()
-    .and.resolveTo({
-      id: 'new',
-      name: 'Notebook',
-      category: 'Computers',
-      price: 1200,
-      orders: 0,
-      sales: 0,
-    });
+  create = jasmine.createSpy().and.resolveTo({
+    id: 'new',
+    name: 'Notebook',
+    category: 'Computers',
+    price: 1200,
+    orders: 0,
+    sales: 0,
+  });
 }
 
 describe('ProductAnalyticsComponent', () => {

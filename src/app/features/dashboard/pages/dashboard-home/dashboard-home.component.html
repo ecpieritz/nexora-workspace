@@ -7,15 +7,24 @@
 
   <div class="dashboard-home__summary" aria-label="Workspace summary" aria-live="polite">
     @if (loading()) {
-      @for (item of [1, 2, 3, 4]; track item) {
-        <div class="dashboard-home__skeleton" aria-hidden="true"></div>
-      }
-      <span class="dashboard-home__loading-copy">Loading workspace summary</span>
+      <app-data-state
+        kind="loading"
+        title="Loading workspace summary"
+        message="Preparing your latest business overview."
+      />
     } @else if (loadError()) {
-      <div class="dashboard-home__error" role="alert">
-        <p>We could not load your workspace summary.</p>
-        <button type="button" (click)="loadDashboard()">Try again</button>
-      </div>
+      <app-data-state
+        kind="error"
+        title="Workspace unavailable"
+        message="We could not load your workspace summary."
+        (action)="loadDashboard()"
+      />
+    } @else if (summary().length === 0) {
+      <app-data-state
+        kind="empty"
+        title="Nothing to summarize yet"
+        message="Your workspace activity will appear here as data is created."
+      />
     } @else {
       @for (item of summary(); track item.id) {
         <app-summary-card
