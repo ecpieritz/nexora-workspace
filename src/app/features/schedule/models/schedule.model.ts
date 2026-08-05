@@ -11,4 +11,20 @@ export interface ScheduleEntry {
   startsAt: string;
   location: string;
   attendeeIds: string[];
+  endsAt?: string;
+  kind?: ScheduleKind;
+  description?: string;
+}
+
+export type ScheduleKind = 'event' | 'reminder' | 'task';
+
+export interface CreateScheduleInput {
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  attendeeIds: string[];
+  kind: ScheduleKind;
+  description: string;
 }

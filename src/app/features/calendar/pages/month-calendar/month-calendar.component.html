@@ -34,7 +34,7 @@
   </header>
   <div class="month-calendar__layout">
     <aside class="month-calendar__sidebar">
-      <button appButton type="button">+ Create schedule</button>
+      <button appButton type="button" (click)="openCreateEvent()">+ Create schedule</button>
       <div class="month-calendar__mini">
         <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
         <div>
@@ -208,3 +208,78 @@
     </div>
   </div>
 </section>
+
+@if (createOpen()) {
+  <div class="event-dialog__backdrop" (mousedown)="closeCreateEvent()">
+    <section
+      class="event-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="event-dialog-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="event-dialog-title">Create an event</h2>
+        <button type="button" aria-label="Close event form" (click)="closeCreateEvent()">
+          &times;
+        </button>
+      </header>
+      <form [formGroup]="eventForm" (ngSubmit)="createEvent()">
+        <div class="event-dialog__types" role="group" aria-label="Schedule type">
+          @for (kind of eventKinds; track kind) {
+            <button
+              type="button"
+              [class.event-dialog__type--active]="eventForm.controls.kind.value === kind"
+              [attr.aria-pressed]="eventForm.controls.kind.value === kind"
+              (click)="setEventKind(kind)"
+            >
+              {{ kind }}
+            </button>
+          }
+        </div>
+        <label
+          ><span>Title</span><input appInput formControlName="title" placeholder="Add title"
+        /></label>
+        <div class="event-dialog__row">
+          <label><span>Date</span><input appInput type="date" formControlName="date" /></label
+          ><label
+            ><span>Starts</span><input appInput type="time" formControlName="startTime" /></label
+          ><label><span>Ends</span><input appInput type="time" formControlName="endTime" /></label>
+        </div>
+        <label
+          ><span>Location</span
+          ><input appInput formControlName="location" placeholder="Add location"
+        /></label>
+        <label
+          ><span>Description</span
+          ><textarea appInput formControlName="description" placeholder="Add notes"></textarea>
+        </label>
+        <fieldset>
+          <legend>Add people</legend>
+          <div class="event-dialog__people">
+            @for (person of people(); track person.id) {
+              <label
+                ><input
+                  type="checkbox"
+                  [checked]="eventForm.controls.attendeeIds.value.includes(person.id)"
+                  (change)="toggleAttendee(person.id)"
+                /><span [style.background]="person.color">{{ person.name.charAt(0) }}</span
+                ><strong>{{ person.name }}</strong></label
+              >
+            }
+          </div>
+        </fieldset>
+        @if (saveError()) {
+          <p class="event-dialog__error" role="alert">{{ saveError() }}</p>
+        }
+        <footer>
+          <button appButton type="button" variant="secondary" (click)="closeCreateEvent()">
+            Cancel</button
+          ><button appButton type="submit" [loading]="saving()" loadingLabel="Creating event">
+            Create event
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

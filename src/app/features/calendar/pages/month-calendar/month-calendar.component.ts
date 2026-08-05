@@ -7,9 +7,14 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ScheduleRepository } from '@features/schedule/data-access/schedule.repository';
-import { ScheduleEntry, SchedulePerson } from '@features/schedule/models/schedule.model';
+import {
+  ScheduleEntry,
+  ScheduleKind,
+  SchedulePerson,
+} from '@features/schedule/models/schedule.model';
 import { ButtonDirective, InputDirective } from '@shared/ui';
 
 interface CalendarDay {
@@ -23,10 +28,11 @@ type CalendarView = 'day' | 'month' | 'year';
 
 @Component({
   selector: 'app-month-calendar',
-  imports: [ButtonDirective, DatePipe, InputDirective],
+  imports: [ButtonDirective, DatePipe, InputDirective, ReactiveFormsModule],
   templateUrl: './month-calendar.component.html',
   styleUrl: './month-calendar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:keydown.escape)': 'closeCreateEvent()' },
 })
 export class MonthCalendarComponent implements OnInit {
   private readonly repository = inject(ScheduleRepository);
@@ -39,8 +45,31 @@ export class MonthCalendarComponent implements OnInit {
   protected readonly peopleSearch = signal('');
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
+  protected readonly createOpen = signal(false);
+  protected readonly saving = signal(false);
+  protected readonly saveError = signal<string | null>(null);
+  protected readonly eventForm = new FormGroup({
+    kind: new FormControl<ScheduleKind>('event', { nonNullable: true }),
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    date: new FormControl('2026-08-05', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    startTime: new FormControl('10:00', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    endTime: new FormControl('11:00', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    location: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    description: new FormControl('', { nonNullable: true }),
+    attendeeIds: new FormControl<string[]>([], { nonNullable: true }),
+  });
   protected readonly weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   protected readonly hours = Array.from({ length: 16 }, (_, index) => index + 8);
+  protected readonly eventKinds: readonly ScheduleKind[] = ['event', 'reminder', 'task'];
   protected readonly days = computed<CalendarDay[]>(() => {
     const month = this.displayedMonth();
     const first = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
@@ -142,6 +171,59 @@ export class MonthCalendarComponent implements OnInit {
   }
   protected updatePeopleSearch(event: Event): void {
     this.peopleSearch.set((event.target as HTMLInputElement).value);
+  }
+
+  protected openCreateEvent(date?: Date): void {
+    const selected = date ?? this.selectedDate();
+    this.eventForm.reset({
+      kind: 'event',
+      title: '',
+      date: selected.toISOString().slice(0, 10),
+      startTime: '10:00',
+      endTime: '11:00',
+      location: '',
+      description: '',
+      attendeeIds: [],
+    });
+    this.saveError.set(null);
+    this.createOpen.set(true);
+  }
+  protected closeCreateEvent(): void {
+    if (!this.saving()) this.createOpen.set(false);
+  }
+  protected setEventKind(kind: ScheduleKind): void {
+    this.eventForm.controls.kind.setValue(kind);
+  }
+  protected toggleAttendee(id: string): void {
+    const attendees = this.eventForm.controls.attendeeIds.value;
+    this.eventForm.controls.attendeeIds.setValue(
+      attendees.includes(id) ? attendees.filter((item) => item !== id) : [...attendees, id],
+    );
+  }
+  protected async createEvent(): Promise<void> {
+    if (this.eventForm.invalid) {
+      this.eventForm.markAllAsTouched();
+      this.saveError.set('Complete all required fields.');
+      return;
+    }
+    const value = this.eventForm.getRawValue();
+    if (value.endTime <= value.startTime) {
+      this.saveError.set('End time must be after start time.');
+      return;
+    }
+    this.saving.set(true);
+    this.saveError.set(null);
+    try {
+      const created = await this.repository.create(value);
+      this.events.update((events) => [...events, created]);
+      this.displayedMonth.set(new Date(`${value.date}T00:00:00.000Z`));
+      this.selectedDate.set(new Date(`${value.date}T00:00:00.000Z`));
+      this.createOpen.set(false);
+    } catch {
+      this.saveError.set('We could not create this event. Please try again.');
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   private buildMonthDays(year: number, month: number): CalendarDay[] {

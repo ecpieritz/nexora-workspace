@@ -8,6 +8,7 @@ describe('MonthCalendarComponent', () => {
     const repository = jasmine.createSpyObj<ScheduleRepository>('ScheduleRepository', [
       'getSchedules',
       'getPeople',
+      'create',
     ]);
     repository.getSchedules.and.resolveTo([
       {
@@ -29,6 +30,16 @@ describe('MonthCalendarComponent', () => {
       { id: 'eddie', name: 'Eddie Lobanovskiy', email: 'eddie@example.com', color: '#87a8ff' },
       { id: 'alexey', name: 'Alexey Stave', email: 'alexey@example.com', color: '#d996ef' },
     ]);
+    repository.create.and.callFake(async (input) => ({
+      id: 'created',
+      title: input.title,
+      startsAt: `${input.date}T${input.startTime}:00.000Z`,
+      endsAt: `${input.date}T${input.endTime}:00.000Z`,
+      location: input.location,
+      attendeeIds: input.attendeeIds,
+      kind: input.kind,
+      description: input.description,
+    }));
     await TestBed.configureTestingModule({
       imports: [MonthCalendarComponent],
       providers: [{ provide: ScheduleRepository, useValue: repository }],
@@ -86,5 +97,28 @@ describe('MonthCalendarComponent', () => {
     eventDay.click();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.day-calendar')).not.toBeNull();
+  });
+  it('should validate and create an event from the dialog', async () => {
+    const repository = TestBed.inject(ScheduleRepository) as jasmine.SpyObj<ScheduleRepository>;
+    const open: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.month-calendar__sidebar [appButton]',
+    );
+    open.click();
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const setValue = (selector: string, value: string) => {
+      const input = root.querySelector<HTMLInputElement>(selector)!;
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+    };
+    setValue('[formControlName="title"]', 'Portfolio review');
+    setValue('[formControlName="location"]', 'Studio');
+    const submit: HTMLButtonElement = root.querySelector('.event-dialog button[type="submit"]')!;
+    submit.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(repository.create).toHaveBeenCalled();
+    expect(root.querySelector('.event-dialog')).toBeNull();
+    expect(root.textContent).toContain('Portfolio review');
   });
 });

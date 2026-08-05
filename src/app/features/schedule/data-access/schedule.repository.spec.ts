@@ -5,6 +5,9 @@ import { MockApiService } from '@core/mock-api';
 import { ScheduleRepository } from './schedule.repository';
 
 class MockApiStub {
+  createId(): string {
+    return 'schedule-created';
+  }
   async execute<T>(operation: () => T | Promise<T>): Promise<T> {
     return operation();
   }
@@ -29,5 +32,21 @@ describe('ScheduleRepository', () => {
     const repository = TestBed.inject(ScheduleRepository);
     await repository.delete('schedule-1');
     expect((await repository.getSchedules()).some(({ id }) => id === 'schedule-1')).toBeFalse();
+  });
+  it('should create and persist schedule entries', async () => {
+    const repository = TestBed.inject(ScheduleRepository);
+    const created = await repository.create({
+      title: 'New event',
+      date: '2026-08-05',
+      startTime: '10:00',
+      endTime: '11:00',
+      location: 'Office',
+      attendeeIds: ['eddie'],
+      kind: 'event',
+      description: 'Planning session',
+    });
+    expect(created.startsAt).toBe('2026-08-05T10:00:00.000Z');
+    expect(created.endsAt).toBe('2026-08-05T11:00:00.000Z');
+    expect((await repository.getSchedules()).some(({ id }) => id === created.id)).toBeTrue();
   });
 });

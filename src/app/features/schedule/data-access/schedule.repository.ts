@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { MockApiError, MockApiService, MockStorageService } from '@core/mock-api';
 
-import { ScheduleEntry, SchedulePerson } from '../models/schedule.model';
+import { CreateScheduleInput, ScheduleEntry, SchedulePerson } from '../models/schedule.model';
 
 const SCHEDULE_STORAGE_KEY = 'nexora:schedule';
 
@@ -83,6 +83,24 @@ export class ScheduleRepository {
 
   getSchedules(): Promise<ScheduleEntry[]> {
     return this.mockApi.execute(() => this.readSchedules());
+  }
+
+  create(input: CreateScheduleInput): Promise<ScheduleEntry> {
+    return this.mockApi.execute(() => {
+      const schedules = this.readSchedules();
+      const entry: ScheduleEntry = {
+        id: this.mockApi.createId(),
+        title: input.title,
+        startsAt: `${input.date}T${input.startTime}:00.000Z`,
+        endsAt: `${input.date}T${input.endTime}:00.000Z`,
+        location: input.location,
+        attendeeIds: [...input.attendeeIds],
+        kind: input.kind,
+        description: input.description,
+      };
+      this.storage.write(SCHEDULE_STORAGE_KEY, [...schedules, entry]);
+      return { ...entry, attendeeIds: [...entry.attendeeIds] };
+    });
   }
 
   delete(id: string): Promise<void> {
