@@ -24,6 +24,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'analytics',
+        loadComponent: () =>
+          import('@features/customers/pages/customer-list/customer-list.component').then(
+            ({ CustomerListComponent }) => CustomerListComponent,
+          ),
+      },
+      {
         path: 'invoices/new',
         loadComponent: () =>
           import('@features/invoices/pages/invoice-create/invoice-create.component').then(

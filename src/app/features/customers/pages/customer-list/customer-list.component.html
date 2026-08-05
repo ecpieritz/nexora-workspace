@@ -1,0 +1,124 @@
+<section class="customer-list" aria-labelledby="customer-list-title">
+  <header class="customer-list__header">
+    <div>
+      <p>Relationships</p>
+      <h1 id="customer-list-title">Customer list</h1>
+    </div>
+    <button appButton type="button">+ Add customer</button>
+  </header>
+  <div class="customer-list__toolbar">
+    <label
+      ><span class="customer-list__sr-only">Search customers</span
+      ><input
+        appInput
+        type="search"
+        placeholder="Search name, email, or phone"
+        [value]="searchTerm()"
+        (input)="updateSearch($event)" /></label
+    ><span>{{ filteredCustomers().length }} customers</span>
+  </div>
+  @if (loading()) {
+    <div class="customer-list__state" role="status">Loading customers&hellip;</div>
+  } @else if (loadError()) {
+    <div class="customer-list__state" role="alert">
+      Unable to load customers. <button type="button" (click)="load()">Try again</button>
+    </div>
+  } @else {
+    <div class="customer-list__layout">
+      <div class="customer-list__table-wrap" tabindex="0">
+        <table>
+          <caption class="customer-list__sr-only">
+            Nexora customers
+          </caption>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone number</th>
+              <th>Gender</th>
+              <th><span class="customer-list__sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (customer of filteredCustomers(); track customer.id) {
+              <tr
+                [class.customer-list__row--selected]="selectedId() === customer.id"
+                (click)="selectCustomer(customer.id)"
+                (keydown.enter)="selectCustomer(customer.id)"
+                tabindex="0"
+              >
+                <td>
+                  <span class="customer-list__avatar" [style.background]="customer.color">{{
+                    initials(customer)
+                  }}</span
+                  ><strong>{{ fullName(customer) }}</strong>
+                </td>
+                <td>
+                  <a [href]="'mailto:' + customer.email" (click)="$event.stopPropagation()">{{
+                    customer.email
+                  }}</a>
+                </td>
+                <td>{{ customer.phone }}</td>
+                <td>
+                  <span class="customer-list__gender" [attr.data-gender]="customer.gender">{{
+                    customer.gender
+                  }}</span>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    [attr.aria-label]="'Actions for ' + fullName(customer)"
+                    (click)="$event.stopPropagation()"
+                  >
+                    &hellip;
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="customer-list__empty">No customers match your search.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (selectedCustomer(); as customer) {
+        <aside class="customer-details" aria-label="Selected customer details">
+          <header>
+            <span class="customer-details__avatar" [style.background]="customer.color">{{
+              initials(customer)
+            }}</span>
+            <h2>{{ fullName(customer) }}</h2>
+            <p>{{ customer.role }}</p>
+          </header>
+          <section>
+            <h3>Contact info</h3>
+            <a [href]="'mailto:' + customer.email">&#9993; {{ customer.email }}</a
+            ><a [href]="'tel:' + customer.phone">&#9742; {{ customer.phone }}</a>
+            <p>&#9679; {{ customer.address }}</p>
+          </section>
+          <section>
+            <h3>Performance</h3>
+            <div class="customer-details__chart" aria-label="Six month performance chart">
+              @for (value of customer.performance; track $index) {
+                <span [style.height.%]="value" [title]="value + ' percent'"></span>
+              }
+            </div>
+            <div class="customer-details__months">
+              <span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span
+              ><span>Aug</span>
+            </div>
+          </section>
+          <div class="customer-details__metrics">
+            <div>
+              <strong>{{ customer.satisfaction }}%</strong><span>Satisfaction</span>
+            </div>
+            <div>
+              <strong>{{ customer.retention }}%</strong><span>Retention</span>
+            </div>
+          </div>
+        </aside>
+      }
+    </div>
+  }
+</section>
