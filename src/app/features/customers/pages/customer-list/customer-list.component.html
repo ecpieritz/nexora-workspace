@@ -4,7 +4,7 @@
       <p>Relationships</p>
       <h1 id="customer-list-title">Customer list</h1>
     </div>
-    <button appButton type="button">+ Add customer</button>
+    <button appButton type="button" (click)="openCreate()">+ Add customer</button>
   </header>
   <div class="customer-list__toolbar">
     <label
@@ -68,7 +68,7 @@
                   <button
                     type="button"
                     [attr.aria-label]="'Actions for ' + fullName(customer)"
-                    (click)="$event.stopPropagation()"
+                    (click)="$event.stopPropagation(); openEdit(customer)"
                   >
                     &hellip;
                   </button>
@@ -122,3 +122,57 @@
     </div>
   }
 </section>
+
+@if (editorOpen()) {
+  <div class="customer-editor__backdrop" (mousedown)="closeEditor()"></div>
+  <aside
+    class="customer-editor"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="customer-editor-title"
+  >
+    <header>
+      <button type="button" aria-label="Close customer form" (click)="closeEditor()">
+        &times;
+      </button>
+      <div class="customer-editor__photo" aria-hidden="true">&#128247;</div>
+      <h2 id="customer-editor-title">{{ editingId() ? 'Edit customer' : 'Add a new customer' }}</h2>
+    </header>
+    <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+      <div class="customer-editor__row">
+        <label><span>First name</span><input appInput formControlName="firstName" /></label
+        ><label><span>Last name</span><input appInput formControlName="lastName" /></label>
+      </div>
+      <label><span>Email</span><input appInput type="email" formControlName="email" /></label>
+      <label><span>Phone number</span><input appInput type="tel" formControlName="phone" /></label>
+      <label
+        ><span>Gender</span
+        ><select appInput formControlName="gender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="non-binary">Non-binary</option>
+        </select></label
+      >
+      <label
+        ><span>Role</span><input appInput formControlName="role" placeholder="UI/UX Designer"
+      /></label>
+      <label><span>Address</span><textarea appInput formControlName="address"></textarea></label>
+      @if (customerForm.invalid && customerForm.touched) {
+        <p class="customer-editor__error" role="alert">
+          Complete all fields with valid information.
+        </p>
+      }
+      @if (saveError()) {
+        <p class="customer-editor__error" role="alert">
+          We could not save this customer. Please try again.
+        </p>
+      }
+      <footer>
+        <button appButton type="button" variant="secondary" (click)="closeEditor()">Cancel</button
+        ><button appButton type="submit" [loading]="saving()" loadingLabel="Saving customer">
+          {{ editingId() ? 'Save changes' : 'Add customer' }}
+        </button>
+      </footer>
+    </form>
+  </aside>
+}

@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { MockApiService } from '@core/mock-api';
-import { Customer } from '../models/customer.model';
+import { MockApiError, MockApiService, MockStorageService } from '@core/mock-api';
+import { Customer, CustomerFormValue } from '../models/customer.model';
+
+const CUSTOMERS_STORAGE_KEY = 'nexora:customers';
 
 const CUSTOMERS: readonly Customer[] = [
   {
@@ -120,8 +122,38 @@ const CUSTOMERS: readonly Customer[] = [
 @Injectable({ providedIn: 'root' })
 export class CustomerRepository {
   private readonly mockApi = inject(MockApiService);
+  private readonly storage = inject(MockStorageService);
   getAll(): Promise<Customer[]> {
-    return this.mockApi.execute(() =>
+    return this.mockApi.execute(() => this.read());
+  }
+  create(input: CustomerFormValue): Promise<Customer> {
+    return this.mockApi.execute(() => {
+      const customers = this.read();
+      const customer: Customer = {
+        ...input,
+        id: this.mockApi.createId(),
+        performance: [35, 48, 42, 61, 58, 72],
+        satisfaction: 72,
+        retention: 65,
+        color: '#625df5',
+      };
+      this.storage.write(CUSTOMERS_STORAGE_KEY, [customer, ...customers]);
+      return { ...customer, performance: [...customer.performance] };
+    });
+  }
+  update(id: string, input: CustomerFormValue): Promise<Customer> {
+    return this.mockApi.execute(() => {
+      const customers = this.read();
+      const index = customers.findIndex((customer) => customer.id === id);
+      if (index < 0) throw new MockApiError(404, 'Customer not found.');
+      customers[index] = { ...customers[index], ...input };
+      this.storage.write(CUSTOMERS_STORAGE_KEY, customers);
+      return { ...customers[index], performance: [...customers[index].performance] };
+    });
+  }
+  private read(): Customer[] {
+    return this.storage.read<Customer[]>(
+      CUSTOMERS_STORAGE_KEY,
       CUSTOMERS.map((customer) => ({ ...customer, performance: [...customer.performance] })),
     );
   }

@@ -14,3 +14,8 @@ export interface Customer {
   retention: number;
   color: string;
 }
+
+export type CustomerFormValue = Pick<
+  Customer,
+  'firstName' | 'lastName' | 'email' | 'phone' | 'gender' | 'role' | 'address'
+>;

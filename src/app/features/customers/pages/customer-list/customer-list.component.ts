@@ -6,16 +6,18 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonDirective, InputDirective } from '@shared/ui';
 import { CustomerRepository } from '../../data-access/customer.repository';
-import { Customer } from '../../models/customer.model';
+import { Customer, CustomerGender } from '../../models/customer.model';
 
 @Component({
   selector: 'app-customer-list',
-  imports: [ButtonDirective, InputDirective],
+  imports: [ButtonDirective, InputDirective, ReactiveFormsModule],
   templateUrl: './customer-list.component.html',
   styleUrl: './customer-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:keydown.escape)': 'closeEditor()' },
 })
 export class CustomerListComponent implements OnInit {
   private readonly repository = inject(CustomerRepository);
@@ -24,6 +26,25 @@ export class CustomerListComponent implements OnInit {
   protected readonly searchTerm = signal('');
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
+  protected readonly editorOpen = signal(false);
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly saving = signal(false);
+  protected readonly saveError = signal(false);
+  protected readonly customerForm = new FormGroup({
+    firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    gender: new FormControl<CustomerGender>('male', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    role: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    address: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
   protected readonly filteredCustomers = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     return this.customers().filter(
@@ -64,5 +85,61 @@ export class CustomerListComponent implements OnInit {
   }
   protected initials(customer: Customer): string {
     return `${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}`.toUpperCase();
+  }
+  protected openCreate(): void {
+    this.editingId.set(null);
+    this.customerForm.reset({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      gender: 'male',
+      role: '',
+      address: '',
+    });
+    this.saveError.set(false);
+    this.editorOpen.set(true);
+  }
+  protected openEdit(customer: Customer): void {
+    this.editingId.set(customer.id);
+    this.customerForm.reset({
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phone: customer.phone,
+      gender: customer.gender,
+      role: customer.role,
+      address: customer.address,
+    });
+    this.saveError.set(false);
+    this.editorOpen.set(true);
+  }
+  protected closeEditor(): void {
+    if (!this.saving()) this.editorOpen.set(false);
+  }
+  protected async saveCustomer(): Promise<void> {
+    if (this.customerForm.invalid) {
+      this.customerForm.markAllAsTouched();
+      return;
+    }
+    this.saving.set(true);
+    this.saveError.set(false);
+    try {
+      const id = this.editingId();
+      const saved = id
+        ? await this.repository.update(id, this.customerForm.getRawValue())
+        : await this.repository.create(this.customerForm.getRawValue());
+      this.customers.update((customers) =>
+        id
+          ? customers.map((customer) => (customer.id === id ? saved : customer))
+          : [saved, ...customers],
+      );
+      this.selectedId.set(saved.id);
+      this.editorOpen.set(false);
+    } catch {
+      this.saveError.set(true);
+    } finally {
+      this.saving.set(false);
+    }
   }
 }

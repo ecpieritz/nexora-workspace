@@ -36,8 +36,24 @@ const CUSTOMERS: Customer[] = [
 describe('CustomerListComponent', () => {
   let fixture: ComponentFixture<CustomerListComponent>;
   beforeEach(async () => {
-    const repository = jasmine.createSpyObj<CustomerRepository>('CustomerRepository', ['getAll']);
+    const repository = jasmine.createSpyObj<CustomerRepository>('CustomerRepository', [
+      'getAll',
+      'create',
+      'update',
+    ]);
     repository.getAll.and.resolveTo(CUSTOMERS);
+    repository.create.and.callFake(async (input) => ({
+      ...input,
+      id: 'created',
+      performance: [35, 48, 42, 61, 58, 72],
+      satisfaction: 72,
+      retention: 65,
+      color: '#625df5',
+    }));
+    repository.update.and.callFake(async (id, input) => ({
+      ...CUSTOMERS.find((customer) => customer.id === id)!,
+      ...input,
+    }));
     await TestBed.configureTestingModule({
       imports: [CustomerListComponent],
       providers: [{ provide: CustomerRepository, useValue: repository }],
@@ -68,6 +84,49 @@ describe('CustomerListComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.customer-details').textContent).toContain(
       'Shelby Goode',
+    );
+  });
+  it('should create a customer from the drawer', async () => {
+    const repository = TestBed.inject(CustomerRepository) as jasmine.SpyObj<CustomerRepository>;
+    const add: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.customer-list__header button',
+    );
+    add.click();
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const values: Record<string, string> = {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+      phone: '+789',
+      role: 'Designer',
+      address: 'Third Street',
+    };
+    Object.entries(values).forEach(([name, value]) => {
+      const field = root.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        `[formControlName="${name}"]`,
+      )!;
+      field.value = value;
+      field.dispatchEvent(new Event('input'));
+    });
+    root.querySelector<HTMLButtonElement>('.customer-editor button[type="submit"]')!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(repository.create).toHaveBeenCalled();
+    expect(root.textContent).toContain('Jane Doe');
+  });
+  it('should open the selected customer for editing', () => {
+    const action: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[aria-label="Actions for John Deo"]',
+    );
+    action.click();
+    fixture.detectChanges();
+    const firstName: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[formControlName="firstName"]',
+    );
+    expect(firstName.value).toBe('John');
+    expect(fixture.nativeElement.querySelector('.customer-editor').textContent).toContain(
+      'Edit customer',
     );
   });
 });
