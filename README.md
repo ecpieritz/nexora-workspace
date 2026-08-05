@@ -16,6 +16,10 @@ Nexora is a responsive business workspace built with Angular 19. It brings dashb
 
 Angular 19, TypeScript, RxJS, SCSS, Jasmine, Karma, ESLint and Prettier.
 
+## Design credits
+
+The interface was implemented from the community Figma design [SAAS Dashboard Community](https://www.figma.com/design/tJ4bHE2CNR3ZMCr0SIH9oq/SAAS-Dashboard--Community-?node-id=0-1&t=5pyV7t5r3Wt4Hfc4-0), adapted and expanded for the Nexora portfolio project.
+
 ## Getting started
 
 Requires Node.js 20+ and npm.

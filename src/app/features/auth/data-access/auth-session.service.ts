@@ -43,6 +43,17 @@ export class AuthSessionService {
     this.session.set(null);
   }
 
+  updateCurrentUser(changes: Partial<Pick<RegisteredUser, 'fullName' | 'username'>>): void {
+    const current = this.session();
+    if (!current) return;
+    const session = { ...current, user: { ...current.user, ...changes } };
+    this.getStorage(session.persistent).setItem(
+      this.getStorageKey(session.persistent),
+      JSON.stringify(session),
+    );
+    this.session.set(session);
+  }
+
   private restore(): AuthSession | null {
     const session = this.readSession(this.sessionStorage, TAB_SESSION_KEY);
     const persistentSession = this.readSession(this.localStorage, LOCAL_SESSION_KEY);

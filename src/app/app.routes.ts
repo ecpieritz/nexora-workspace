@@ -72,6 +72,13 @@ export const routes: Routes = [
             ({ MonthCalendarComponent }) => MonthCalendarComponent,
           ),
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('@features/settings/pages/settings/settings.component').then(
+            ({ SettingsComponent }) => SettingsComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

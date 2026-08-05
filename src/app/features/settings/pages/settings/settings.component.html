@@ -1,0 +1,172 @@
+<section class="settings" aria-labelledby="settings-title">
+  <header class="settings__header">
+    <div>
+      <p>Workspace</p>
+      <h1 id="settings-title">Settings</h1>
+      <span>Manage your profile and workspace preferences.</span>
+    </div>
+    <button
+      appButton
+      type="button"
+      [loading]="saving()"
+      loadingLabel="Saving settings"
+      (click)="save()"
+    >
+      Save changes
+    </button>
+  </header>
+  @if (loading()) {
+    <app-data-state kind="loading" title="Loading settings" />
+  } @else if (loadError()) {
+    <app-data-state
+      kind="error"
+      title="Settings unavailable"
+      message="We could not load your preferences."
+      (action)="load()"
+    />
+  } @else {
+    <form class="settings__layout" [formGroup]="form" (ngSubmit)="save()">
+      <aside class="settings__summary">
+        <div class="settings__avatar">{{ initials() }}</div>
+        <h2>{{ form.controls.fullName.value }}</h2>
+        <p>{{ form.controls.role.value }}</p>
+        <dl>
+          <div>
+            <dt>Account</dt>
+            <dd>Demo workspace</dd>
+          </div>
+          <div>
+            <dt>Member since</dt>
+            <dd>{{ user()?.createdAt?.slice(0, 10) }}</dd>
+          </div>
+        </dl>
+      </aside>
+      <div class="settings__sections">
+        <section>
+          <header>
+            <h2>Profile information</h2>
+            <p>Control how you appear throughout Nexora.</p>
+          </header>
+          <div class="settings__fields">
+            <label
+              >Full name<input formControlName="fullName" />
+              @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+                <small>Enter at least 2 characters.</small>
+              }</label
+            ><label>Display name<input formControlName="displayName" /></label
+            ><label
+              >Role<input formControlName="role" /><small>Role cannot be changed.</small></label
+            ><label
+              >Phone<input
+                formControlName="phone"
+                type="tel"
+                placeholder="+55 85 99999-9999" /></label
+            ><label>Birth date<input formControlName="birthDate" type="date" /></label
+            ><label class="settings__wide"
+              >Bio<textarea formControlName="bio" rows="4" maxlength="240"></textarea
+              ><small>{{ form.controls.bio.value.length }}/240</small></label
+            >
+          </div>
+        </section>
+        <section>
+          <header>
+            <h2>Protected account information</h2>
+            <p>Contact support if these identity details need correction.</p>
+          </header>
+          <div class="settings__fields">
+            <label
+              >Email<input [value]="user()?.email ?? ''" disabled /><small
+                >Email cannot be changed.</small
+              ></label
+            ><label
+              >CPF/CNPJ<input formControlName="taxId" placeholder="000.000.000-00" />
+              @if (form.controls.taxId.disabled) {
+                <small>Tax identification cannot be changed.</small>
+              } @else if (form.controls.taxId.touched && form.controls.taxId.invalid) {
+                <small>Enter a valid CPF or CNPJ.</small>
+              } @else {
+                <small>This field will be locked after it is saved.</small>
+              }
+            </label>
+          </div>
+        </section>
+        <section>
+          <header><h2>Workspace preferences</h2></header>
+          <div class="settings__fields">
+            <label
+              >Language<select formControlName="language">
+                <option value="en">English</option>
+                <option value="pt-BR">Português (Brasil)</option>
+              </select></label
+            ><label
+              >Timezone<select formControlName="timezone">
+                <option>America/Fortaleza</option>
+                <option>America/Sao_Paulo</option>
+                <option>UTC</option>
+              </select></label
+            ><label
+              >Date format<select formControlName="dateFormat">
+                <option>DD/MM/YYYY</option>
+                <option>MM/DD/YYYY</option>
+              </select></label
+            ><label
+              >Currency<select formControlName="currency">
+                <option>BRL</option>
+                <option>USD</option>
+                <option>EUR</option>
+              </select></label
+            ><label class="settings__toggle"
+              ><input formControlName="compactSidebar" type="checkbox" /> Start with compact
+              sidebar</label
+            >
+          </div>
+        </section>
+        <section>
+          <header><h2>Notifications</h2></header>
+          <div class="settings__notifications">
+            <label
+              ><input formControlName="taskNotifications" type="checkbox" /><span
+                ><strong>Tasks</strong><small>Assignments and status changes</small></span
+              ></label
+            ><label
+              ><input formControlName="invoiceNotifications" type="checkbox" /><span
+                ><strong>Invoices</strong><small>Billing and payment activity</small></span
+              ></label
+            ><label
+              ><input formControlName="eventNotifications" type="checkbox" /><span
+                ><strong>Events</strong><small>Upcoming calendar reminders</small></span
+              ></label
+            ><label
+              ><input formControlName="customerNotifications" type="checkbox" /><span
+                ><strong>Customers</strong><small>Customer and product updates</small></span
+              ></label
+            >
+          </div>
+        </section>
+        <section class="settings__security">
+          <header>
+            <h2>Security and demo data</h2>
+            <p>Manage access or reset this local portfolio workspace.</p>
+          </header>
+          <div>
+            <button appButton type="button" variant="secondary" routerLink="/auth/recover-password">
+              Change password
+            </button>
+            <button appButton type="button" variant="danger" (click)="requestClearData()">
+              Clear demo data
+            </button>
+          </div>
+        </section>
+      </div>
+    </form>
+  }
+</section>
+@if (confirmClearData()) {
+  <app-confirmation-dialog
+    title="Clear all demo data?"
+    message="Your account, customers, invoices, products and preferences will be removed from this browser."
+    confirmLabel="Clear data"
+    (cancelled)="cancelClearData()"
+    (confirmed)="clearData()"
+  />
+}

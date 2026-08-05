@@ -50,4 +50,12 @@ describe('AuthSessionService', () => {
     expect(service.accessToken()).toBeNull();
     expect(localStorage.getItem('nexora:persistent-session')).toBeNull();
   });
+
+  it('should update and persist the active user profile', () => {
+    const service = TestBed.inject(AuthSessionService);
+    service.start(user, true);
+    service.updateCurrentUser({ fullName: 'Jane Smith' });
+    expect(service.currentUser()?.fullName).toBe('Jane Smith');
+    expect(localStorage.getItem('nexora:persistent-session')).toContain('Jane Smith');
+  });
 });

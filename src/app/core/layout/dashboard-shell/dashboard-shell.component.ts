@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { MockStorageService } from '@core/mock-api';
 
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 import { BrandComponent } from '@shared/components/brand/brand.component';
@@ -31,10 +32,13 @@ interface NavigationItem {
 })
 export class DashboardShellComponent {
   private readonly router = inject(Router);
+  private readonly storage = inject(MockStorageService);
   protected readonly session = inject(AuthSessionService);
 
   protected readonly navigationOpen = signal(false);
-  protected readonly sidebarCollapsed = signal(false);
+  protected readonly sidebarCollapsed = signal(
+    this.storage.read<boolean>('nexora:compact-sidebar', false),
+  );
   protected readonly userMenuOpen = signal(false);
   protected readonly userInitials = computed(() => {
     const name = this.session.currentUser()?.fullName ?? 'Nexora User';
@@ -68,6 +72,7 @@ export class DashboardShellComponent {
 
   protected toggleSidebar(): void {
     this.sidebarCollapsed.update((collapsed) => !collapsed);
+    this.storage.write('nexora:compact-sidebar', this.sidebarCollapsed());
     this.userMenuOpen.set(false);
   }
 
