@@ -81,6 +81,89 @@
   font-size: var(--font-size-xs);
   opacity: 0.8;
 }
+
+.week-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(8.5rem, 1fr));
+  min-height: 38rem;
+  overflow-x: auto;
+  border-top: 1px solid var(--color-border);
+}
+
+.week-calendar__day {
+  min-width: 8.5rem;
+  border-right: 1px solid var(--color-border);
+}
+
+.week-calendar__day > header {
+  display: grid;
+  place-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.week-calendar__day > header strong {
+  color: var(--color-text);
+}
+.week-calendar__day > div {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+.week-calendar__event {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-left: 0.1875rem solid var(--color-primary-500);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-50);
+  text-align: left;
+}
+.week-calendar__event time,
+.week-calendar__event span,
+.week-calendar__empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.event-details {
+  max-width: 32rem;
+}
+.event-details__content {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+.event-details__content h3 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+.event-details__kind {
+  width: max-content;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+  text-transform: capitalize;
+}
+.event-details dl {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+.event-details dl div {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: var(--space-3);
+}
+.event-details dt {
+  color: var(--color-text-muted);
+}
+.event-details dd {
+  margin: 0;
+}
 .year-calendar {
   display: grid;
   grid-template-columns: repeat(3, minmax(13rem, 1fr));
@@ -173,10 +256,28 @@
   text-align: center;
   font-size: 0.68rem;
 }
-.month-calendar__mini > div span {
+.month-calendar__mini > div span,
+.month-calendar__mini > div button {
   display: grid;
   place-items: center;
   min-height: 1.5rem;
+}
+.month-calendar__mini > div button {
+  appearance: none;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+.month-calendar__mini > div button:hover {
+  background: var(--color-primary-100);
 }
 .month-calendar__mini-muted {
   color: var(--color-text-subtle);
@@ -185,6 +286,22 @@
   color: var(--color-white);
   background: var(--color-primary-500);
   border-radius: var(--radius-full);
+}
+.month-calendar__mini > div .month-calendar__mini-week {
+  color: var(--color-primary-700);
+  background: var(--color-primary-100);
+  border-radius: 0;
+}
+.month-calendar__mini > div .month-calendar__mini-week:first-child,
+.month-calendar__mini > div .month-calendar__mini-week:nth-child(7n + 1) {
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+.month-calendar__mini > div .month-calendar__mini-week:nth-child(7n) {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+.month-calendar__mini > div .month-calendar__mini-selected {
+  color: var(--color-white);
+  background: var(--color-primary-500);
 }
 .month-calendar__sidebar h2 {
   margin: 1.5rem 0 0.75rem;

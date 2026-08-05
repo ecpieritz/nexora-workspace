@@ -103,6 +103,27 @@ export class ScheduleRepository {
     });
   }
 
+  update(id: string, input: CreateScheduleInput): Promise<ScheduleEntry> {
+    return this.mockApi.execute(() => {
+      const schedules = this.readSchedules();
+      const index = schedules.findIndex((entry) => entry.id === id);
+      if (index < 0) throw new MockApiError(404, 'Schedule entry not found.');
+      const updated: ScheduleEntry = {
+        id,
+        title: input.title,
+        startsAt: `${input.date}T${input.startTime}:00.000Z`,
+        endsAt: `${input.date}T${input.endTime}:00.000Z`,
+        location: input.location,
+        attendeeIds: [...input.attendeeIds],
+        kind: input.kind,
+        description: input.description,
+      };
+      schedules[index] = updated;
+      this.storage.write(SCHEDULE_STORAGE_KEY, schedules);
+      return { ...updated, attendeeIds: [...updated.attendeeIds] };
+    });
+  }
+
   delete(id: string): Promise<void> {
     return this.mockApi.execute(() => {
       const schedules = this.readSchedules();

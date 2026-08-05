@@ -13,7 +13,14 @@
       >
         Day
       </button>
-      <span>Week</span>
+      <button
+        type="button"
+        [attr.aria-pressed]="activeView() === 'week'"
+        [class.month-calendar__view--active]="activeView() === 'week'"
+        (click)="setView('week')"
+      >
+        Week
+      </button>
       <button
         type="button"
         [attr.aria-pressed]="activeView() === 'month'"
@@ -35,23 +42,32 @@
   <div class="month-calendar__layout">
     <aside class="month-calendar__sidebar">
       <button appButton type="button" (click)="openCreateEvent()">+ Create schedule</button>
-      <div class="month-calendar__mini">
-        <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
-        <div>
-          @for (weekday of weekdays; track weekday) {
-            <span>{{ weekday.charAt(0) }}</span>
-          }
+      @if (activeView() !== 'year') {
+        <div class="month-calendar__mini">
+          <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
+          <div>
+            @for (weekday of weekdays; track weekday) {
+              <span>{{ weekday.charAt(0) }}</span>
+            }
+          </div>
+          <div>
+            @for (day of days(); track day.key) {
+              <button
+                type="button"
+                [class.month-calendar__mini-muted]="!day.currentMonth"
+                [class.month-calendar__mini-today]="day.today"
+                [class.month-calendar__mini-selected]="isSelectedMiniDay(day)"
+                [class.month-calendar__mini-week]="isSelectedMiniWeek(day)"
+                [attr.aria-pressed]="isSelectedMiniDay(day) || isSelectedMiniWeek(day)"
+                [attr.aria-label]="day.date | date: 'fullDate' : 'UTC'"
+                (click)="selectMiniDate(day.date)"
+              >
+                {{ day.date | date: 'd' : 'UTC' }}
+              </button>
+            }
+          </div>
         </div>
-        <div>
-          @for (day of days().slice(0, 35); track day.key) {
-            <span
-              [class.month-calendar__mini-muted]="!day.currentMonth"
-              [class.month-calendar__mini-today]="day.today"
-              >{{ day.date | date: 'd' : 'UTC' }}</span
-            >
-          }
-        </div>
-      </div>
+      }
       <h2>People</h2>
       <label
         ><span class="month-calendar__sr-only">Search people</span
@@ -106,6 +122,16 @@
             ><button type="button" aria-label="Next day" (click)="changeDay(1)">&#8250;</button>
           </div>
         </header>
+      } @else if (activeView() === 'week') {
+        <header class="month-calendar__controls">
+          <strong>Week of {{ weekDays()[0] | date: 'MMM d, yyyy' : 'UTC' }}</strong>
+          <div>
+            <button type="button" (click)="goToToday()">This week</button
+            ><button type="button" aria-label="Previous week" (click)="changeWeek(-1)">
+              &#8249;</button
+            ><button type="button" aria-label="Next week" (click)="changeWeek(1)">&#8250;</button>
+          </div>
+        </header>
       } @else {
         <header class="month-calendar__controls">
           <strong>{{ displayedMonth() | date: 'yyyy' : 'UTC' }}</strong>
@@ -145,6 +171,7 @@
                     type="button"
                     [attr.data-color]="index % 4"
                     [title]="event.title + ' at ' + event.location"
+                    (click)="openEventDetails(event)"
                   >
                     <strong>{{ event.title }}</strong
                     ><span>{{ event.startsAt | date: 'shortTime' : 'UTC' }}</span>
@@ -161,7 +188,12 @@
               <time>{{ hour.toString().padStart(2, '0') }}:00</time>
               <div>
                 @for (event of eventsAtHour(hour); track event.id; let index = $index) {
-                  <button class="day-calendar__event" type="button" [attr.data-color]="index % 4">
+                  <button
+                    class="day-calendar__event"
+                    type="button"
+                    [attr.data-color]="index % 4"
+                    (click)="openEventDetails(event)"
+                  >
                     <strong>{{ event.title }}</strong
                     ><span
                       >{{ event.startsAt | date: 'shortTime' : 'UTC' }} · {{ event.location }}</span
@@ -170,6 +202,33 @@
                 }
               </div>
             </div>
+          }
+        </div>
+      } @else if (activeView() === 'week') {
+        <div class="week-calendar" aria-label="Weekly schedule">
+          @for (day of weekDays(); track day.toISOString()) {
+            <section class="week-calendar__day">
+              <header>
+                <span>{{ day | date: 'EEE' : 'UTC' }}</span
+                ><strong>{{ day | date: 'd' : 'UTC' }}</strong>
+              </header>
+              <div>
+                @for (event of eventsForDate(day); track event.id; let index = $index) {
+                  <button
+                    class="week-calendar__event"
+                    type="button"
+                    [attr.data-color]="index % 4"
+                    (click)="openEventDetails(event)"
+                  >
+                    <time>{{ event.startsAt | date: 'shortTime' : 'UTC' }}</time
+                    ><strong>{{ event.title }}</strong
+                    ><span>{{ event.location }}</span>
+                  </button>
+                } @empty {
+                  <span class="week-calendar__empty">No events</span>
+                }
+              </div>
+            </section>
           }
         </div>
       } @else {
@@ -280,6 +339,59 @@
           </button>
         </footer>
       </form>
+    </section>
+  </div>
+}
+
+@if (selectedEvent(); as event) {
+  <div class="event-dialog__backdrop" (mousedown)="closeEventDetails()">
+    <section
+      class="event-dialog event-details"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="event-details-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="event-details-title">Schedule details</h2>
+        <button type="button" aria-label="Close event details" (click)="closeEventDetails()">
+          &times;
+        </button>
+      </header>
+      <div class="event-details__content">
+        <span class="event-details__kind">{{ event.kind ?? 'event' }}</span>
+        <h3>{{ event.title }}</h3>
+        <dl>
+          <div>
+            <dt>Date</dt>
+            <dd>{{ event.startsAt | date: 'fullDate' : 'UTC' }}</dd>
+          </div>
+          <div>
+            <dt>Time</dt>
+            <dd>
+              {{ event.startsAt | date: 'shortTime' : 'UTC' }}
+              @if (event.endsAt) {
+                – {{ event.endsAt | date: 'shortTime' : 'UTC' }}
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd>{{ event.location }}</dd>
+          </div>
+          <div>
+            <dt>People</dt>
+            <dd>{{ attendeeNames(event) || 'No attendees' }}</dd>
+          </div>
+          @if (event.description) {
+            <div>
+              <dt>Description</dt>
+              <dd>{{ event.description }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+      <footer><button appButton type="button" (click)="closeEventDetails()">Close</button></footer>
     </section>
   </div>
 }

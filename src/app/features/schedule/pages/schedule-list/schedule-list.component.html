@@ -4,7 +4,7 @@
       <p>Workspace</p>
       <h1 id="schedule-title">Schedule list</h1>
     </div>
-    <button appButton type="button">+ Add new</button>
+    <button appButton type="button" (click)="openEditor()">+ Add new</button>
   </header>
   <div class="schedule-list__layout">
     <aside class="schedule-list__people" aria-labelledby="people-title">
@@ -112,6 +112,7 @@
                       class="schedule-list__edit"
                       type="button"
                       [attr.aria-label]="'Edit ' + entry.title"
+                      (click)="openEditor(entry)"
                     >
                       &#9998;</button
                     ><button
@@ -137,3 +138,75 @@
     </div>
   </div>
 </section>
+@if (editorOpen()) {
+  <div class="event-dialog__backdrop" (mousedown)="closeEditor()">
+    <section
+      class="event-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="schedule-dialog-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="schedule-dialog-title">{{ editingId() ? 'Edit schedule' : 'Create schedule' }}</h2>
+        <button type="button" aria-label="Close schedule form" (click)="closeEditor()">
+          &times;
+        </button>
+      </header>
+      <form [formGroup]="eventForm" (ngSubmit)="saveSchedule()">
+        <div class="event-dialog__types" role="group" aria-label="Schedule type">
+          @for (kind of eventKinds; track kind) {
+            <button
+              type="button"
+              [class.event-dialog__type--active]="eventForm.controls.kind.value === kind"
+              (click)="setEventKind(kind)"
+            >
+              {{ kind }}
+            </button>
+          }
+        </div>
+        <label
+          ><span>Title</span><input appInput formControlName="title" placeholder="Add title"
+        /></label>
+        <div class="event-dialog__row">
+          <label><span>Date</span><input appInput type="date" formControlName="date" /></label
+          ><label
+            ><span>Starts</span><input appInput type="time" formControlName="startTime" /></label
+          ><label><span>Ends</span><input appInput type="time" formControlName="endTime" /></label>
+        </div>
+        <label
+          ><span>Location</span
+          ><input appInput formControlName="location" placeholder="Add location"
+        /></label>
+        <label
+          ><span>Description</span
+          ><textarea appInput formControlName="description" placeholder="Add notes"></textarea>
+        </label>
+        <fieldset>
+          <legend>Add people</legend>
+          <div class="event-dialog__people">
+            @for (person of people(); track person.id) {
+              <label
+                ><input
+                  type="checkbox"
+                  [checked]="eventForm.controls.attendeeIds.value.includes(person.id)"
+                  (change)="toggleAttendee(person.id)"
+                /><span [style.background]="person.color">{{ person.name.charAt(0) }}</span
+                ><strong>{{ person.name }}</strong></label
+              >
+            }
+          </div>
+        </fieldset>
+        @if (saveError()) {
+          <p class="event-dialog__error" role="alert">{{ saveError() }}</p>
+        }
+        <footer>
+          <button appButton type="button" variant="secondary" (click)="closeEditor()">Cancel</button
+          ><button appButton type="submit" [loading]="saving()" loadingLabel="Saving schedule">
+            {{ editingId() ? 'Save changes' : 'Create schedule' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

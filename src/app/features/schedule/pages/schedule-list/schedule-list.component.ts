@@ -7,11 +7,12 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ButtonDirective, InputDirective } from '@shared/ui';
 
 import { ScheduleRepository } from '../../data-access/schedule.repository';
-import { ScheduleEntry, SchedulePerson } from '../../models/schedule.model';
+import { ScheduleEntry, ScheduleKind, SchedulePerson } from '../../models/schedule.model';
 
 interface MiniCalendarDay {
   iso: string;
@@ -22,10 +23,11 @@ interface MiniCalendarDay {
 
 @Component({
   selector: 'app-schedule-list',
-  imports: [ButtonDirective, DatePipe, InputDirective],
+  imports: [ButtonDirective, DatePipe, InputDirective, ReactiveFormsModule],
   templateUrl: './schedule-list.component.html',
   styleUrl: './schedule-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:keydown.escape)': 'closeEditor()' },
 })
 export class ScheduleListComponent implements OnInit {
   private readonly repository = inject(ScheduleRepository);
@@ -36,6 +38,21 @@ export class ScheduleListComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly deletingId = signal<string | null>(null);
+  protected readonly editorOpen = signal(false);
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly saving = signal(false);
+  protected readonly saveError = signal<string | null>(null);
+  protected readonly eventKinds: readonly ScheduleKind[] = ['event', 'reminder', 'task'];
+  protected readonly eventForm = new FormGroup({
+    kind: new FormControl<ScheduleKind>('event', { nonNullable: true }),
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    date: new FormControl('2026-08-05', { nonNullable: true, validators: [Validators.required] }),
+    startTime: new FormControl('10:00', { nonNullable: true, validators: [Validators.required] }),
+    endTime: new FormControl('11:00', { nonNullable: true, validators: [Validators.required] }),
+    location: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    description: new FormControl('', { nonNullable: true }),
+    attendeeIds: new FormControl<string[]>([], { nonNullable: true }),
+  });
   protected readonly miniCalendarDays = this.createMiniCalendarDays(2026, 7, 4);
   protected readonly filteredPeople = computed(() => {
     const term = this.peopleSearch().trim().toLowerCase();
@@ -83,6 +100,63 @@ export class ScheduleListComponent implements OnInit {
       .map((id) => this.people().find((person) => person.id === id)?.name)
       .filter(Boolean)
       .join(', ');
+  }
+  protected openEditor(entry?: ScheduleEntry): void {
+    this.editingId.set(entry?.id ?? null);
+    const starts = entry ? new Date(entry.startsAt) : new Date('2026-08-05T10:00:00.000Z');
+    const ends = entry?.endsAt ? new Date(entry.endsAt) : new Date(starts.getTime() + 3_600_000);
+    this.eventForm.reset({
+      kind: entry?.kind ?? 'event',
+      title: entry?.title ?? '',
+      date: starts.toISOString().slice(0, 10),
+      startTime: starts.toISOString().slice(11, 16),
+      endTime: ends.toISOString().slice(11, 16),
+      location: entry?.location ?? '',
+      description: entry?.description ?? '',
+      attendeeIds: entry ? [...entry.attendeeIds] : [],
+    });
+    this.saveError.set(null);
+    this.editorOpen.set(true);
+  }
+  protected closeEditor(): void {
+    if (!this.saving()) this.editorOpen.set(false);
+  }
+  protected setEventKind(kind: ScheduleKind): void {
+    this.eventForm.controls.kind.setValue(kind);
+  }
+  protected toggleAttendee(id: string): void {
+    const values = this.eventForm.controls.attendeeIds.value;
+    this.eventForm.controls.attendeeIds.setValue(
+      values.includes(id) ? values.filter((value) => value !== id) : [...values, id],
+    );
+  }
+  protected async saveSchedule(): Promise<void> {
+    if (this.eventForm.invalid) {
+      this.eventForm.markAllAsTouched();
+      this.saveError.set('Complete all required fields.');
+      return;
+    }
+    const value = this.eventForm.getRawValue();
+    if (value.endTime <= value.startTime) {
+      this.saveError.set('End time must be after start time.');
+      return;
+    }
+    this.saving.set(true);
+    this.saveError.set(null);
+    try {
+      const id = this.editingId();
+      const saved = id
+        ? await this.repository.update(id, value)
+        : await this.repository.create(value);
+      this.schedules.update((entries) =>
+        id ? entries.map((entry) => (entry.id === id ? saved : entry)) : [...entries, saved],
+      );
+      this.editorOpen.set(false);
+    } catch {
+      this.saveError.set('We could not save this schedule. Please try again.');
+    } finally {
+      this.saving.set(false);
+    }
   }
   protected async deleteSchedule(id: string): Promise<void> {
     this.deletingId.set(id);

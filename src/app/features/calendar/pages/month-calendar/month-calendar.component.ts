@@ -24,7 +24,7 @@ interface CalendarDay {
   today: boolean;
 }
 
-type CalendarView = 'day' | 'month' | 'year';
+type CalendarView = 'day' | 'week' | 'month' | 'year';
 
 @Component({
   selector: 'app-month-calendar',
@@ -46,6 +46,7 @@ export class MonthCalendarComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly createOpen = signal(false);
+  protected readonly selectedEvent = signal<ScheduleEntry | null>(null);
   protected readonly saving = signal(false);
   protected readonly saveError = signal<string | null>(null);
   protected readonly eventForm = new FormGroup({
@@ -100,6 +101,21 @@ export class MonthCalendarComponent implements OnInit {
       days: this.buildMonthDays(year, month),
     }));
   });
+  protected readonly weekDays = computed(() => {
+    const start = new Date(this.selectedDate());
+    start.setUTCDate(start.getUTCDate() - start.getUTCDay());
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(start);
+      date.setUTCDate(start.getUTCDate() + index);
+      return date;
+    });
+  });
+  protected readonly selectedDateKey = computed(() =>
+    this.selectedDate().toISOString().slice(0, 10),
+  );
+  protected readonly selectedWeekKeys = computed(
+    () => new Set(this.weekDays().map((date) => date.toISOString().slice(0, 10))),
+  );
 
   ngOnInit(): void {
     void this.load();
@@ -126,11 +142,22 @@ export class MonthCalendarComponent implements OnInit {
     );
   }
   protected changeDay(offset: number): void {
-    this.selectedDate.update((date) => {
-      const next = new Date(date);
-      next.setUTCDate(next.getUTCDate() + offset);
-      return next;
-    });
+    const next = new Date(this.selectedDate());
+    next.setUTCDate(next.getUTCDate() + offset);
+    this.selectMiniDate(next);
+  }
+  protected changeWeek(offset: number): void {
+    this.changeDay(offset * 7);
+  }
+  protected selectMiniDate(date: Date): void {
+    this.selectedDate.set(new Date(date));
+    this.displayedMonth.set(new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)));
+  }
+  protected isSelectedMiniDay(day: CalendarDay): boolean {
+    return this.activeView() === 'day' && day.key === this.selectedDateKey();
+  }
+  protected isSelectedMiniWeek(day: CalendarDay): boolean {
+    return this.activeView() === 'week' && this.selectedWeekKeys().has(day.key);
   }
   protected changeYear(offset: number): void {
     this.displayedMonth.update(
@@ -138,14 +165,19 @@ export class MonthCalendarComponent implements OnInit {
     );
   }
   protected setView(view: CalendarView): void {
+    const previousView = this.activeView();
     this.activeView.set(view);
-    if (view === 'day') {
+    if (
+      (view === 'day' || view === 'week') &&
+      (previousView === 'month' || previousView === 'year')
+    ) {
       const month = this.displayedMonth();
       this.selectedDate.set(new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 4)));
     }
   }
   protected goToToday(): void {
     this.displayedMonth.set(new Date(Date.UTC(2026, 7, 1)));
+    this.selectedDate.set(new Date(Date.UTC(2026, 7, 4)));
   }
   protected eventsFor(day: CalendarDay): ScheduleEntry[] {
     return this.visibleEvents().filter((event) => event.startsAt.slice(0, 10) === day.key);
@@ -190,6 +222,18 @@ export class MonthCalendarComponent implements OnInit {
   }
   protected closeCreateEvent(): void {
     if (!this.saving()) this.createOpen.set(false);
+  }
+  protected openEventDetails(event: ScheduleEntry): void {
+    this.selectedEvent.set(event);
+  }
+  protected closeEventDetails(): void {
+    this.selectedEvent.set(null);
+  }
+  protected attendeeNames(event: ScheduleEntry): string {
+    return event.attendeeIds
+      .map((id) => this.people().find((person) => person.id === id)?.name)
+      .filter(Boolean)
+      .join(', ');
   }
   protected setEventKind(kind: ScheduleKind): void {
     this.eventForm.controls.kind.setValue(kind);
