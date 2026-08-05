@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { InvoiceRepository } from '../../data-access/invoice.repository';
 import { Invoice } from '../../models/invoice.model';
@@ -38,7 +39,7 @@ describe('InvoiceListComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [InvoiceListComponent],
-      providers: [{ provide: InvoiceRepository, useValue: repository }],
+      providers: [provideRouter([]), { provide: InvoiceRepository, useValue: repository }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InvoiceListComponent);
