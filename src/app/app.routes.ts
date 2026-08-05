@@ -31,6 +31,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products',
+        loadComponent: () =>
+          import('@features/products/pages/product-analytics/product-analytics.component').then(
+            ({ ProductAnalyticsComponent }) => ProductAnalyticsComponent,
+          ),
+      },
+      {
         path: 'invoices/new',
         loadComponent: () =>
           import('@features/invoices/pages/invoice-create/invoice-create.component').then(

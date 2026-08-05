@@ -10,6 +10,7 @@ interface NavigationItem {
   icon:
     | 'dashboard'
     | 'analytics'
+    | 'products'
     | 'invoice'
     | 'schedule'
     | 'tasks'
@@ -49,6 +50,7 @@ export class DashboardShellComponent {
   protected readonly navigation: readonly NavigationItem[] = [
     { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
     { label: 'Analytics', route: '/analytics', icon: 'analytics' },
+    { label: 'Products', route: '/products', icon: 'products' },
     { label: 'Invoices', route: '/invoices', icon: 'invoice' },
     { label: 'Schedule', route: '/schedule', icon: 'schedule' },
     { label: 'Tasks', route: '/tasks', icon: 'tasks' },
