@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { MockStorageService } from '@core/mock-api';
 
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 
@@ -23,7 +24,14 @@ describe('DashboardShellComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [DashboardShellComponent],
-      providers: [provideRouter([]), { provide: AuthSessionService, useValue: session }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthSessionService, useValue: session },
+        {
+          provide: MockStorageService,
+          useValue: { read: () => false, write: () => undefined },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardShellComponent);
