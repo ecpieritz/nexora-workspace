@@ -5,8 +5,31 @@
       <h1 id="calendar-title">Calendar</h1>
     </div>
     <nav aria-label="Calendar views">
-      <span>Day</span><span>Week</span><button type="button" aria-pressed="true">Month</button
-      ><span>Year</span>
+      <button
+        type="button"
+        [attr.aria-pressed]="activeView() === 'day'"
+        [class.month-calendar__view--active]="activeView() === 'day'"
+        (click)="setView('day')"
+      >
+        Day
+      </button>
+      <span>Week</span>
+      <button
+        type="button"
+        [attr.aria-pressed]="activeView() === 'month'"
+        [class.month-calendar__view--active]="activeView() === 'month'"
+        (click)="setView('month')"
+      >
+        Month
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="activeView() === 'year'"
+        [class.month-calendar__view--active]="activeView() === 'year'"
+        (click)="setView('year')"
+      >
+        Year
+      </button>
     </nav>
   </header>
   <div class="month-calendar__layout">
@@ -62,23 +85,46 @@
         </button>
       }
     </aside>
+
     <div class="month-calendar__main">
-      <header class="month-calendar__controls">
-        <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
-        <div>
-          <button type="button" (click)="goToToday()">Today</button
-          ><button type="button" aria-label="Previous month" (click)="changeMonth(-1)">
-            &#8249;</button
-          ><button type="button" aria-label="Next month" (click)="changeMonth(1)">&#8250;</button>
-        </div>
-      </header>
+      @if (activeView() === 'month') {
+        <header class="month-calendar__controls">
+          <strong>{{ displayedMonth() | date: 'MMMM yyyy' : 'UTC' }}</strong>
+          <div>
+            <button type="button" (click)="goToToday()">Today</button
+            ><button type="button" aria-label="Previous month" (click)="changeMonth(-1)">
+              &#8249;</button
+            ><button type="button" aria-label="Next month" (click)="changeMonth(1)">&#8250;</button>
+          </div>
+        </header>
+      } @else if (activeView() === 'day') {
+        <header class="month-calendar__controls">
+          <strong>{{ selectedDate() | date: 'fullDate' : 'UTC' }}</strong>
+          <div>
+            <button type="button" (click)="goToToday(); setView('day')">Today</button
+            ><button type="button" aria-label="Previous day" (click)="changeDay(-1)">&#8249;</button
+            ><button type="button" aria-label="Next day" (click)="changeDay(1)">&#8250;</button>
+          </div>
+        </header>
+      } @else {
+        <header class="month-calendar__controls">
+          <strong>{{ displayedMonth() | date: 'yyyy' : 'UTC' }}</strong>
+          <div>
+            <button type="button" (click)="goToToday()">This year</button
+            ><button type="button" aria-label="Previous year" (click)="changeYear(-1)">
+              &#8249;</button
+            ><button type="button" aria-label="Next year" (click)="changeYear(1)">&#8250;</button>
+          </div>
+        </header>
+      }
+
       @if (loading()) {
         <div class="month-calendar__state" role="status">Loading calendar&hellip;</div>
       } @else if (loadError()) {
         <div class="month-calendar__state" role="alert">
           Unable to load the calendar. <button type="button" (click)="load()">Try again</button>
         </div>
-      } @else {
+      } @else if (activeView() === 'month') {
         <div class="month-calendar__weekdays">
           @for (weekday of weekdays; track weekday) {
             <span>{{ weekday }}</span>
@@ -106,6 +152,56 @@
                 }
               </div>
             </article>
+          }
+        </div>
+      } @else if (activeView() === 'day') {
+        <div class="day-calendar" aria-label="Daily schedule">
+          @for (hour of hours; track hour) {
+            <div class="day-calendar__hour">
+              <time>{{ hour.toString().padStart(2, '0') }}:00</time>
+              <div>
+                @for (event of eventsAtHour(hour); track event.id; let index = $index) {
+                  <button class="day-calendar__event" type="button" [attr.data-color]="index % 4">
+                    <strong>{{ event.title }}</strong
+                    ><span
+                      >{{ event.startsAt | date: 'shortTime' : 'UTC' }} · {{ event.location }}</span
+                    >
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="year-calendar" aria-label="Year calendar">
+          @for (month of yearMonths(); track month.date.toISOString()) {
+            <section class="year-calendar__month">
+              <h2>{{ month.date | date: 'MMMM' : 'UTC' }}</h2>
+              <div class="year-calendar__weekdays">
+                @for (weekday of weekdays; track weekday) {
+                  <span>{{ weekday.charAt(0) }}</span>
+                }
+              </div>
+              <div class="year-calendar__days">
+                @for (day of month.days; track day.key) {
+                  <button
+                    type="button"
+                    [class.year-calendar__day--outside]="!day.currentMonth"
+                    [class.year-calendar__day--today]="day.today"
+                    [class.year-calendar__day--events]="eventsForDate(day.date).length"
+                    [attr.aria-label]="
+                      (day.date | date: 'fullDate' : 'UTC') +
+                      ', ' +
+                      eventsForDate(day.date).length +
+                      ' events'
+                    "
+                    (click)="selectYearDay(day)"
+                  >
+                    {{ day.date | date: 'd' : 'UTC' }}
+                  </button>
+                }
+              </div>
+            </section>
           }
         </div>
       }

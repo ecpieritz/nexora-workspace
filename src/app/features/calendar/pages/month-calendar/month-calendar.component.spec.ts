@@ -63,4 +63,28 @@ describe('MonthCalendarComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.month-calendar__event').length).toBe(1);
     expect(fixture.nativeElement.textContent).toContain('Planning');
   });
+  it('should render events in the daily time grid', () => {
+    const day: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'nav[aria-label="Calendar views"] button:first-child',
+    );
+    day.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.day-calendar__hour').length).toBe(16);
+    expect(fixture.nativeElement.querySelectorAll('.day-calendar__event').length).toBe(1);
+    expect(fixture.nativeElement.textContent).toContain('Planning');
+  });
+  it('should render all months and open a selected day from the year view', () => {
+    const year: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'nav[aria-label="Calendar views"] button:last-child',
+    );
+    year.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.year-calendar__month').length).toBe(12);
+    const eventDay: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.year-calendar__day--events',
+    );
+    eventDay.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.day-calendar')).not.toBeNull();
+  });
 });
