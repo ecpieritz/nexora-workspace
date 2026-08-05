@@ -417,6 +417,8 @@
 .task-list__delete {
   color: var(--color-danger-500);
   background: var(--color-danger-50);
+  font-size: var(--font-size-lg);
+  line-height: 1;
 }
 .task-list__advance:disabled,
 .task-list__delete:disabled {

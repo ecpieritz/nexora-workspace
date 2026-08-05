@@ -13,6 +13,13 @@ import { ButtonDirective, InputDirective } from '@shared/ui';
 import { ScheduleRepository } from '../../data-access/schedule.repository';
 import { ScheduleEntry, SchedulePerson } from '../../models/schedule.model';
 
+interface MiniCalendarDay {
+  iso: string;
+  number: number;
+  currentMonth: boolean;
+  selected: boolean;
+}
+
 @Component({
   selector: 'app-schedule-list',
   imports: [ButtonDirective, DatePipe, InputDirective],
@@ -29,6 +36,7 @@ export class ScheduleListComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly deletingId = signal<string | null>(null);
+  protected readonly miniCalendarDays = this.createMiniCalendarDays(2026, 7, 4);
   protected readonly filteredPeople = computed(() => {
     const term = this.peopleSearch().trim().toLowerCase();
     return this.people().filter(
@@ -84,5 +92,29 @@ export class ScheduleListComponent implements OnInit {
     } finally {
       this.deletingId.set(null);
     }
+  }
+
+  private createMiniCalendarDays(
+    year: number,
+    month: number,
+    selectedDay: number,
+  ): MiniCalendarDay[] {
+    const firstDay = new Date(Date.UTC(year, month, 1));
+    const gridStart = new Date(firstDay);
+    gridStart.setUTCDate(1 - firstDay.getUTCDay());
+
+    return Array.from({ length: 42 }, (_, index) => {
+      const date = new Date(gridStart);
+      date.setUTCDate(gridStart.getUTCDate() + index);
+      return {
+        iso: date.toISOString().slice(0, 10),
+        number: date.getUTCDate(),
+        currentMonth: date.getUTCMonth() === month,
+        selected:
+          date.getUTCFullYear() === year &&
+          date.getUTCMonth() === month &&
+          date.getUTCDate() === selectedDay,
+      };
+    });
   }
 }

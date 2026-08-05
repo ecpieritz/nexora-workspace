@@ -47,6 +47,13 @@ describe('ScheduleListComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Planning');
   });
 
+  it('should render a complete six-week mini calendar', () => {
+    const days = fixture.nativeElement.querySelectorAll('.schedule-list__days span');
+    expect(days.length).toBe(42);
+    expect(days[0].textContent.trim()).toBe('26');
+    expect(days[41].textContent.trim()).toBe('5');
+  });
+
   it('should filter people by search and schedules by selected person', () => {
     const search: HTMLInputElement = fixture.nativeElement.querySelector('input[type="search"]');
     search.value = 'Alexey';

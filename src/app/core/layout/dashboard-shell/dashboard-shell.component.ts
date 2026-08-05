@@ -15,7 +15,6 @@ interface NavigationItem {
     | 'schedule'
     | 'tasks'
     | 'calendar'
-    | 'messages'
     | 'settings';
   badge?: number;
 }
@@ -55,7 +54,6 @@ export class DashboardShellComponent {
     { label: 'Schedule', route: '/schedule', icon: 'schedule' },
     { label: 'Tasks', route: '/tasks', icon: 'tasks' },
     { label: 'Calendar', route: '/calendar', icon: 'calendar' },
-    { label: 'Messages', route: '/messages', icon: 'messages', badge: 4 },
     { label: 'Settings', route: '/settings', icon: 'settings' },
   ];
 

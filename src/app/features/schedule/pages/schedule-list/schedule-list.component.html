@@ -15,8 +15,13 @@
           ><span>S</span>
         </div>
         <div class="schedule-list__days">
-          @for (day of [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]; track day) {
-            <span [class.schedule-list__today]="day === 4">{{ day }}</span>
+          @for (day of miniCalendarDays; track day.iso) {
+            <span
+              [class.schedule-list__today]="day.selected"
+              [class.schedule-list__outside-month]="!day.currentMonth"
+              [attr.aria-label]="day.iso"
+              >{{ day.number }}</span
+            >
           }
         </div>
       </div>
@@ -116,7 +121,7 @@
                       [attr.aria-label]="'Delete ' + entry.title"
                       (click)="deleteSchedule(entry.id)"
                     >
-                      &#128465;
+                      &times;
                     </button>
                   </td>
                 </tr>
