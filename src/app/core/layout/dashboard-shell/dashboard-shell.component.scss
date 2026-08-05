@@ -1,6 +1,5 @@
 :host {
   display: block;
-  min-height: 100vh;
 }
 
 .dashboard-shell {
@@ -10,12 +9,21 @@
   background: var(--color-background);
 }
 
+.dashboard-shell.dashboard-shell--collapsed {
+  grid-template-columns: 4.75rem minmax(0, 1fr);
+}
+
+.dashboard-shell.dashboard-shell--collapsed .dashboard-shell__sidebar {
+  padding-inline: var(--space-3);
+}
+
 .dashboard-shell__sidebar {
   position: sticky;
   z-index: var(--z-overlay);
   top: 0;
   display: flex;
   height: 100vh;
+  min-width: 0;
   padding: var(--space-6) var(--space-4);
   border-right: 1px solid var(--color-border);
   flex-direction: column;
@@ -51,10 +59,6 @@
 .dashboard-shell__navigation-link--active {
   background: var(--color-primary-50);
   color: var(--color-primary-600);
-}
-
-.dashboard-shell__navigation-icon {
-  text-align: center;
 }
 
 .dashboard-shell__badge {
@@ -129,31 +133,17 @@
   min-width: 0;
 }
 
-.dashboard-shell__header {
+.dashboard-shell__mobile-header {
   position: sticky;
   z-index: var(--z-dropdown);
   top: 0;
-  display: flex;
-  height: 4.5rem;
+  display: none;
+  height: 4rem;
   padding: 0 clamp(var(--space-4), 3vw, var(--space-8));
   border-bottom: 1px solid var(--color-border);
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   background: rgb(255 255 255 / 92%);
-}
-
-.dashboard-shell__header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.dashboard-shell__header-actions button {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-full);
-  place-items: center;
 }
 
 .dashboard-shell__content {
@@ -173,6 +163,10 @@
     grid-template-columns: 1fr;
   }
 
+  .dashboard-shell.dashboard-shell--collapsed {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-shell__sidebar {
     position: fixed;
     left: 0;
@@ -180,6 +174,10 @@
     box-shadow: var(--shadow-lg);
     transform: translateX(-105%);
     transition: transform var(--transition-base);
+  }
+
+  .dashboard-shell.dashboard-shell--collapsed .dashboard-shell__sidebar {
+    padding-inline: var(--space-4);
   }
 
   .dashboard-shell--navigation-open .dashboard-shell__sidebar {
@@ -197,8 +195,8 @@
     display: block;
   }
 
-  .dashboard-shell__header {
-    justify-content: space-between;
+  .dashboard-shell__mobile-header {
+    display: flex;
   }
 
   .dashboard-shell__menu-button {
@@ -218,11 +216,5 @@
 
   .dashboard-shell__mobile-brand {
     display: block;
-  }
-}
-
-@media (max-width: 36rem) {
-  .dashboard-shell__header-actions button {
-    display: none;
   }
 }

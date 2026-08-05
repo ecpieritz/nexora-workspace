@@ -22,31 +22,50 @@
   place-items: center;
 }
 
-.dashboard-shell--collapsed {
-  grid-template-columns: 5.5rem minmax(0, 1fr);
-}
-
 .dashboard-shell--collapsed .dashboard-shell__brand {
   margin-inline: auto;
 }
 
 .dashboard-shell--collapsed .dashboard-shell__navigation-link {
-  padding-inline: var(--space-3);
+  width: 2.75rem;
+  padding-inline: 0;
   grid-template-columns: 1fr;
   justify-items: center;
 }
 
 .dashboard-shell--collapsed .dashboard-shell__navigation-label,
 .dashboard-shell--collapsed .dashboard-shell__badge,
-.dashboard-shell--collapsed .dashboard-shell__upgrade,
 .dashboard-shell--collapsed .dashboard-shell__profile-copy,
 .dashboard-shell--collapsed .dashboard-shell__profile-chevron {
   display: none;
 }
 
 .dashboard-shell--collapsed .dashboard-shell__profile {
+  width: 2.75rem;
+  padding-top: var(--space-4);
   grid-template-columns: 1fr;
   justify-items: center;
+}
+
+.dashboard-shell.dashboard-shell--collapsed .dashboard-shell__upgrade {
+  display: grid;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  place-items: center;
+}
+
+.dashboard-shell.dashboard-shell--collapsed .dashboard-shell__upgrade strong,
+.dashboard-shell.dashboard-shell--collapsed .dashboard-shell__upgrade p,
+.dashboard-shell.dashboard-shell--collapsed .dashboard-shell__profile-copy,
+.dashboard-shell.dashboard-shell--collapsed .dashboard-shell__profile-chevron {
+  display: none;
+}
+
+.dashboard-shell--collapsed .dashboard-shell__user-menu {
+  right: auto;
+  bottom: 0;
+  left: calc(100% + var(--space-3));
 }
 
 .dashboard-shell__account {
@@ -105,16 +124,8 @@
 }
 
 @media (max-width: 64rem) {
-  .dashboard-shell--collapsed {
-    grid-template-columns: 1fr;
-  }
-
   .dashboard-shell__collapse {
     display: none;
-  }
-
-  .dashboard-shell--collapsed .dashboard-shell__sidebar {
-    width: min(19rem, 86vw);
   }
 
   .dashboard-shell--collapsed .dashboard-shell__brand {
@@ -123,6 +134,7 @@
 
   .dashboard-shell--collapsed .dashboard-shell__navigation-link,
   .dashboard-shell--collapsed .dashboard-shell__profile {
+    width: 100%;
     grid-template-columns: 1.5rem 1fr auto;
     justify-items: initial;
   }
@@ -136,5 +148,24 @@
 
   .dashboard-shell--collapsed .dashboard-shell__upgrade {
     display: grid;
+  }
+
+  .dashboard-shell.dashboard-shell--collapsed .dashboard-shell__upgrade {
+    width: auto;
+    min-height: initial;
+    padding: var(--space-5);
+  }
+
+  .dashboard-shell.dashboard-shell--collapsed .dashboard-shell__upgrade strong,
+  .dashboard-shell.dashboard-shell--collapsed .dashboard-shell__upgrade p,
+  .dashboard-shell.dashboard-shell--collapsed .dashboard-shell__profile-copy,
+  .dashboard-shell.dashboard-shell--collapsed .dashboard-shell__profile-chevron {
+    display: initial;
+  }
+
+  .dashboard-shell--collapsed .dashboard-shell__user-menu {
+    right: 0;
+    bottom: calc(100% + var(--space-2));
+    left: auto;
   }
 }

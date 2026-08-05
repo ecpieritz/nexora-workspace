@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonDirective, InputDirective } from '@shared/ui';
+import { ButtonDirective, InputDirective, ToastService } from '@shared/ui';
 import { CustomerRepository } from '../../data-access/customer.repository';
 import { Customer, CustomerGender } from '../../models/customer.model';
 
@@ -21,6 +21,7 @@ import { Customer, CustomerGender } from '../../models/customer.model';
 })
 export class CustomerListComponent implements OnInit {
   private readonly repository = inject(CustomerRepository);
+  private readonly toast = inject(ToastService);
   protected readonly customers = signal<Customer[]>([]);
   protected readonly selectedId = signal<string | null>(null);
   protected readonly searchTerm = signal('');
@@ -136,8 +137,10 @@ export class CustomerListComponent implements OnInit {
       );
       this.selectedId.set(saved.id);
       this.editorOpen.set(false);
+      this.toast.success(id ? 'Customer updated.' : 'Customer created.');
     } catch {
       this.saveError.set(true);
+      this.toast.error('The customer could not be saved.');
     } finally {
       this.saving.set(false);
     }

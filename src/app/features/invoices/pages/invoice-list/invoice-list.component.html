@@ -187,33 +187,18 @@
 </section>
 
 @if (pendingDelete(); as invoice) {
-  <div class="invoice-list__modal-backdrop">
-    <section
-      class="invoice-list__dialog"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="delete-invoice-title"
-      aria-describedby="delete-invoice-description"
-    >
-      <h2 id="delete-invoice-title">Delete invoice?</h2>
-      <p id="delete-invoice-description">
-        Invoice #{{ invoice.id }} for {{ invoice.customerName }} will be permanently removed from
-        this demo workspace.
-      </p>
-      <div class="invoice-list__dialog-actions">
-        <button appButton type="button" variant="secondary" (click)="cancelDelete()">Cancel</button>
-        <button
-          appButton
-          class="invoice-list__confirm-delete"
-          type="button"
-          variant="danger"
-          loadingLabel="Deleting invoice"
-          [loading]="mutatingId() === invoice.id"
-          (click)="confirmDelete()"
-        >
-          Delete invoice
-        </button>
-      </div>
-    </section>
-  </div>
+  <app-confirmation-dialog
+    title="Delete invoice?"
+    [message]="
+      'Invoice #' +
+      invoice.id +
+      ' for ' +
+      invoice.customerName +
+      ' will be permanently removed from this demo workspace.'
+    "
+    confirmLabel="Delete invoice"
+    [busy]="mutatingId() === invoice.id"
+    (cancelled)="cancelDelete()"
+    (confirmed)="confirmDelete()"
+  />
 }

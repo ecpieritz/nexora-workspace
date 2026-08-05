@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DataStateComponent } from '@shared/ui';
+import { DataStateComponent, ToastService } from '@shared/ui';
 import { ProductRepository } from '../../data-access/product.repository';
 import { ProductAnalytics } from '../../models/product-analytics.model';
 
@@ -17,9 +17,11 @@ import { ProductAnalytics } from '../../models/product-analytics.model';
   templateUrl: './product-analytics.component.html',
   styleUrl: './product-analytics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:keydown.escape)': 'closeEditor()' },
 })
 export class ProductAnalyticsComponent implements OnInit {
   private readonly repository = inject(ProductRepository);
+  private readonly toast = inject(ToastService);
   protected readonly analytics = signal<ProductAnalytics | null>(null);
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
@@ -104,8 +106,10 @@ export class ProductAnalyticsComponent implements OnInit {
           : data,
       );
       this.editorOpen.set(false);
+      this.toast.success('Product created.');
     } catch {
       this.saveError.set(true);
+      this.toast.error('The product could not be saved.');
     } finally {
       this.saving.set(false);
     }

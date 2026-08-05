@@ -1,59 +1,51 @@
-# NexoraWorkspace
+# Nexora Workspace
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.27.
+Nexora is a responsive business workspace built with Angular 19. It brings dashboards, invoices, schedules, tasks, calendars, customers and product analytics into a polished portfolio application backed by a local mock API.
 
-## Development server
+## Highlights
 
-To start a local development server, run:
+- Standalone components, signals, strict TypeScript and lazy-loaded routes.
+- Responsive dashboard based on the supplied Figma screens.
+- Authentication and guarded workspace routes.
+- Invoice, schedule, task, calendar, customer and product workflows.
+- Mock latency and browser persistence without an external backend.
+- Accessible keyboard navigation, feedback states, toasts and confirmation dialogs.
+- Unit and component tests plus automated CI checks.
 
-```bash
-ng serve
-```
+## Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Angular 19, TypeScript, RxJS, SCSS, Jasmine, Karma, ESLint and Prettier.
 
-## Code scaffolding
+## Getting started
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Requires Node.js 20+ and npm.
 
 ```bash
-ng generate --help
+npm ci
+npm start
 ```
 
-## Building
+Open `http://localhost:4200`. Create a demo account from the sign-up page; its data and subsequent records are stored only in your browser.
 
-To build the project run:
+## Commands
 
 ```bash
-ng build
+npm start          # development server
+npm run lint       # static analysis
+npm test           # interactive unit tests
+npm run test:ci    # headless tests with coverage
+npm run build      # optimized production build
+npm run validate   # complete local quality gate
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Architecture and screenshots
 
-## Running unit tests
+See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENSHOTS.md).
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Mock data notice
 
-```bash
-ng test
-```
+This is a frontend portfolio project. It does not send data to a remote server and must not be used for sensitive or production information. Clear the site data in your browser to reset the demo.
 
-## Running end-to-end tests
+## Release
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Current portfolio release: **v1.0.0**.

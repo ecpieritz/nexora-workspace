@@ -107,7 +107,7 @@ describe('InvoiceListComponent', () => {
     expect(repository.delete).not.toHaveBeenCalled();
 
     const confirmDelete: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '.invoice-list__confirm-delete',
+      '.confirmation-dialog__confirm',
     );
     confirmDelete.click();
     await fixture.whenStable();

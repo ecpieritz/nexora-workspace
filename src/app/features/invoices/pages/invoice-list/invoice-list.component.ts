@@ -9,7 +9,12 @@ import {
   signal,
 } from '@angular/core';
 
-import { ButtonDirective, InputDirective } from '@shared/ui';
+import {
+  ButtonDirective,
+  ConfirmationDialogComponent,
+  InputDirective,
+  ToastService,
+} from '@shared/ui';
 
 import { InvoiceRepository } from '../../data-access/invoice.repository';
 import { Invoice, InvoiceStatus } from '../../models/invoice.model';
@@ -18,7 +23,7 @@ type InvoiceStatusFilter = 'all' | InvoiceStatus;
 
 @Component({
   selector: 'app-invoice-list',
-  imports: [ButtonDirective, DatePipe, InputDirective, RouterLink],
+  imports: [ButtonDirective, ConfirmationDialogComponent, DatePipe, InputDirective, RouterLink],
   templateUrl: './invoice-list.component.html',
   styleUrl: './invoice-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +33,7 @@ type InvoiceStatusFilter = 'all' | InvoiceStatus;
 })
 export class InvoiceListComponent implements OnInit {
   private readonly repository = inject(InvoiceRepository);
+  private readonly toast = inject(ToastService);
 
   protected readonly invoices = signal<Invoice[]>([]);
   protected readonly searchTerm = signal('');
@@ -125,6 +131,7 @@ export class InvoiceListComponent implements OnInit {
       const updated = await this.repository.updateStatus(id, status);
       this.replaceInvoice(updated);
       this.openActionId.set(null);
+      this.toast.success(`Invoice ${id} marked as ${status}.`);
     } catch {
       this.actionError.set('We could not update this invoice. Please try again.');
     } finally {
@@ -138,6 +145,7 @@ export class InvoiceListComponent implements OnInit {
 
     try {
       this.replaceInvoice(await this.repository.toggleFavorite(id));
+      this.toast.success('Invoice favorites updated.');
     } catch {
       this.actionError.set('We could not update this invoice. Please try again.');
     } finally {
@@ -177,8 +185,10 @@ export class InvoiceListComponent implements OnInit {
         return next;
       });
       this.pendingDelete.set(null);
+      this.toast.success(`Invoice ${invoice.id} deleted.`);
     } catch {
       this.actionError.set('We could not delete this invoice. Please try again.');
+      this.toast.error('The invoice could not be deleted.');
     } finally {
       this.mutatingId.set(null);
     }

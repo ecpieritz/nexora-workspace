@@ -1,0 +1,25 @@
+<div class="confirmation-dialog__backdrop">
+  <section
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmation-title"
+    aria-describedby="confirmation-message"
+  >
+    <h2 id="confirmation-title">{{ title() }}</h2>
+    <p id="confirmation-message">{{ message() }}</p>
+    <div>
+      <button appButton type="button" variant="secondary" (click)="cancelled.emit()">Cancel</button
+      ><button
+        appButton
+        class="confirmation-dialog__confirm"
+        type="button"
+        variant="danger"
+        [loading]="busy()"
+        loadingLabel="Please wait"
+        (click)="confirmed.emit()"
+      >
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </section>
+</div>

@@ -69,7 +69,11 @@
       }
     </nav>
 
-    <div class="dashboard-shell__upgrade" aria-label="Nexora demo plan">
+    <div
+      class="dashboard-shell__upgrade"
+      aria-label="Explore Nexora, portfolio demo workspace"
+      [attr.title]="sidebarCollapsed() ? 'Explore Nexora — Portfolio demo workspace' : null"
+    >
       <span aria-hidden="true">◇</span>
       <strong>Explore Nexora</strong>
       <p>Portfolio demo workspace</p>
@@ -96,6 +100,7 @@
         <div class="dashboard-shell__user-menu" role="menu">
           <div class="dashboard-shell__user-summary">
             <strong>{{ session.currentUser()?.fullName }}</strong>
+            <span>Demo account</span>
             <span>{{ session.currentUser()?.email }}</span>
           </div>
           <a routerLink="/settings" role="menuitem" (click)="closeTransientUi()"
@@ -115,7 +120,7 @@
   ></button>
 
   <div class="dashboard-shell__workspace">
-    <header class="dashboard-shell__header">
+    <header class="dashboard-shell__mobile-header">
       <button
         class="dashboard-shell__menu-button"
         type="button"
@@ -127,15 +132,9 @@
       </button>
 
       <div class="dashboard-shell__mobile-brand"><app-brand size="small" /></div>
-
-      <div class="dashboard-shell__header-actions">
-        <button type="button" aria-label="Search"><span aria-hidden="true">⌕</span></button>
-        <button type="button" aria-label="Notifications"><span aria-hidden="true">●</span></button>
-        <span class="dashboard-shell__avatar" aria-hidden="true">{{ userInitials() }}</span>
-      </div>
     </header>
 
-    <main class="dashboard-shell__content">
+    <main id="main-content" class="dashboard-shell__content" tabindex="-1">
       <router-outlet />
     </main>
   </div>
