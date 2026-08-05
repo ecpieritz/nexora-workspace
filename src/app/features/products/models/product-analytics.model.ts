@@ -13,6 +13,14 @@ export interface ProductRanking {
   orders: number;
   sales: number;
 }
+export interface ProductCreateInput {
+  name: string;
+  brand: string;
+  category: string;
+  price: number;
+  negotiable: boolean;
+  description: string;
+}
 export interface MonthlyProductSales {
   month: string;
   value: number;

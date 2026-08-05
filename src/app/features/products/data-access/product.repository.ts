@@ -1,6 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { MockApiService } from '@core/mock-api';
-import { ProductAnalytics } from '../models/product-analytics.model';
+import { MockApiService, MockStorageService } from '@core/mock-api';
+import {
+  ProductAnalytics,
+  ProductCreateInput,
+  ProductRanking,
+} from '../models/product-analytics.model';
+
+const PRODUCTS_STORAGE_KEY = 'nexora:products';
 
 const DATA: ProductAnalytics = {
   metrics: [
@@ -73,7 +79,34 @@ const DATA: ProductAnalytics = {
 @Injectable({ providedIn: 'root' })
 export class ProductRepository {
   private readonly mockApi = inject(MockApiService);
+  private readonly storage = inject(MockStorageService);
   getAnalytics(): Promise<ProductAnalytics> {
-    return this.mockApi.execute(() => structuredClone(DATA));
+    return this.mockApi.execute(() => {
+      const ranking = this.storage.read<ProductRanking[]>(PRODUCTS_STORAGE_KEY, [...DATA.ranking]);
+      return {
+        ...structuredClone(DATA),
+        ranking,
+        metrics: DATA.metrics.map((metric) =>
+          metric.id === 'products'
+            ? { ...metric, value: metric.value + Math.max(0, ranking.length - DATA.ranking.length) }
+            : { ...metric },
+        ),
+      };
+    });
+  }
+  create(input: ProductCreateInput): Promise<ProductRanking> {
+    return this.mockApi.execute(() => {
+      const products = this.storage.read<ProductRanking[]>(PRODUCTS_STORAGE_KEY, [...DATA.ranking]);
+      const product: ProductRanking = {
+        id: this.mockApi.createId(),
+        name: input.name,
+        category: input.category || input.brand,
+        price: input.price,
+        orders: 0,
+        sales: 0,
+      };
+      this.storage.write(PRODUCTS_STORAGE_KEY, [product, ...products]);
+      return structuredClone(product);
+    });
   }
 }

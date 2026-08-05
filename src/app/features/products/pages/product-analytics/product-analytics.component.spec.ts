@@ -17,6 +17,16 @@ class ProductRepositoryStub {
     monthlySales: [{ month: 'Jan', value: 10 }],
     distribution: [],
   });
+  create = jasmine
+    .createSpy()
+    .and.resolveTo({
+      id: 'new',
+      name: 'Notebook',
+      category: 'Computers',
+      price: 1200,
+      orders: 0,
+      sales: 0,
+    });
 }
 
 describe('ProductAnalyticsComponent', () => {
@@ -33,5 +43,27 @@ describe('ProductAnalyticsComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Total products');
+  });
+  it('should validate and create a product', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance as unknown as {
+      openEditor(): void;
+      saveProduct(): Promise<void>;
+      productForm: { patchValue(value: object): void };
+    };
+    component.openEditor();
+    component.productForm.patchValue({
+      name: 'Notebook',
+      brand: 'Nexora',
+      category: 'Computers',
+      price: 1200,
+      negotiable: true,
+      description: 'A portfolio test product.',
+    });
+    await component.saveProduct();
+    fixture.detectChanges();
+    expect(TestBed.inject(ProductRepository).create).toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Notebook');
   });
 });

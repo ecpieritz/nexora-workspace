@@ -6,11 +6,13 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductRepository } from '../../data-access/product.repository';
 import { ProductAnalytics } from '../../models/product-analytics.model';
 
 @Component({
   selector: 'app-product-analytics',
+  imports: [ReactiveFormsModule],
   templateUrl: './product-analytics.component.html',
   styleUrl: './product-analytics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +22,25 @@ export class ProductAnalyticsComponent implements OnInit {
   protected readonly analytics = signal<ProductAnalytics | null>(null);
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
+  protected readonly editorOpen = signal(false);
+  protected readonly saving = signal(false);
+  protected readonly saveError = signal(false);
+  protected readonly productForm = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(2)],
+    }),
+    brand: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    category: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    price: new FormControl<number | null>(null, {
+      validators: [Validators.required, Validators.min(0.01)],
+    }),
+    negotiable: new FormControl(false, { nonNullable: true }),
+    description: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(10)],
+    }),
+  });
   protected readonly maximumMonthlySales = computed(() =>
     Math.max(...(this.analytics()?.monthlySales.map(({ value }) => value) ?? [1])),
   );
@@ -43,5 +64,49 @@ export class ProductAnalyticsComponent implements OnInit {
       currency: 'USD',
       maximumFractionDigits: 0,
     }).format(value);
+  }
+  protected openEditor(): void {
+    this.productForm.reset({
+      name: '',
+      brand: '',
+      category: '',
+      price: null,
+      negotiable: false,
+      description: '',
+    });
+    this.saveError.set(false);
+    this.editorOpen.set(true);
+  }
+  protected closeEditor(): void {
+    if (!this.saving()) this.editorOpen.set(false);
+  }
+  protected async saveProduct(): Promise<void> {
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
+      return;
+    }
+    const value = this.productForm.getRawValue();
+    if (value.price === null) return;
+    this.saving.set(true);
+    this.saveError.set(false);
+    try {
+      const product = await this.repository.create({ ...value, price: value.price });
+      this.analytics.update((data) =>
+        data
+          ? {
+              ...data,
+              ranking: [product, ...data.ranking],
+              metrics: data.metrics.map((metric) =>
+                metric.id === 'products' ? { ...metric, value: metric.value + 1 } : metric,
+              ),
+            }
+          : data,
+      );
+      this.editorOpen.set(false);
+    } catch {
+      this.saveError.set(true);
+    } finally {
+      this.saving.set(false);
+    }
   }
 }

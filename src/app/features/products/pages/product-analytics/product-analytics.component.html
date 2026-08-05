@@ -7,7 +7,7 @@
     <div class="product-analytics__actions">
       <label>From <input type="date" value="2026-06-10" /></label
       ><label>To <input type="date" value="2026-10-10" /></label
-      ><button type="button">+ Add product</button>
+      ><button type="button" (click)="openEditor()">+ Add product</button>
     </div>
   </header>
   @if (loading()) {
@@ -125,3 +125,72 @@
     }
   }
 </section>
+
+@if (editorOpen()) {
+  <button
+    class="product-editor__backdrop"
+    type="button"
+    aria-label="Close product form"
+    (click)="closeEditor()"
+  ></button>
+  <aside
+    class="product-editor"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="product-editor-title"
+  >
+    <header>
+      <button type="button" aria-label="Close" (click)="closeEditor()">‹</button>
+      <h2 id="product-editor-title">Add a new product</h2>
+    </header>
+    <div class="product-editor__photo" aria-hidden="true">
+      <span>▣</span><small>Product image</small>
+    </div>
+    <form [formGroup]="productForm" (ngSubmit)="saveProduct()" novalidate>
+      <label
+        >Product name<input formControlName="name" placeholder="MacBook Pro 2021 14″" />
+        @if (productForm.controls.name.touched && productForm.controls.name.invalid) {
+          <small>Enter a product name.</small>
+        }
+      </label>
+      <div class="product-editor__row">
+        <label>Brand<input formControlName="brand" placeholder="Apple" /></label
+        ><label
+          >Category<select formControlName="category">
+            <option value="">Select</option>
+            <option>Computers</option>
+            <option>Audio</option>
+            <option>Fashion</option>
+            <option>Wearables</option>
+            <option>Other</option>
+          </select></label
+        >
+      </div>
+      <div class="product-editor__price">
+        <label
+          >Price<input formControlName="price" type="number" min="0.01" placeholder="1200" /></label
+        ><label class="product-editor__check"
+          ><input formControlName="negotiable" type="checkbox" /> Negotiable</label
+        >
+      </div>
+      <label
+        >Description<textarea
+          formControlName="description"
+          rows="5"
+          placeholder="Describe the product, its condition and main features"
+        ></textarea>
+        @if (productForm.controls.description.touched && productForm.controls.description.invalid) {
+          <small>Use at least 10 characters.</small>
+        }
+      </label>
+      @if (saveError()) {
+        <p class="product-editor__error" role="alert">
+          The product could not be saved. Please try again.
+        </p>
+      }
+      <button class="product-editor__submit" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Saving product…' : 'Save product' }}
+      </button>
+    </form>
+  </aside>
+}
