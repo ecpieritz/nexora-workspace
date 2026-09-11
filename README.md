@@ -42,6 +42,16 @@ npm run build      # optimized production build
 npm run validate   # complete local quality gate
 ```
 
+## Workspace structure
+
+```text
+apps/
+└── web/            # Angular application
+docs/               # Architecture and visual documentation
+```
+
+The repository uses npm workspaces. Root scripts orchestrate the applications, so the existing development and CI commands remain unchanged as the backend is introduced.
+
 ## Architecture and screenshots
 
 See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENSHOTS.md).

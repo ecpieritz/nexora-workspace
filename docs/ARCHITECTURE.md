@@ -1,6 +1,6 @@
 # Nexora architecture
 
-Nexora uses Angular standalone components, strict TypeScript and feature-first folders. Routes load features lazily, while shared UI primitives live under `src/app/shared/ui` and cross-cutting services under `src/app/core`.
+Nexora is organized as a fullstack npm workspace. The Angular application lives in `apps/web` and uses standalone components, strict TypeScript and feature-first folders. Routes load features lazily, while shared UI primitives live under `apps/web/src/app/shared/ui` and cross-cutting services under `apps/web/src/app/core`.
 
 ## Data flow
 
