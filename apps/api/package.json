@@ -9,9 +9,12 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --max-warnings=0",
-    "lint:fix": "eslint src --fix --max-warnings=0"
+    "lint:fix": "eslint src --fix --max-warnings=0",
+    "format": "prettier --write \"src/**/*.ts\" \"*.{js,json}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"*.{js,json}\""
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
     "express": "^5.1.0"
   },
   "devDependencies": {
@@ -19,6 +22,8 @@
     "@types/express": "^5.0.3",
     "@types/node": "^22.15.30",
     "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
     "tsx": "^4.20.3",
     "typescript": "~5.7.2",
     "typescript-eslint": "8.33.1"

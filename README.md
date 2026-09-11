@@ -31,6 +31,17 @@ npm start
 
 Open `http://localhost:4200`. Create a demo account from the sign-up page; its data and subsequent records are stored only in your browser.
 
+Copy `apps/api/.env.example` to `apps/api/.env` before customizing the local API configuration. The defaults expose the API at `http://localhost:3000/api`.
+
+### Deployment environments
+
+| Environment                  | Frontend URL                                                                            |
+| ---------------------------- | --------------------------------------------------------------------------------------- |
+| Development (Vercel Preview) | [dev-nexora-workspace-delta.vercel.app](https://dev-nexora-workspace-delta.vercel.app/) |
+| Production                   | [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/)         |
+
+Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT` and `CORS_ORIGINS` independently in Vercel Preview and Production. Do not commit `.env` files; only `.env.example` is versioned.
+
 ## Commands
 
 ```bash

@@ -1,4 +1,5 @@
 import eslint from '@eslint/js';
+import prettier from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -6,8 +7,8 @@ export default tseslint.config(
     ignores: ['dist/**'],
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.stylistic,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   {
     files: ['src/**/*.ts'],
     languageOptions: {
@@ -16,5 +17,9 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      '@typescript-eslint/dot-notation': ['error', { allowIndexSignaturePropertyAccess: true }],
+    },
   },
+  prettier,
 );

@@ -1,9 +1,11 @@
 import { createApp } from './app.js';
+import { environment } from './config/environment.js';
 
-const port = Number.parseInt(process.env['PORT'] ?? '3000', 10);
-const app = createApp();
-const server = app.listen(port, () => {
-  console.info(`Nexora API listening on http://localhost:${port}`);
+const app = createApp(environment);
+const server = app.listen(environment.port, environment.host, () => {
+  console.info(
+    `Nexora API (${environment.nodeEnv}) listening on http://${environment.host}:${environment.port}${environment.apiPrefix}`,
+  );
 });
 
 function shutdown(signal: NodeJS.Signals): void {
