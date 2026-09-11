@@ -1,6 +1,8 @@
 # Nexora architecture
 
-Nexora is organized as a fullstack npm workspace. The Angular application lives in `apps/web` and uses standalone components, strict TypeScript and feature-first folders. Routes load features lazily, while shared UI primitives live under `apps/web/src/app/shared/ui` and cross-cutting services under `apps/web/src/app/core`.
+Nexora is organized as a fullstack npm workspace. The Express API lives in `apps/api`, and the Angular application lives in `apps/web`. The frontend uses standalone components, strict TypeScript and feature-first folders. Routes load features lazily, while shared UI primitives live under `apps/web/src/app/shared/ui` and cross-cutting services under `apps/web/src/app/core`.
+
+The API separates application creation from the HTTP server bootstrap. `app.ts` composes Express middleware and routes, while `server.ts` owns the network listener and graceful shutdown lifecycle.
 
 ## Data flow
 

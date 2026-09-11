@@ -1,6 +1,6 @@
 # Nexora Workspace
 
-Nexora is a responsive business workspace built with Angular 19. It brings dashboards, invoices, schedules, tasks, calendars, customers and product analytics into a polished portfolio application backed by a local mock API.
+Nexora is a responsive business workspace being evolved into a fullstack application. Its Angular 19 frontend brings dashboards, invoices, schedules, tasks, calendars, customers and product analytics into a polished portfolio experience, while its Node.js and Express API provides the backend foundation.
 
 ## Highlights
 
@@ -14,7 +14,7 @@ Nexora is a responsive business workspace built with Angular 19. It brings dashb
 
 ## Stack
 
-Angular 19, TypeScript, RxJS, SCSS, Jasmine, Karma, ESLint and Prettier.
+Angular 19, Node.js, Express, TypeScript, RxJS, SCSS, Jasmine, Karma, ESLint and Prettier.
 
 ## Design credits
 
@@ -35,6 +35,7 @@ Open `http://localhost:4200`. Create a demo account from the sign-up page; its d
 
 ```bash
 npm start          # development server
+npm run dev:api    # API development server
 npm run lint       # static analysis
 npm test           # interactive unit tests
 npm run test:ci    # headless tests with coverage
@@ -46,6 +47,7 @@ npm run validate   # complete local quality gate
 
 ```text
 apps/
+├── api/            # Node.js and Express API
 └── web/            # Angular application
 docs/               # Architecture and visual documentation
 ```
@@ -58,8 +60,10 @@ See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENS
 
 ## Mock data notice
 
-This is a frontend portfolio project. It does not send data to a remote server and must not be used for sensitive or production information. Clear the site data in your browser to reset the demo.
+The Angular features still use local mock repositories while the backend is introduced incrementally. The API currently exposes its initial health endpoint and must not yet be used for sensitive or production information.
 
 ## Release
 
 Current portfolio release: **v1.0.0**.
+
+The production frontend is deployed on Vercel at [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/). Root-level Vercel configuration keeps the Angular SPA deployable while backend capabilities are added incrementally.

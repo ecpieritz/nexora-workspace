@@ -11,12 +11,15 @@
   "scripts": {
     "ng": "npm run ng --workspace=@nexora/web --",
     "start": "npm run start --workspace=@nexora/web",
-    "build": "npm run build --workspace=@nexora/web",
+    "dev:web": "npm run start --workspace=@nexora/web",
+    "dev:api": "npm run dev --workspace=@nexora/api",
+    "start:api": "npm run start --workspace=@nexora/api",
+    "build": "npm run build --workspaces --if-present",
     "watch": "npm run watch --workspace=@nexora/web",
     "test": "npm run test --workspace=@nexora/web",
     "test:ci": "npm run test:ci --workspace=@nexora/web",
-    "lint": "npm run lint --workspace=@nexora/web",
-    "lint:fix": "npm run lint:fix --workspace=@nexora/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "validate": "npm run format:check && npm run lint && npm run test:ci && npm run build"
