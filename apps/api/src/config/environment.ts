@@ -11,6 +11,7 @@ export interface ApiEnvironment {
   apiPrefix: string;
   jsonBodyLimit: string;
   corsOrigins: readonly string[];
+  databaseUrl: string;
   isProduction: boolean;
 }
 
@@ -63,6 +64,17 @@ function readString(value: string | undefined, fallback: string): string {
   return parsed && parsed.length > 0 ? parsed : fallback;
 }
 
+function readDatabaseUrl(value: string | undefined): string {
+  const databaseUrl = readString(value, 'postgresql://nexora:nexora@localhost:5432/nexora');
+  const url = new URL(databaseUrl);
+
+  if (!['postgres:', 'postgresql:'].includes(url.protocol)) {
+    throw new Error('DATABASE_URL must use the postgres or postgresql protocol.');
+  }
+
+  return databaseUrl;
+}
+
 const nodeEnv = readNodeEnvironment(process.env['NODE_ENV']);
 
 export const environment: Readonly<ApiEnvironment> = Object.freeze({
@@ -72,5 +84,6 @@ export const environment: Readonly<ApiEnvironment> = Object.freeze({
   apiPrefix: readApiPrefix(process.env['API_PREFIX']),
   jsonBodyLimit: readString(process.env['JSON_BODY_LIMIT'], '1mb'),
   corsOrigins: Object.freeze(readCorsOrigins(process.env['CORS_ORIGINS'])),
+  databaseUrl: readDatabaseUrl(process.env['DATABASE_URL']),
   isProduction: nodeEnv === 'production',
 });

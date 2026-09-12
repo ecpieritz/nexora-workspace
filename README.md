@@ -22,16 +22,20 @@ The interface was implemented from the community Figma design [SAAS Dashboard Co
 
 ## Getting started
 
-Requires Node.js 20+ and npm.
+Requires Node.js 20+, npm and Docker Compose.
 
 ```bash
 npm ci
-npm start
+cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+npm run db:up
+npm run dev:api
+npm run dev:web
 ```
 
-Open `http://localhost:4200`. Create a demo account from the sign-up page; its data and subsequent records are stored only in your browser.
+Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. Create a demo account from the sign-up page; its data and subsequent records are still stored only in your browser.
 
-Copy `apps/api/.env.example` to `apps/api/.env` before customizing the local API configuration. The defaults expose the API at `http://localhost:3000/api`.
+The root `.env` configures the local PostgreSQL container. `apps/api/.env` configures the API and its `DATABASE_URL`. Both files are ignored by Git; only their `.env.example` templates are versioned. Run `npm run db:status` to confirm the database is healthy and `npm run db:logs` to inspect its logs.
 
 ### Deployment environments
 
@@ -47,6 +51,10 @@ Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT` and `CORS_ORIGINS` independently
 ```bash
 npm start          # development server
 npm run dev:api    # API development server
+npm run db:up      # start the local PostgreSQL container
+npm run db:down    # stop the local PostgreSQL container
+npm run db:status  # inspect local database health
+npm run db:logs    # follow PostgreSQL logs
 npm run lint       # static analysis
 npm test           # interactive unit tests
 npm run test:ci    # headless tests with coverage
