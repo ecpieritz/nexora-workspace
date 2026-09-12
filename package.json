@@ -6,7 +6,7 @@
     "apps/*"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "scripts": {
     "ng": "npm run ng --workspace=@nexora/web --",
@@ -18,6 +18,9 @@
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",
     "db:status": "docker compose ps",
+    "db:generate": "npm run prisma:generate --workspace=@nexora/api",
+    "db:validate": "npm run prisma:validate --workspace=@nexora/api",
+    "db:studio": "npm run prisma:studio --workspace=@nexora/api",
     "build": "npm run build --workspaces --if-present",
     "watch": "npm run watch --workspace=@nexora/web",
     "test": "npm run test --workspace=@nexora/web",

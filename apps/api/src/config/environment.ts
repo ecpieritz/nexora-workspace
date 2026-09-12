@@ -12,6 +12,7 @@ export interface ApiEnvironment {
   jsonBodyLimit: string;
   corsOrigins: readonly string[];
   databaseUrl: string;
+  databaseConnectionTimeoutMs: number;
   isProduction: boolean;
 }
 
@@ -75,6 +76,16 @@ function readDatabaseUrl(value: string | undefined): string {
   return databaseUrl;
 }
 
+function readDatabaseConnectionTimeout(value: string | undefined): number {
+  const timeout = Number(value ?? '5000');
+
+  if (!Number.isInteger(timeout) || timeout < 1) {
+    throw new Error('DATABASE_CONNECTION_TIMEOUT_MS must be a positive integer.');
+  }
+
+  return timeout;
+}
+
 const nodeEnv = readNodeEnvironment(process.env['NODE_ENV']);
 
 export const environment: Readonly<ApiEnvironment> = Object.freeze({
@@ -85,5 +96,8 @@ export const environment: Readonly<ApiEnvironment> = Object.freeze({
   jsonBodyLimit: readString(process.env['JSON_BODY_LIMIT'], '1mb'),
   corsOrigins: Object.freeze(readCorsOrigins(process.env['CORS_ORIGINS'])),
   databaseUrl: readDatabaseUrl(process.env['DATABASE_URL']),
+  databaseConnectionTimeoutMs: readDatabaseConnectionTimeout(
+    process.env['DATABASE_CONNECTION_TIMEOUT_MS'],
+  ),
   isProduction: nodeEnv === 'production',
 });

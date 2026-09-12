@@ -14,7 +14,7 @@ Nexora is a responsive business workspace being evolved into a fullstack applica
 
 ## Stack
 
-Angular 19, Node.js, Express, TypeScript, RxJS, SCSS, Jasmine, Karma, ESLint and Prettier.
+Angular 19, Node.js, Express, PostgreSQL, Prisma ORM, TypeScript, RxJS, SCSS, Jasmine, Karma, ESLint and Prettier.
 
 ## Design credits
 
@@ -22,7 +22,7 @@ The interface was implemented from the community Figma design [SAAS Dashboard Co
 
 ## Getting started
 
-Requires Node.js 20+, npm and Docker Compose.
+Requires Node.js 20.19+, npm and Docker Compose.
 
 ```bash
 npm ci
@@ -44,7 +44,7 @@ The root `.env` configures the local PostgreSQL container. `apps/api/.env` confi
 | Development (Vercel Preview) | [dev-nexora-workspace-delta.vercel.app](https://dev-nexora-workspace-delta.vercel.app/) |
 | Production                   | [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/)         |
 
-Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT` and `CORS_ORIGINS` independently in Vercel Preview and Production. Do not commit `.env` files; only `.env.example` is versioned.
+Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT`, `CORS_ORIGINS`, `DATABASE_URL` and `DATABASE_CONNECTION_TIMEOUT_MS` independently in Vercel Preview and Production. Use a separate database for each environment. Do not commit `.env` files; only `.env.example` is versioned.
 
 ## Commands
 
@@ -55,6 +55,9 @@ npm run db:up      # start the local PostgreSQL container
 npm run db:down    # stop the local PostgreSQL container
 npm run db:status  # inspect local database health
 npm run db:logs    # follow PostgreSQL logs
+npm run db:generate # generate the type-safe Prisma Client
+npm run db:validate # validate the Prisma schema and configuration
+npm run db:studio   # inspect local data with Prisma Studio
 npm run lint       # static analysis
 npm test           # interactive unit tests
 npm run test:ci    # headless tests with coverage
@@ -71,7 +74,7 @@ apps/
 docs/               # Architecture and visual documentation
 ```
 
-The repository uses npm workspaces. Root scripts orchestrate the applications, so the existing development and CI commands remain unchanged as the backend is introduced.
+The repository uses npm workspaces. Root scripts orchestrate the applications, so the existing development and CI commands remain unchanged as the backend is introduced. Prisma Client is generated automatically during dependency installation and before API builds.
 
 ## Architecture and screenshots
 

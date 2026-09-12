@@ -16,6 +16,9 @@ yarn-error.log
 **/.env.*
 !**/.env.example
 
+# Generated Prisma Client
+apps/api/src/generated/prisma/
+
 # IDEs and editors
 .idea/
 .project
