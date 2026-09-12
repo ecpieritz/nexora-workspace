@@ -11,17 +11,19 @@
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:studio": "prisma studio",
+    "prisma:seed": "prisma db seed",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "typecheck": "npm run prisma:generate && tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src --max-warnings=0",
-    "lint:fix": "eslint src --fix --max-warnings=0",
-    "format": "prettier --write \"src/**/*.ts\" \"*.{js,json}\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"*.{js,json}\""
+    "typecheck": "npm run prisma:generate && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.seed.json",
+    "lint": "eslint src prisma --max-warnings=0",
+    "lint:fix": "eslint src prisma --fix --max-warnings=0",
+    "format": "prettier --ignore-path ../../.prettierignore --write \"src/**/*.ts\" \"prisma/**/*.ts\" \"*.{js,json}\"",
+    "format:check": "prettier --ignore-path ../../.prettierignore --check \"src/**/*.ts\" \"prisma/**/*.ts\" \"*.{js,json}\""
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
+    "bcryptjs": "3.0.2",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "pg": "8.16.3"

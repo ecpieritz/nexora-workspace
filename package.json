@@ -20,6 +20,7 @@
     "db:status": "docker compose ps",
     "db:generate": "npm run prisma:generate --workspace=@nexora/api",
     "db:validate": "npm run prisma:validate --workspace=@nexora/api",
+    "db:seed": "npm run prisma:seed --workspace=@nexora/api",
     "db:studio": "npm run prisma:studio --workspace=@nexora/api",
     "db:migrate": "npm run prisma:migrate --workspace=@nexora/api",
     "db:deploy": "npm run prisma:migrate:deploy --workspace=@nexora/api",
