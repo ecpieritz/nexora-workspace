@@ -10,6 +10,8 @@ Local infrastructure is defined in the root `compose.yaml`. It runs PostgreSQL 1
 
 Prisma ORM provides the typed persistence boundary. Its schema and migration history live in `apps/api/prisma`, while `prisma.config.ts` resolves the connection used by the CLI. The generated client is excluded from version control and recreated during installation and API builds. A single shared client in `src/database/prisma.ts` owns the PostgreSQL driver adapter, startup connectivity check and graceful disconnection.
 
+The relational model is scoped by workspace. Memberships own authorization roles, while customers, products, invoices, tasks and schedule entries belong to one workspace. Explicit join tables represent task assignments and schedule attendance. Invoice items preserve billing snapshots and may optionally reference products, allowing historical invoices to survive product removal.
+
 ## Data flow
 
 Pages request typed data from feature repositories. Repositories simulate latency through `MockApiService` and persist user-created records with `MockStorageService` in browser local storage. Signals hold view state; computed signals derive filters and selections.

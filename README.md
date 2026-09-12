@@ -58,6 +58,8 @@ npm run db:logs    # follow PostgreSQL logs
 npm run db:generate # generate the type-safe Prisma Client
 npm run db:validate # validate the Prisma schema and configuration
 npm run db:studio   # inspect local data with Prisma Studio
+npm run db:migrate  # create and apply a development migration
+npm run db:deploy   # apply pending migrations in a deployed environment
 npm run lint       # static analysis
 npm test           # interactive unit tests
 npm run test:ci    # headless tests with coverage
@@ -75,6 +77,8 @@ docs/               # Architecture and visual documentation
 ```
 
 The repository uses npm workspaces. Root scripts orchestrate the applications, so the existing development and CI commands remain unchanged as the backend is introduced. Prisma Client is generated automatically during dependency installation and before API builds.
+
+The initial migration creates the authentication, workspace membership, customer, product, invoice, task and schedule tables. After starting PostgreSQL for the first time, apply it locally with `npm run db:migrate`. Deployed environments use `npm run db:deploy` so existing migration files are applied without creating new ones.
 
 ## Architecture and screenshots
 

@@ -21,6 +21,8 @@
     "db:generate": "npm run prisma:generate --workspace=@nexora/api",
     "db:validate": "npm run prisma:validate --workspace=@nexora/api",
     "db:studio": "npm run prisma:studio --workspace=@nexora/api",
+    "db:migrate": "npm run prisma:migrate --workspace=@nexora/api",
+    "db:deploy": "npm run prisma:migrate:deploy --workspace=@nexora/api",
     "build": "npm run build --workspaces --if-present",
     "watch": "npm run watch --workspace=@nexora/web",
     "test": "npm run test --workspace=@nexora/web",
@@ -29,7 +31,7 @@
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run format:check && npm run lint && npm run test:ci && npm run build"
+    "validate": "npm run format:check && npm run lint && npm run db:validate && npm run test:ci && npm run build"
   },
   "devDependencies": {
     "prettier": "^3.9.6"
