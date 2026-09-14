@@ -13,6 +13,7 @@ export interface ApiEnvironment {
   corsOrigins: readonly string[];
   databaseUrl: string;
   databaseConnectionTimeoutMs: number;
+  passwordHashRounds: number;
   isProduction: boolean;
 }
 
@@ -86,6 +87,16 @@ function readDatabaseConnectionTimeout(value: string | undefined): number {
   return timeout;
 }
 
+function readPasswordHashRounds(value: string | undefined): number {
+  const rounds = Number(value ?? '12');
+
+  if (!Number.isInteger(rounds) || rounds < 10 || rounds > 14) {
+    throw new Error('PASSWORD_HASH_ROUNDS must be an integer between 10 and 14.');
+  }
+
+  return rounds;
+}
+
 const nodeEnv = readNodeEnvironment(process.env['NODE_ENV']);
 
 export const environment: Readonly<ApiEnvironment> = Object.freeze({
@@ -99,5 +110,6 @@ export const environment: Readonly<ApiEnvironment> = Object.freeze({
   databaseConnectionTimeoutMs: readDatabaseConnectionTimeout(
     process.env['DATABASE_CONNECTION_TIMEOUT_MS'],
   ),
+  passwordHashRounds: readPasswordHashRounds(process.env['PASSWORD_HASH_ROUNDS']),
   isProduction: nodeEnv === 'production',
 });

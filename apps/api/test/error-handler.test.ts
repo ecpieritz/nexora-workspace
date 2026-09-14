@@ -20,9 +20,9 @@ interface ErrorResponseBody {
 
 void describe('centralized API error handling', () => {
   void it('returns the standard response for unknown routes', async () => {
-    const response = await request(createApp({ apiPrefix: '/api', jsonBodyLimit: '1mb' })).get(
-      '/api/unknown',
-    );
+    const response = await request(
+      createApp({ apiPrefix: '/api', jsonBodyLimit: '1mb', passwordHashRounds: 12 }),
+    ).get('/api/unknown');
     const body = response.body as unknown as ErrorResponseBody;
 
     assert.equal(response.status, 404);
@@ -32,7 +32,9 @@ void describe('centralized API error handling', () => {
   });
 
   void it('handles malformed JSON without exposing parser details', async () => {
-    const response = await request(createApp({ apiPrefix: '/api', jsonBodyLimit: '1mb' }))
+    const response = await request(
+      createApp({ apiPrefix: '/api', jsonBodyLimit: '1mb', passwordHashRounds: 12 }),
+    )
       .post('/api/unknown')
       .set('Content-Type', 'application/json')
       .send('{"invalid":');
@@ -46,7 +48,9 @@ void describe('centralized API error handling', () => {
   });
 
   void it('handles request bodies that exceed the configured limit', async () => {
-    const response = await request(createApp({ apiPrefix: '/api', jsonBodyLimit: '16b' }))
+    const response = await request(
+      createApp({ apiPrefix: '/api', jsonBodyLimit: '16b', passwordHashRounds: 12 }),
+    )
       .post('/api/unknown')
       .send({ content: 'This request body is intentionally too large.' });
     const body = response.body as unknown as ErrorResponseBody;
