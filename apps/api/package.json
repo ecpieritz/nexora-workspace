@@ -7,6 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "npm run prisma:generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
+    "test": "tsx --test test/error-handler.test.ts",
+    "test:ci": "npm run test",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
@@ -14,11 +16,11 @@
     "prisma:seed": "prisma db seed",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "typecheck": "npm run prisma:generate && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.seed.json",
-    "lint": "eslint src prisma --max-warnings=0",
-    "lint:fix": "eslint src prisma --fix --max-warnings=0",
-    "format": "prettier --ignore-path ../../.prettierignore --write \"src/**/*.ts\" \"prisma/**/*.ts\" \"*.{js,json}\"",
-    "format:check": "prettier --ignore-path ../../.prettierignore --check \"src/**/*.ts\" \"prisma/**/*.ts\" \"*.{js,json}\""
+    "typecheck": "npm run prisma:generate && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.seed.json && tsc -p tsconfig.test.json",
+    "lint": "eslint src prisma test --max-warnings=0",
+    "lint:fix": "eslint src prisma test --fix --max-warnings=0",
+    "format": "prettier --ignore-path ../../.prettierignore --write \"src/**/*.ts\" \"prisma/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
+    "format:check": "prettier --ignore-path ../../.prettierignore --check \"src/**/*.ts\" \"prisma/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\""
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
@@ -33,10 +35,12 @@
     "@types/express": "^5.0.3",
     "@types/node": "^22.15.30",
     "@types/pg": "8.15.5",
+    "@types/supertest": "6.0.3",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6",
     "prisma": "7.10.0",
+    "supertest": "7.1.4",
     "tsx": "^4.20.3",
     "typescript": "~5.7.2",
     "typescript-eslint": "8.33.1"

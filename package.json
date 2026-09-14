@@ -27,7 +27,7 @@
     "build": "npm run build --workspaces --if-present",
     "watch": "npm run watch --workspace=@nexora/web",
     "test": "npm run test --workspace=@nexora/web",
-    "test:ci": "npm run test:ci --workspace=@nexora/web",
+    "test:ci": "npm run test:ci --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write .",

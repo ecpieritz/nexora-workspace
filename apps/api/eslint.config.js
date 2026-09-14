@@ -10,10 +10,10 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   {
-    files: ['src/**/*.ts', 'prisma/**/*.ts'],
+    files: ['src/**/*.ts', 'prisma/**/*.ts', 'test/**/*.ts'],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.json', './tsconfig.seed.json'],
+        project: ['./tsconfig.json', './tsconfig.seed.json', './tsconfig.test.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
