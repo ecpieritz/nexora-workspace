@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "npm run prisma:generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test": "tsx --test test/error-handler.test.ts",
+    "test": "tsx --test test/error-handler.test.ts test/request-validation.test.ts",
     "test:ci": "npm run test",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
@@ -28,7 +28,8 @@
     "bcryptjs": "3.0.2",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "pg": "8.16.3"
+    "pg": "8.16.3",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",

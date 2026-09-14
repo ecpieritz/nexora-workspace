@@ -4,6 +4,8 @@ Nexora is organized as a fullstack npm workspace. The Express API lives in `apps
 
 The API separates application creation from the HTTP server bootstrap. `app.ts` composes Express middleware and routes, while `server.ts` owns the network listener and graceful shutdown lifecycle.
 
+Incoming API data is validated with Zod at the route boundary. The shared validation middleware parses `body`, `params` and `query` without mutating Express query objects, then exposes the typed result through `getValidatedRequest`. Validation failures flow through the centralized error middleware as safe `422 VALIDATION_ERROR` responses with field-level issue paths.
+
 Runtime configuration is centralized in `apps/api/src/config/environment.ts`. Environment values are parsed once during startup and exposed through an immutable, typed object. Invalid ports, API prefixes, environments or CORS origins stop the process before it accepts traffic.
 
 Local infrastructure is defined in the root `compose.yaml`. It runs PostgreSQL 17 with a persistent named volume and a readiness healthcheck. Docker credentials and port mapping come from the root `.env`, while the API receives its PostgreSQL connection string through `apps/api/.env`. Database schemas and migrations will be introduced with the persistence layer.
