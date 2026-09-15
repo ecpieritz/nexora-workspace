@@ -6,8 +6,10 @@ import type {
   AuthRegistrationRepository,
   AuthSessionRepository,
   CreateAccountInput,
+  CreatePasswordResetTokenInput,
   CreateSessionInput,
   LoginAccount,
+  PasswordRecoveryRepository,
   ReplacementSessionInput,
   RegisteredAccount,
 } from './auth.types.js';
@@ -85,7 +87,9 @@ function createWorkspaceSlug(username: string, workspaceId: string): string {
   return `${slugBase}-${workspaceId.slice(0, 8)}`;
 }
 
-export class PrismaAuthRepository implements AuthRegistrationRepository, AuthSessionRepository {
+export class PrismaAuthRepository
+  implements AuthRegistrationRepository, AuthSessionRepository, PasswordRecoveryRepository
+{
   constructor(private readonly database: PrismaClient = prisma) {}
 
   async createAccount(input: CreateAccountInput): Promise<RegisteredAccount> {
@@ -193,6 +197,54 @@ export class PrismaAuthRepository implements AuthRegistrationRepository, AuthSes
     await this.database.authSession.updateMany({
       where: { tokenHash, revokedAt: null },
       data: { revokedAt },
+    });
+  }
+
+  async findPasswordResetAccount(email: string) {
+    return this.database.user.findUnique({
+      where: { email },
+      select: { id: true, email: true },
+    });
+  }
+
+  async createPasswordResetToken(input: CreatePasswordResetTokenInput): Promise<void> {
+    await this.database.$transaction(async (transaction) => {
+      const now = new Date();
+      await transaction.passwordResetToken.updateMany({
+        where: { userId: input.userId, usedAt: null },
+        data: { usedAt: now },
+      });
+      await transaction.passwordResetToken.create({ data: input });
+    });
+  }
+
+  async consumePasswordResetToken(
+    tokenHash: string,
+    passwordHash: string,
+    now: Date,
+  ): Promise<boolean> {
+    return this.database.$transaction(async (transaction) => {
+      const token = await transaction.passwordResetToken.findFirst({
+        where: { tokenHash, usedAt: null, expiresAt: { gt: now } },
+        select: { id: true, userId: true },
+      });
+      if (!token) return false;
+
+      const consumed = await transaction.passwordResetToken.updateMany({
+        where: { id: token.id, usedAt: null },
+        data: { usedAt: now },
+      });
+      if (consumed.count !== 1) return false;
+
+      await transaction.user.update({
+        where: { id: token.userId },
+        data: { passwordHash },
+      });
+      await transaction.authSession.updateMany({
+        where: { userId: token.userId, revokedAt: null },
+        data: { revokedAt: now },
+      });
+      return true;
     });
   }
 }

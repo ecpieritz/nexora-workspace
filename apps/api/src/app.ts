@@ -3,11 +3,16 @@ import express, { type Express } from 'express';
 import {
   AuthService,
   AuthSessionService,
+  AuthPasswordRecoveryService,
+  ConsolePasswordResetNotifier,
   createAuthRouter,
   JwtTokenService,
+  DisabledPasswordResetNotifier,
   PrismaAuthRepository,
   type AuthenticationService,
   type AuthRegistrationService,
+  type PasswordRecoveryService,
+  type PasswordResetNotifier,
 } from './features/auth/index.js';
 import {
   createProfileRouter,
@@ -28,8 +33,13 @@ export interface CreateAppOptions {
   jwtAudience: string;
   jwtAccessTtlSeconds: number;
   refreshTokenTtlDays: number;
+  passwordResetTtlMinutes: number;
+  passwordResetUrl: string;
+  isProduction: boolean;
   authRegistrationService?: AuthRegistrationService;
   authenticationService?: AuthenticationService;
+  passwordRecoveryService?: PasswordRecoveryService;
+  passwordResetNotifier?: PasswordResetNotifier;
   userProfileService?: UserProfileService;
 }
 
@@ -54,13 +64,24 @@ export function createApp(options: CreateAppOptions): Express {
       accessTokenTtlSeconds: options.jwtAccessTtlSeconds,
       refreshTokenTtlDays: options.refreshTokenTtlDays,
     });
+  const passwordResetNotifier =
+    options.passwordResetNotifier ??
+    (options.isProduction
+      ? new DisabledPasswordResetNotifier()
+      : new ConsolePasswordResetNotifier(options.passwordResetUrl));
+  const passwordRecoveryService =
+    options.passwordRecoveryService ??
+    new AuthPasswordRecoveryService(authRepository, passwordResetNotifier, {
+      passwordHashRounds: options.passwordHashRounds,
+      resetTokenTtlMinutes: options.passwordResetTtlMinutes,
+    });
   const profileService =
     options.userProfileService ?? new ProfileService(new PrismaUserProfileRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
     `${options.apiPrefix}/auth`,
-    createAuthRouter(registrationService, authenticationService),
+    createAuthRouter(registrationService, authenticationService, passwordRecoveryService),
   );
   app.use(`${options.apiPrefix}/users`, createProfileRouter(accessTokens, profileService));
 

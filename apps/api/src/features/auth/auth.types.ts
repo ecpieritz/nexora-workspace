@@ -79,3 +79,21 @@ export interface AuthenticatedSession extends RegisteredAccount {
     refreshExpiresAt: string;
   };
 }
+
+export interface PasswordResetAccount {
+  id: string;
+  email: string;
+}
+
+export interface CreatePasswordResetTokenInput {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  expiresAt: Date;
+}
+
+export interface PasswordRecoveryRepository {
+  findPasswordResetAccount(email: string): Promise<PasswordResetAccount | null>;
+  createPasswordResetToken(input: CreatePasswordResetTokenInput): Promise<void>;
+  consumePasswordResetToken(tokenHash: string, passwordHash: string, now: Date): Promise<boolean>;
+}

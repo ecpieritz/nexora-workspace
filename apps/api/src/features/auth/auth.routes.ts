@@ -2,13 +2,18 @@ import { Router, type Request } from 'express';
 
 import { getValidatedRequest, validateRequest } from '../../validation/index.js';
 import {
+  forgotPasswordBodySchema,
   loginBodySchema,
   refreshTokenBodySchema,
   registerBodySchema,
+  resetPasswordBodySchema,
+  type ForgotPasswordInput,
   type LoginInput,
   type RefreshTokenInput,
   type RegisterInput,
+  type ResetPasswordInput,
 } from './auth.schemas.js';
+import type { PasswordRecoveryService } from './password-recovery.service.js';
 import type { AuthenticationService } from './auth-session.service.js';
 import type { AuthRegistrationService } from './auth.service.js';
 import type { SessionMetadata } from './auth.types.js';
@@ -26,6 +31,7 @@ function createSessionMetadata(request: Request): SessionMetadata {
 export function createAuthRouter(
   registrationService: AuthRegistrationService,
   authenticationService: AuthenticationService,
+  passwordRecoveryService: PasswordRecoveryService,
 ): Router {
   const router = Router();
 
@@ -64,6 +70,30 @@ export function createAuthRouter(
     async (request, response) => {
       const { body } = getValidatedRequest<RefreshTokenInput>(request);
       await authenticationService.logout(body);
+      response.sendStatus(204);
+    },
+  );
+
+  router.post(
+    '/forgot-password',
+    validateRequest({ body: forgotPasswordBodySchema }),
+    async (request, response) => {
+      const { body } = getValidatedRequest<ForgotPasswordInput>(request);
+      await passwordRecoveryService.requestReset(body);
+      response.status(202).json({
+        data: {
+          message: 'If an account exists for this email, password reset instructions were sent.',
+        },
+      });
+    },
+  );
+
+  router.post(
+    '/reset-password',
+    validateRequest({ body: resetPasswordBodySchema }),
+    async (request, response) => {
+      const { body } = getValidatedRequest<ResetPasswordInput>(request);
+      await passwordRecoveryService.resetPassword(body);
       response.sendStatus(204);
     },
   );

@@ -9,4 +9,7 @@ export const testAppOptions = {
   jwtAudience: 'nexora-web-test',
   jwtAccessTtlSeconds: 900,
   refreshTokenTtlDays: 7,
+  passwordResetTtlMinutes: 30,
+  passwordResetUrl: 'http://localhost:4200/auth/reset-password',
+  isProduction: false,
 } satisfies CreateAppOptions;

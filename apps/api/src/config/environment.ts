@@ -19,6 +19,8 @@ export interface ApiEnvironment {
   jwtAudience: string;
   jwtAccessTtlSeconds: number;
   refreshTokenTtlDays: number;
+  passwordResetTtlMinutes: number;
+  passwordResetUrl: string;
   isProduction: boolean;
 }
 
@@ -127,6 +129,14 @@ function readJwtSecret(value: string | undefined, nodeEnv: NodeEnvironment): str
   return secret;
 }
 
+function readHttpUrl(name: string, value: string | undefined, fallback: string): string {
+  const parsed = new URL(readString(value, fallback));
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error(`${name} must use the http or https protocol.`);
+  }
+  return parsed.toString();
+}
+
 const nodeEnv = readNodeEnvironment(process.env['NODE_ENV']);
 
 export const environment: Readonly<ApiEnvironment> = Object.freeze({
@@ -153,6 +163,16 @@ export const environment: Readonly<ApiEnvironment> = Object.freeze({
     'REFRESH_TOKEN_TTL_DAYS',
     process.env['REFRESH_TOKEN_TTL_DAYS'],
     7,
+  ),
+  passwordResetTtlMinutes: readPositiveInteger(
+    'PASSWORD_RESET_TTL_MINUTES',
+    process.env['PASSWORD_RESET_TTL_MINUTES'],
+    30,
+  ),
+  passwordResetUrl: readHttpUrl(
+    'PASSWORD_RESET_URL',
+    process.env['PASSWORD_RESET_URL'],
+    'http://localhost:4200/auth/reset-password',
   ),
   isProduction: nodeEnv === 'production',
 });
