@@ -46,7 +46,7 @@ The root `.env` configures the local PostgreSQL container. `apps/api/.env` confi
 | Development (Vercel Preview) | [dev-nexora-workspace-delta.vercel.app](https://dev-nexora-workspace-delta.vercel.app/) |
 | Production                   | [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/)         |
 
-Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT`, `CORS_ORIGINS`, `DATABASE_URL`, `DATABASE_CONNECTION_TIMEOUT_MS` and `PASSWORD_HASH_ROUNDS` independently in Vercel Preview and Production. Use a separate database for each environment. Do not commit `.env` files; only `.env.example` is versioned.
+Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT`, `CORS_ORIGINS`, `DATABASE_URL`, `DATABASE_CONNECTION_TIMEOUT_MS`, `PASSWORD_HASH_ROUNDS`, `JWT_ACCESS_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_ACCESS_TTL_SECONDS` and `REFRESH_TOKEN_TTL_DAYS` independently in Vercel Preview and Production. Use a separate database and JWT secret for each environment. Do not commit `.env` files; only `.env.example` is versioned.
 
 ## Commands
 
@@ -89,7 +89,7 @@ See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENS
 
 ## Mock data notice
 
-The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks and `POST /api/auth/register`; the Angular authentication flow is not connected to that endpoint yet.
+The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks and the `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh` and `/api/auth/logout` endpoints; the Angular authentication flow is not connected to them yet.
 
 ## Release
 

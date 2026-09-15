@@ -13,6 +13,7 @@ import {
   type RegisteredAccount,
 } from '../src/features/auth/index.js';
 import { WorkspaceRole } from '../src/generated/prisma/client.js';
+import { testAppOptions } from './test-app-options.js';
 
 const registeredAccount: RegisteredAccount = {
   user: {
@@ -57,9 +58,7 @@ void describe('user registration', () => {
   void it('validates, normalizes and registers a new user', async () => {
     const authService = new FakeRegistrationService();
     const app = createApp({
-      apiPrefix: '/api',
-      jsonBodyLimit: '1mb',
-      passwordHashRounds: 12,
+      ...testAppOptions,
       authRegistrationService: authService,
     });
 
@@ -85,9 +84,7 @@ void describe('user registration', () => {
   void it('rejects weak credentials before calling the service', async () => {
     const authService = new FakeRegistrationService();
     const app = createApp({
-      apiPrefix: '/api',
-      jsonBodyLimit: '1mb',
-      passwordHashRounds: 12,
+      ...testAppOptions,
       authRegistrationService: authService,
     });
 

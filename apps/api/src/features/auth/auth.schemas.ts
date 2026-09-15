@@ -33,4 +33,24 @@ export const registerBodySchema = z.strictObject({
   password: passwordSchema,
 });
 
+export const loginBodySchema = z.strictObject({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ error: 'Email must be valid.' })),
+  password: z
+    .string()
+    .min(1, { error: 'Password is required.' })
+    .refine((password) => Buffer.byteLength(password, 'utf8') <= 72, {
+      error: 'Password must contain at most 72 UTF-8 bytes.',
+    }),
+});
+
+export const refreshTokenBodySchema = z.strictObject({
+  refreshToken: z.string().min(32).max(256),
+});
+
 export type RegisterInput = z.infer<typeof registerBodySchema>;
+export type LoginInput = z.infer<typeof loginBodySchema>;
+export type RefreshTokenInput = z.infer<typeof refreshTokenBodySchema>;

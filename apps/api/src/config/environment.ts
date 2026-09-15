@@ -14,6 +14,11 @@ export interface ApiEnvironment {
   databaseUrl: string;
   databaseConnectionTimeoutMs: number;
   passwordHashRounds: number;
+  jwtAccessSecret: string;
+  jwtIssuer: string;
+  jwtAudience: string;
+  jwtAccessTtlSeconds: number;
+  refreshTokenTtlDays: number;
   isProduction: boolean;
 }
 
@@ -97,6 +102,31 @@ function readPasswordHashRounds(value: string | undefined): number {
   return rounds;
 }
 
+function readPositiveInteger(name: string, value: string | undefined, fallback: number): number {
+  const parsed = Number(value ?? fallback);
+
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`${name} must be a positive integer.`);
+  }
+
+  return parsed;
+}
+
+function readJwtSecret(value: string | undefined, nodeEnv: NodeEnvironment): string {
+  const suppliedSecret = value?.trim();
+  const secret = readString(value, 'nexora-local-jwt-secret-change-before-deployment');
+
+  if (Buffer.byteLength(secret, 'utf8') < 32) {
+    throw new Error('JWT_ACCESS_SECRET must contain at least 32 UTF-8 bytes.');
+  }
+
+  if (nodeEnv === 'production' && !suppliedSecret) {
+    throw new Error('JWT_ACCESS_SECRET is required in production.');
+  }
+
+  return secret;
+}
+
 const nodeEnv = readNodeEnvironment(process.env['NODE_ENV']);
 
 export const environment: Readonly<ApiEnvironment> = Object.freeze({
@@ -111,5 +141,18 @@ export const environment: Readonly<ApiEnvironment> = Object.freeze({
     process.env['DATABASE_CONNECTION_TIMEOUT_MS'],
   ),
   passwordHashRounds: readPasswordHashRounds(process.env['PASSWORD_HASH_ROUNDS']),
+  jwtAccessSecret: readJwtSecret(process.env['JWT_ACCESS_SECRET'], nodeEnv),
+  jwtIssuer: readString(process.env['JWT_ISSUER'], 'nexora-api'),
+  jwtAudience: readString(process.env['JWT_AUDIENCE'], 'nexora-web'),
+  jwtAccessTtlSeconds: readPositiveInteger(
+    'JWT_ACCESS_TTL_SECONDS',
+    process.env['JWT_ACCESS_TTL_SECONDS'],
+    900,
+  ),
+  refreshTokenTtlDays: readPositiveInteger(
+    'REFRESH_TOKEN_TTL_DAYS',
+    process.env['REFRESH_TOKEN_TTL_DAYS'],
+    7,
+  ),
   isProduction: nodeEnv === 'production',
 });
