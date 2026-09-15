@@ -89,7 +89,7 @@ See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENS
 
 ## Mock data notice
 
-The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks and the `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh` and `/api/auth/logout` endpoints; the Angular authentication flow is not connected to them yet.
+The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks, authentication endpoints under `/api/auth` and authenticated profile endpoints at `GET /api/users/me` and `PATCH /api/users/me`; the Angular authentication flow is not connected to them yet.
 
 ## Release
 

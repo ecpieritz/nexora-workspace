@@ -9,6 +9,12 @@ import {
   type AuthenticationService,
   type AuthRegistrationService,
 } from './features/auth/index.js';
+import {
+  createProfileRouter,
+  PrismaUserProfileRepository,
+  ProfileService,
+  type UserProfileService,
+} from './features/profile/index.js';
 import { createErrorHandler } from './middleware/error-handler.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
 import { healthRouter } from './routes/health.route.js';
@@ -24,6 +30,7 @@ export interface CreateAppOptions {
   refreshTokenTtlDays: number;
   authRegistrationService?: AuthRegistrationService;
   authenticationService?: AuthenticationService;
+  userProfileService?: UserProfileService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -47,12 +54,15 @@ export function createApp(options: CreateAppOptions): Express {
       accessTokenTtlSeconds: options.jwtAccessTtlSeconds,
       refreshTokenTtlDays: options.refreshTokenTtlDays,
     });
+  const profileService =
+    options.userProfileService ?? new ProfileService(new PrismaUserProfileRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
     `${options.apiPrefix}/auth`,
     createAuthRouter(registrationService, authenticationService),
   );
+  app.use(`${options.apiPrefix}/users`, createProfileRouter(accessTokens, profileService));
 
   app.use(notFoundHandler);
   app.use(createErrorHandler());

@@ -10,6 +10,8 @@ Authentication follows a route-service-repository boundary. Registration normali
 
 Authenticated sessions use short-lived HS256 access tokens with issuer and audience verification. Refresh tokens are high-entropy opaque values: only their SHA-256 hashes are persisted, and every successful refresh atomically revokes the previous session before creating its replacement. Logout revokes the matching session, while shared Bearer middleware verifies access tokens and exposes a typed authentication principal to protected routes.
 
+Authenticated profile endpoints expose explicit public projections for the current user and workspace. Profile updates are allowlisted at the validation boundary, so identity and authorization fields such as email, username and role cannot be changed. CPF/CNPJ is normalized before persistence and becomes immutable after its first assignment; optimistic matching prevents concurrent requests from bypassing that rule.
+
 Runtime configuration is centralized in `apps/api/src/config/environment.ts`. Environment values are parsed once during startup and exposed through an immutable, typed object. Invalid ports, API prefixes, environments or CORS origins stop the process before it accepts traffic.
 
 Local infrastructure is defined in the root `compose.yaml`. It runs PostgreSQL 17 with a persistent named volume and a readiness healthcheck. Docker credentials and port mapping come from the root `.env`, while the API receives its PostgreSQL connection string through `apps/api/.env`. Database schemas and migrations will be introduced with the persistence layer.
