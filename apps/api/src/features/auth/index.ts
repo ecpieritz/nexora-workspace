@@ -34,6 +34,7 @@ export type {
   AccessTokenService,
   AuthenticatedSession,
   AuthPrincipal,
+  AuthenticationContextRepository,
   AuthRegistrationRepository,
   AuthSessionRepository,
   CreateSessionInput,

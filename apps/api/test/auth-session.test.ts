@@ -9,6 +9,7 @@ import { ApiError } from '../src/errors/api-error.js';
 import {
   AuthSessionService,
   JwtTokenService,
+  type AuthenticationContextRepository,
   type AuthSessionRepository,
   type CreateSessionInput,
   type LoginAccount,
@@ -77,6 +78,9 @@ const jwt = new JwtTokenService({
   audience: 'nexora-web-test',
   ttlSeconds: 900,
 });
+const activeAuthenticationContexts: AuthenticationContextRepository = {
+  findActivePrincipal: (principal) => Promise.resolve(principal),
+};
 
 function createService(repository: AuthSessionRepository): AuthSessionService {
   return new AuthSessionService(repository, jwt, {
@@ -155,9 +159,13 @@ void describe('JWT authentication and refresh sessions', () => {
 
   void it('accepts valid Bearer tokens and rejects invalid ones', async () => {
     const app = express();
-    app.get('/protected', createAuthenticationMiddleware(jwt), (request, response) => {
-      response.status(200).json(getAuthPrincipal(request));
-    });
+    app.get(
+      '/protected',
+      createAuthenticationMiddleware(jwt, activeAuthenticationContexts),
+      (request, response) => {
+        response.status(200).json(getAuthPrincipal(request));
+      },
+    );
     app.use(createErrorHandler());
     const accessToken = await jwt.sign({
       userId: account.user.id,

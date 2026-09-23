@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import type { AccessTokenService } from '../auth/index.js';
+import type { AccessTokenService, AuthenticationContextRepository } from '../auth/index.js';
 import {
   createAuthenticationMiddleware,
   getAuthPrincipal,
@@ -11,10 +11,11 @@ import type { UserProfileService } from './profile.service.js';
 
 export function createProfileRouter(
   accessTokens: AccessTokenService,
+  authenticationContexts: AuthenticationContextRepository,
   profileService: UserProfileService,
 ): Router {
   const router = Router();
-  router.use(createAuthenticationMiddleware(accessTokens));
+  router.use(createAuthenticationMiddleware(accessTokens, authenticationContexts));
 
   router.get('/me', async (request, response) => {
     const profile = await profileService.get(getAuthPrincipal(request));

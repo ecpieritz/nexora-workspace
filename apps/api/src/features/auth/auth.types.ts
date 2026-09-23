@@ -70,6 +70,10 @@ export interface AccessTokenService {
   verify(token: string): Promise<AuthPrincipal>;
 }
 
+export interface AuthenticationContextRepository {
+  findActivePrincipal(principal: AuthPrincipal, now: Date): Promise<AuthPrincipal | null>;
+}
+
 export interface AuthenticatedSession extends RegisteredAccount {
   tokens: {
     accessToken: string;

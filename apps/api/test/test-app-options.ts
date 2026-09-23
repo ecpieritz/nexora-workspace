@@ -1,4 +1,9 @@
 import type { CreateAppOptions } from '../src/app.js';
+import type { AuthenticationContextRepository } from '../src/features/auth/index.js';
+
+const activeAuthenticationContexts: AuthenticationContextRepository = {
+  findActivePrincipal: (principal) => Promise.resolve(principal),
+};
 
 export const testAppOptions = {
   apiPrefix: '/api',
@@ -12,4 +17,5 @@ export const testAppOptions = {
   passwordResetTtlMinutes: 30,
   passwordResetUrl: 'http://localhost:4200/auth/reset-password',
   isProduction: false,
+  authenticationContextRepository: activeAuthenticationContexts,
 } satisfies CreateAppOptions;

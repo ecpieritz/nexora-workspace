@@ -10,6 +10,7 @@ import {
   DisabledPasswordResetNotifier,
   PrismaAuthRepository,
   type AuthenticationService,
+  type AuthenticationContextRepository,
   type AuthRegistrationService,
   type PasswordRecoveryService,
   type PasswordResetNotifier,
@@ -38,6 +39,7 @@ export interface CreateAppOptions {
   isProduction: boolean;
   authRegistrationService?: AuthRegistrationService;
   authenticationService?: AuthenticationService;
+  authenticationContextRepository?: AuthenticationContextRepository;
   passwordRecoveryService?: PasswordRecoveryService;
   passwordResetNotifier?: PasswordResetNotifier;
   userProfileService?: UserProfileService;
@@ -77,13 +79,17 @@ export function createApp(options: CreateAppOptions): Express {
     });
   const profileService =
     options.userProfileService ?? new ProfileService(new PrismaUserProfileRepository());
+  const authenticationContexts = options.authenticationContextRepository ?? authRepository;
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
     `${options.apiPrefix}/auth`,
     createAuthRouter(registrationService, authenticationService, passwordRecoveryService),
   );
-  app.use(`${options.apiPrefix}/users`, createProfileRouter(accessTokens, profileService));
+  app.use(
+    `${options.apiPrefix}/users`,
+    createProfileRouter(accessTokens, authenticationContexts, profileService),
+  );
 
   app.use(notFoundHandler);
   app.use(createErrorHandler());

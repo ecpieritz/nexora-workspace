@@ -5,6 +5,8 @@ import { Prisma, WorkspaceRole, type PrismaClient } from '../../generated/prisma
 import type {
   AuthRegistrationRepository,
   AuthSessionRepository,
+  AuthenticationContextRepository,
+  AuthPrincipal,
   CreateAccountInput,
   CreatePasswordResetTokenInput,
   CreateSessionInput,
@@ -88,7 +90,11 @@ function createWorkspaceSlug(username: string, workspaceId: string): string {
 }
 
 export class PrismaAuthRepository
-  implements AuthRegistrationRepository, AuthSessionRepository, PasswordRecoveryRepository
+  implements
+    AuthRegistrationRepository,
+    AuthSessionRepository,
+    AuthenticationContextRepository,
+    PasswordRecoveryRepository
 {
   constructor(private readonly database: PrismaClient = prisma) {}
 
@@ -198,6 +204,32 @@ export class PrismaAuthRepository
       where: { tokenHash, revokedAt: null },
       data: { revokedAt },
     });
+  }
+
+  async findActivePrincipal(principal: AuthPrincipal, now: Date): Promise<AuthPrincipal | null> {
+    const session = await this.database.authSession.findFirst({
+      where: {
+        id: principal.sessionId,
+        userId: principal.userId,
+        revokedAt: null,
+        expiresAt: { gt: now },
+      },
+      select: {
+        user: {
+          select: {
+            memberships: {
+              where: { workspaceId: principal.workspaceId },
+              take: 1,
+              select: { role: true },
+            },
+          },
+        },
+      },
+    });
+    const membership = session?.user.memberships[0];
+    if (!membership) return null;
+
+    return { ...principal, role: membership.role };
   }
 
   async findPasswordResetAccount(email: string) {
