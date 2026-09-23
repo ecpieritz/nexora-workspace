@@ -16,6 +16,12 @@ import {
   type PasswordResetNotifier,
 } from './features/auth/index.js';
 import {
+  createCustomerRouter,
+  CustomerService,
+  PrismaCustomerRepository,
+  type CustomerManagementService,
+} from './features/customers/index.js';
+import {
   createProfileRouter,
   PrismaUserProfileRepository,
   ProfileService,
@@ -43,6 +49,7 @@ export interface CreateAppOptions {
   passwordRecoveryService?: PasswordRecoveryService;
   passwordResetNotifier?: PasswordResetNotifier;
   userProfileService?: UserProfileService;
+  customerService?: CustomerManagementService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -80,11 +87,17 @@ export function createApp(options: CreateAppOptions): Express {
   const profileService =
     options.userProfileService ?? new ProfileService(new PrismaUserProfileRepository());
   const authenticationContexts = options.authenticationContextRepository ?? authRepository;
+  const customerService =
+    options.customerService ?? new CustomerService(new PrismaCustomerRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
     `${options.apiPrefix}/auth`,
     createAuthRouter(registrationService, authenticationService, passwordRecoveryService),
+  );
+  app.use(
+    `${options.apiPrefix}/customers`,
+    createCustomerRouter(accessTokens, authenticationContexts, customerService),
   );
   app.use(
     `${options.apiPrefix}/users`,

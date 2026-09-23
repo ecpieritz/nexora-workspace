@@ -24,6 +24,8 @@ Prisma ORM provides the typed persistence boundary. Its schema and migration his
 
 The relational model is scoped by workspace. Memberships own authorization roles, while customers, products, invoices, tasks and schedule entries belong to one workspace. Explicit join tables represent task assignments and schedule attendance. Invoice items preserve billing snapshots and may optionally reference products, allowing historical invoices to survive product removal.
 
+Customer management follows the same route-service-repository boundary. Reads are paginated, searchable and filtered inside PostgreSQL; every query includes the authenticated workspace identifier. Members may read customer data, while creation, editing and deletion require an owner or administrator role. Only profile fields are writable, leaving performance metrics under backend control.
+
 ## Data flow
 
 Pages request typed data from feature repositories. Repositories simulate latency through `MockApiService` and persist user-created records with `MockStorageService` in browser local storage. Signals hold view state; computed signals derive filters and selections.

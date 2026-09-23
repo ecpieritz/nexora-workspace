@@ -89,7 +89,7 @@ See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENS
 
 ## Mock data notice
 
-The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks, authentication endpoints under `/api/auth` (including password recovery), and authenticated profile endpoints at `GET /api/users/me` and `PATCH /api/users/me`; the Angular authentication flow is not connected to them yet. Local password recovery links are printed by the API process; production delivery remains disabled until an email provider is configured.
+The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks, authentication endpoints under `/api/auth` (including password recovery), authenticated profile endpoints at `/api/users/me`, and workspace-scoped customer management at `/api/customers`; the Angular authentication flow is not connected to them yet. Local password recovery links are printed by the API process; production delivery remains disabled until an email provider is configured.
 
 ## Release
 
