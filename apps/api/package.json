@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "npm run prisma:generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test": "tsx --test test/error-handler.test.ts test/request-validation.test.ts test/auth-registration.test.ts test/auth-session.test.ts test/authentication-authorization.test.ts test/customer-management.test.ts test/password-recovery.test.ts test/user-profile.test.ts",
+    "test": "tsx --test test/error-handler.test.ts test/request-validation.test.ts test/auth-registration.test.ts test/auth-session.test.ts test/authentication-authorization.test.ts test/customer-management.test.ts test/password-recovery.test.ts test/product-management.test.ts test/user-profile.test.ts",
     "test:ci": "npm run test",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",

@@ -27,6 +27,12 @@ import {
   ProfileService,
   type UserProfileService,
 } from './features/profile/index.js';
+import {
+  createProductRouter,
+  PrismaProductRepository,
+  ProductService,
+  type ProductManagementService,
+} from './features/products/index.js';
 import { createErrorHandler } from './middleware/error-handler.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
 import { healthRouter } from './routes/health.route.js';
@@ -50,6 +56,7 @@ export interface CreateAppOptions {
   passwordResetNotifier?: PasswordResetNotifier;
   userProfileService?: UserProfileService;
   customerService?: CustomerManagementService;
+  productService?: ProductManagementService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -89,6 +96,8 @@ export function createApp(options: CreateAppOptions): Express {
   const authenticationContexts = options.authenticationContextRepository ?? authRepository;
   const customerService =
     options.customerService ?? new CustomerService(new PrismaCustomerRepository());
+  const productService =
+    options.productService ?? new ProductService(new PrismaProductRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
@@ -98,6 +107,10 @@ export function createApp(options: CreateAppOptions): Express {
   app.use(
     `${options.apiPrefix}/customers`,
     createCustomerRouter(accessTokens, authenticationContexts, customerService),
+  );
+  app.use(
+    `${options.apiPrefix}/products`,
+    createProductRouter(accessTokens, authenticationContexts, productService),
   );
   app.use(
     `${options.apiPrefix}/users`,

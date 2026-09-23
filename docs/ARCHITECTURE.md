@@ -26,6 +26,8 @@ The relational model is scoped by workspace. Memberships own authorization roles
 
 Customer management follows the same route-service-repository boundary. Reads are paginated, searchable and filtered inside PostgreSQL; every query includes the authenticated workspace identifier. Members may read customer data, while creation, editing and deletion require an owner or administrator role. Only profile fields are writable, leaving performance metrics under backend control.
 
+Product management applies the same workspace and role boundaries, with validated inventory, pricing and catalog fields. Its analytics endpoint derives totals, monthly sales, invoice-status distribution and top-product ranking from completed invoice items over a bounded date range. This keeps reporting values tied to transactional records instead of storing duplicated counters.
+
 ## Data flow
 
 Pages request typed data from feature repositories. Repositories simulate latency through `MockApiService` and persist user-created records with `MockStorageService` in browser local storage. Signals hold view state; computed signals derive filters and selections.
