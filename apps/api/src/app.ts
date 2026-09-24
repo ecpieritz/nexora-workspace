@@ -46,6 +46,12 @@ import {
   ScheduleService,
   type ScheduleManagementService,
 } from './features/schedules/index.js';
+import {
+  createTaskRouter,
+  PrismaTaskRepository,
+  TaskService,
+  type TaskManagementService,
+} from './features/tasks/index.js';
 import { createErrorHandler } from './middleware/error-handler.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
 import { healthRouter } from './routes/health.route.js';
@@ -72,6 +78,7 @@ export interface CreateAppOptions {
   productService?: ProductManagementService;
   invoiceService?: InvoiceManagementService;
   scheduleService?: ScheduleManagementService;
+  taskService?: TaskManagementService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -117,6 +124,7 @@ export function createApp(options: CreateAppOptions): Express {
     options.invoiceService ?? new InvoiceService(new PrismaInvoiceRepository());
   const scheduleService =
     options.scheduleService ?? new ScheduleService(new PrismaScheduleRepository());
+  const taskService = options.taskService ?? new TaskService(new PrismaTaskRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
@@ -142,6 +150,10 @@ export function createApp(options: CreateAppOptions): Express {
   app.use(
     `${options.apiPrefix}/calendar`,
     createCalendarRouter(accessTokens, authenticationContexts, scheduleService),
+  );
+  app.use(
+    `${options.apiPrefix}/tasks`,
+    createTaskRouter(accessTokens, authenticationContexts, taskService),
   );
   app.use(
     `${options.apiPrefix}/users`,
