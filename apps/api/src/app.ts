@@ -28,6 +28,12 @@ import {
   type UserProfileService,
 } from './features/profile/index.js';
 import {
+  createInvoiceRouter,
+  InvoiceService,
+  PrismaInvoiceRepository,
+  type InvoiceManagementService,
+} from './features/invoices/index.js';
+import {
   createProductRouter,
   PrismaProductRepository,
   ProductService,
@@ -57,6 +63,7 @@ export interface CreateAppOptions {
   userProfileService?: UserProfileService;
   customerService?: CustomerManagementService;
   productService?: ProductManagementService;
+  invoiceService?: InvoiceManagementService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -98,6 +105,8 @@ export function createApp(options: CreateAppOptions): Express {
     options.customerService ?? new CustomerService(new PrismaCustomerRepository());
   const productService =
     options.productService ?? new ProductService(new PrismaProductRepository());
+  const invoiceService =
+    options.invoiceService ?? new InvoiceService(new PrismaInvoiceRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
@@ -111,6 +120,10 @@ export function createApp(options: CreateAppOptions): Express {
   app.use(
     `${options.apiPrefix}/products`,
     createProductRouter(accessTokens, authenticationContexts, productService),
+  );
+  app.use(
+    `${options.apiPrefix}/invoices`,
+    createInvoiceRouter(accessTokens, authenticationContexts, invoiceService),
   );
   app.use(
     `${options.apiPrefix}/users`,
