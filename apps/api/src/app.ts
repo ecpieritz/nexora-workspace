@@ -39,6 +39,13 @@ import {
   ProductService,
   type ProductManagementService,
 } from './features/products/index.js';
+import {
+  createCalendarRouter,
+  createScheduleRouter,
+  PrismaScheduleRepository,
+  ScheduleService,
+  type ScheduleManagementService,
+} from './features/schedules/index.js';
 import { createErrorHandler } from './middleware/error-handler.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
 import { healthRouter } from './routes/health.route.js';
@@ -64,6 +71,7 @@ export interface CreateAppOptions {
   customerService?: CustomerManagementService;
   productService?: ProductManagementService;
   invoiceService?: InvoiceManagementService;
+  scheduleService?: ScheduleManagementService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -107,6 +115,8 @@ export function createApp(options: CreateAppOptions): Express {
     options.productService ?? new ProductService(new PrismaProductRepository());
   const invoiceService =
     options.invoiceService ?? new InvoiceService(new PrismaInvoiceRepository());
+  const scheduleService =
+    options.scheduleService ?? new ScheduleService(new PrismaScheduleRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
@@ -124,6 +134,14 @@ export function createApp(options: CreateAppOptions): Express {
   app.use(
     `${options.apiPrefix}/invoices`,
     createInvoiceRouter(accessTokens, authenticationContexts, invoiceService),
+  );
+  app.use(
+    `${options.apiPrefix}/schedules`,
+    createScheduleRouter(accessTokens, authenticationContexts, scheduleService),
+  );
+  app.use(
+    `${options.apiPrefix}/calendar`,
+    createCalendarRouter(accessTokens, authenticationContexts, scheduleService),
   );
   app.use(
     `${options.apiPrefix}/users`,
