@@ -22,6 +22,12 @@ import {
   type CustomerManagementService,
 } from './features/customers/index.js';
 import {
+  createDashboardRouter,
+  DashboardService,
+  PrismaDashboardRepository,
+  type DashboardReportingService,
+} from './features/dashboard/index.js';
+import {
   createProfileRouter,
   PrismaUserProfileRepository,
   ProfileService,
@@ -79,6 +85,7 @@ export interface CreateAppOptions {
   invoiceService?: InvoiceManagementService;
   scheduleService?: ScheduleManagementService;
   taskService?: TaskManagementService;
+  dashboardService?: DashboardReportingService;
 }
 
 export function createApp(options: CreateAppOptions): Express {
@@ -125,6 +132,8 @@ export function createApp(options: CreateAppOptions): Express {
   const scheduleService =
     options.scheduleService ?? new ScheduleService(new PrismaScheduleRepository());
   const taskService = options.taskService ?? new TaskService(new PrismaTaskRepository());
+  const dashboardService =
+    options.dashboardService ?? new DashboardService(new PrismaDashboardRepository());
 
   app.use(`${options.apiPrefix}/health`, healthRouter);
   app.use(
@@ -134,6 +143,10 @@ export function createApp(options: CreateAppOptions): Express {
   app.use(
     `${options.apiPrefix}/customers`,
     createCustomerRouter(accessTokens, authenticationContexts, customerService),
+  );
+  app.use(
+    `${options.apiPrefix}/dashboard`,
+    createDashboardRouter(accessTokens, authenticationContexts, dashboardService),
   );
   app.use(
     `${options.apiPrefix}/products`,
