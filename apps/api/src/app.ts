@@ -60,6 +60,7 @@ import {
 } from './features/tasks/index.js';
 import { createErrorHandler } from './middleware/error-handler.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
+import { createOpenApiRouter } from './openapi/openapi.routes.js';
 import { healthRouter } from './routes/health.route.js';
 
 export interface CreateAppOptions {
@@ -93,6 +94,7 @@ export function createApp(options: CreateAppOptions): Express {
 
   app.disable('x-powered-by');
   app.use(express.json({ limit: options.jsonBodyLimit }));
+  app.use(options.apiPrefix, createOpenApiRouter(options.apiPrefix));
 
   const authRepository = new PrismaAuthRepository();
   const accessTokens = new JwtTokenService({

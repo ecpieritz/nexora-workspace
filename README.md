@@ -39,6 +39,10 @@ Open `http://localhost:4200`. The API is available at `http://localhost:3000/api
 
 The root `.env` configures the local PostgreSQL container. `apps/api/.env` configures the API and its `DATABASE_URL`. Both files are ignored by Git; only their `.env.example` templates are versioned. Run `npm run db:status` to confirm the database is healthy and `npm run db:logs` to inspect its logs.
 
+## API documentation
+
+With the API running locally, open [http://localhost:3000/api/docs](http://localhost:3000/api/docs) for the interactive Swagger UI. The OpenAPI 3.1 document is also available as JSON at [http://localhost:3000/api/openapi.json](http://localhost:3000/api/openapi.json). Use the Swagger `Authorize` action with an access token returned by `/api/auth/login` to try protected endpoints.
+
 ### Deployment environments
 
 | Environment                  | Frontend URL                                                                            |
