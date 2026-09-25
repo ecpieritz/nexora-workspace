@@ -9,6 +9,8 @@
     "start": "node dist/server.js",
     "test": "tsx --test test/api-services.unit.test.ts test/auth-registration.test.ts test/auth-session.test.ts test/authentication-authorization.test.ts test/customer-management.test.ts test/dashboard-reporting.test.ts test/error-handler.test.ts test/invoice-management.test.ts test/openapi.test.ts test/password-recovery.test.ts test/product-management.test.ts test/request-validation.test.ts test/schedule-calendar.test.ts test/schema-validation.unit.test.ts test/task-management.test.ts test/user-profile.test.ts",
     "test:ci": "npm run test",
+    "test:integration": "tsx test/run-integration-tests.ts",
+    "test:integration:execute": "tsx --test --test-concurrency=1 test/integration/auth-resources.integration.test.ts",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",

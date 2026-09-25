@@ -10,7 +10,7 @@ Nexora is a responsive business workspace being evolved into a fullstack applica
 - Invoice, schedule, task, calendar, customer and product workflows.
 - Mock latency and browser persistence without an external backend.
 - Accessible keyboard navigation, feedback states, toasts and confirmation dialogs.
-- Unit and component tests plus automated CI checks.
+- Unit, integration and component tests plus automated CI checks.
 
 ## Stack
 
@@ -67,9 +67,12 @@ npm run db:seed     # upsert the portfolio demo data
 npm run db:studio   # inspect local data with Prisma Studio
 npm run db:migrate  # create and apply a development migration
 npm run db:deploy   # apply pending migrations in a deployed environment
+npm run db:test:up  # start the isolated integration-test database
+npm run db:test:down # stop the integration-test database
 npm run lint       # static analysis
 npm test           # interactive unit tests
 npm run test:ci    # headless tests with coverage
+npm run test:integration # run API integration tests against PostgreSQL
 npm run build      # optimized production build
 npm run validate   # complete local quality gate
 ```
@@ -84,6 +87,8 @@ docs/               # Architecture and visual documentation
 ```
 
 The repository uses npm workspaces. Root scripts orchestrate the applications, so the existing development and CI commands remain unchanged as the backend is introduced. Prisma Client is generated automatically during dependency installation and before API builds.
+
+API integration tests exercise the real Express routes, JWT sessions, Prisma repositories and PostgreSQL schema. Run `npm run db:test:up` followed by `npm run test:integration`; the test runner only accepts a database name containing `test` and defaults to the isolated container at `localhost:5433/nexora_test`. GitHub Actions provisions its own temporary PostgreSQL service and applies migrations before the integration suite.
 
 The initial migration creates the authentication, workspace membership, customer, product, invoice, task and schedule tables. After starting PostgreSQL for the first time, apply it locally with `npm run db:migrate`, then run `npm run db:seed`. The idempotent seed can be rerun to restore the portfolio account, workspace and representative business data without creating duplicates. Deployed environments use `npm run db:deploy` so existing migration files are applied without creating new ones; seed each non-production environment explicitly when demo data is desired.
 
