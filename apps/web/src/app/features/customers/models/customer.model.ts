@@ -13,6 +13,8 @@ export interface Customer {
   satisfaction: number;
   retention: number;
   color: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type CustomerFormValue = Pick<
