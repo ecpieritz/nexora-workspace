@@ -9,7 +9,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
-import { AuthConflictError, MockAuthRepository } from '../../data-access/mock-auth.repository';
+import { AuthApiService, AuthConflictError } from '../../data-access/auth-api.service';
 
 type SignUpField = 'fullName' | 'email' | 'username' | 'password';
 
@@ -21,7 +21,7 @@ type SignUpField = 'fullName' | 'email' | 'username' | 'password';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignUpComponent {
-  private readonly authRepository = inject(MockAuthRepository);
+  private readonly authApi = inject(AuthApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
 
@@ -72,12 +72,14 @@ export class SignUpComponent {
     };
 
     try {
-      await this.authRepository.register(registration);
+      await this.authApi.register(registration);
       await this.router.navigate(['/auth/account-created']);
     } catch (error: unknown) {
       if (error instanceof AuthConflictError) {
-        this.form.controls[error.field].setErrors({ conflict: true });
-        this.form.controls[error.field].markAsTouched();
+        if (error.field) {
+          this.form.controls[error.field].setErrors({ conflict: true });
+          this.form.controls[error.field].markAsTouched();
+        }
         this.errorMessage.set(error.message);
       } else {
         this.errorMessage.set('We could not create your account. Please try again.');

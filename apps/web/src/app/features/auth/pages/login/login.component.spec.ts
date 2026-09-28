@@ -2,35 +2,53 @@ import { signal } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
+import { AuthApiService, AuthenticationError } from '../../data-access/auth-api.service';
+import { AuthenticatedAccount } from '../../data-access/auth.models';
 import { AuthSessionService } from '../../data-access/auth-session.service';
-import { AuthenticationError, MockAuthRepository } from '../../data-access/mock-auth.repository';
 import { LoginComponent } from './login.component';
 
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
-  let repository: jasmine.SpyObj<MockAuthRepository>;
+  let authApi: jasmine.SpyObj<AuthApiService>;
   let session: jasmine.SpyObj<AuthSessionService>;
 
-  const user = {
-    id: 'user-id',
-    fullName: 'Jane Doe',
-    email: 'jane@example.com',
-    username: 'janedoe',
-    createdAt: new Date().toISOString(),
+  const account: AuthenticatedAccount = {
+    user: {
+      id: 'user-id',
+      fullName: 'Jane Doe',
+      displayName: 'Jane',
+      email: 'jane@example.com',
+      username: 'janedoe',
+      createdAt: new Date().toISOString(),
+    },
+    workspace: {
+      id: 'workspace-id',
+      name: "Jane's Workspace",
+      slug: 'jane-workspace',
+      role: 'owner',
+    },
+    tokens: {
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      tokenType: 'Bearer',
+      expiresIn: 900,
+      refreshExpiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+    },
   };
 
   beforeEach(async () => {
-    repository = jasmine.createSpyObj<MockAuthRepository>('MockAuthRepository', ['authenticate']);
+    authApi = jasmine.createSpyObj<AuthApiService>('AuthApiService', ['login', 'logout']);
     session = jasmine.createSpyObj<AuthSessionService>('AuthSessionService', ['start', 'clear'], {
       currentUser: signal(null),
       isAuthenticated: signal(false),
+      refreshToken: signal(null),
     });
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
         provideRouter([]),
-        { provide: MockAuthRepository, useValue: repository },
+        { provide: AuthApiService, useValue: authApi },
         { provide: AuthSessionService, useValue: session },
       ],
     }).compileComponents();
@@ -45,20 +63,20 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelectorAll('[role="alert"]').length).toBeGreaterThan(0);
-    expect(repository.authenticate).not.toHaveBeenCalled();
+    expect(authApi.login).not.toHaveBeenCalled();
   });
 
   it('should authenticate and start a remembered session', fakeAsync(() => {
     const router = TestBed.inject(Router);
     const navigate = spyOn(router, 'navigateByUrl').and.resolveTo(true);
-    repository.authenticate.and.resolveTo(user);
+    authApi.login.and.resolveTo(account);
     const component = fixture.componentInstance as unknown as {
       form: {
         setValue(value: Record<string, string | boolean>): void;
       };
     };
     component.form.setValue({
-      email: user.email,
+      email: account.user.email,
       password: 'Nexora123',
       rememberMe: true,
     });
@@ -66,23 +84,23 @@ describe('LoginComponent', () => {
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit'));
     tick();
 
-    expect(repository.authenticate).toHaveBeenCalledWith({
-      email: user.email,
+    expect(authApi.login).toHaveBeenCalledWith({
+      email: account.user.email,
       password: 'Nexora123',
     });
-    expect(session.start).toHaveBeenCalledWith(user, true);
+    expect(session.start).toHaveBeenCalledWith(account, true);
     expect(navigate).toHaveBeenCalledWith('/dashboard');
   }));
 
   it('should show a generic message for invalid credentials', fakeAsync(() => {
-    repository.authenticate.and.rejectWith(new AuthenticationError());
+    authApi.login.and.rejectWith(new AuthenticationError());
     const component = fixture.componentInstance as unknown as {
       form: {
         setValue(value: Record<string, string | boolean>): void;
       };
     };
     component.form.setValue({
-      email: user.email,
+      email: account.user.email,
       password: 'WrongPassword1',
       rememberMe: false,
     });

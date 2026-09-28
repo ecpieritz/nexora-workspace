@@ -35,7 +35,7 @@ npm run dev:api
 npm run dev:web
 ```
 
-Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. The database seed creates the portfolio workspace and the demo login `demo@nexora.app` / `Nexora123!`. The Angular features still use their browser-backed mock repositories until the API integration is implemented.
+Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. The Angular development server proxies `/api` requests to port `3000`. The database seed creates the portfolio workspace and the demo login `demo@nexora.app` / `Nexora123!`. Authentication uses the REST API; the remaining Angular business features continue using their browser-backed repositories while their API integrations are implemented.
 
 The root `.env` configures the local PostgreSQL container. `apps/api/.env` configures the API and its `DATABASE_URL`. Both files are ignored by Git; only their `.env.example` templates are versioned. Run `npm run db:status` to confirm the database is healthy and `npm run db:logs` to inspect its logs.
 
@@ -96,9 +96,9 @@ The initial migration creates the authentication, workspace membership, customer
 
 See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENSHOTS.md).
 
-## Mock data notice
+## Frontend data notice
 
-The Angular features still use local mock repositories while the backend is introduced incrementally. The API exposes health checks, authentication endpoints under `/api/auth` (including password recovery), authenticated profile endpoints at `/api/users/me`, customer management at `/api/customers`, product management plus sales analytics at `/api/products`, invoice management at `/api/invoices`, schedule management at `/api/schedules`, range-based calendar events at `/api/calendar/events`, collaborative task management at `/api/tasks`, and dashboard metrics and reports at `/api/dashboard`; business data is always scoped to the authenticated workspace. The Angular authentication flow is not connected to the API yet. Local password recovery links are printed by the API process; production delivery remains disabled until an email provider is configured.
+Angular authentication is connected to the REST API with persisted server-issued sessions, refresh-token rotation and logout revocation. The remaining business screens still use local repositories while their API integrations are introduced incrementally. The API exposes authenticated profile endpoints at `/api/users/me`, customer management at `/api/customers`, product management plus sales analytics at `/api/products`, invoice management at `/api/invoices`, schedule management at `/api/schedules`, range-based calendar events at `/api/calendar/events`, collaborative task management at `/api/tasks`, and dashboard metrics and reports at `/api/dashboard`; business data is always scoped to the authenticated workspace. Local password recovery links are printed by the API process; production delivery remains disabled until an email provider is configured.
 
 ## Release
 

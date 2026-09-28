@@ -4,10 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
-import {
-  MockAuthRepository,
-  PasswordResetTokenError,
-} from '../../data-access/mock-auth.repository';
+import { AuthApiService, PasswordResetTokenError } from '../../data-access/auth-api.service';
 
 type PasswordField = 'password' | 'confirmPassword';
 
@@ -19,7 +16,7 @@ type PasswordField = 'password' | 'confirmPassword';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordComponent {
-  private readonly authRepository = inject(MockAuthRepository);
+  private readonly authApi = inject(AuthApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly token = inject(ActivatedRoute).snapshot.queryParamMap.get('token');
 
@@ -53,7 +50,7 @@ export class ResetPasswordComponent {
     this.submitting.set(true);
 
     try {
-      await this.authRepository.resetPassword(this.token, this.form.getRawValue().password);
+      await this.authApi.resetPassword(this.token, this.form.getRawValue().password);
       this.success.set(true);
     } catch (error: unknown) {
       this.errorMessage.set(

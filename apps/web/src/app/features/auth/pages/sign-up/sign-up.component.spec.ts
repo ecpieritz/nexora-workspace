@@ -1,26 +1,35 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
-import { MockAuthRepository } from '../../data-access/mock-auth.repository';
+import { AuthApiService } from '../../data-access/auth-api.service';
 import { SignUpComponent } from './sign-up.component';
 
 describe('SignUpComponent', () => {
   let fixture: ComponentFixture<SignUpComponent>;
-  let repository: jasmine.SpyObj<MockAuthRepository>;
+  let authApi: jasmine.SpyObj<AuthApiService>;
 
   beforeEach(async () => {
-    repository = jasmine.createSpyObj<MockAuthRepository>('MockAuthRepository', ['register']);
-    repository.register.and.resolveTo({
-      id: 'user-id',
-      fullName: 'Jane Doe',
-      email: 'jane@example.com',
-      username: 'janedoe',
-      createdAt: new Date().toISOString(),
+    authApi = jasmine.createSpyObj<AuthApiService>('AuthApiService', ['register']);
+    authApi.register.and.resolveTo({
+      user: {
+        id: 'user-id',
+        fullName: 'Jane Doe',
+        displayName: 'Jane',
+        email: 'jane@example.com',
+        username: 'janedoe',
+        createdAt: new Date().toISOString(),
+      },
+      workspace: {
+        id: 'workspace-id',
+        name: "Jane's Workspace",
+        slug: 'jane-workspace',
+        role: 'owner',
+      },
     });
 
     await TestBed.configureTestingModule({
       imports: [SignUpComponent],
-      providers: [provideRouter([]), { provide: MockAuthRepository, useValue: repository }],
+      providers: [provideRouter([]), { provide: AuthApiService, useValue: authApi }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SignUpComponent);
@@ -33,7 +42,7 @@ describe('SignUpComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelectorAll('[role="alert"]').length).toBeGreaterThan(0);
-    expect(repository.register).not.toHaveBeenCalled();
+    expect(authApi.register).not.toHaveBeenCalled();
   });
 
   it('should register a valid demo account', fakeAsync(() => {
@@ -58,7 +67,7 @@ describe('SignUpComponent', () => {
     tick();
     fixture.detectChanges();
 
-    expect(repository.register).toHaveBeenCalled();
+    expect(authApi.register).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(['/auth/account-created']);
   }));
 });

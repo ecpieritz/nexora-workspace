@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { MockStorageService } from '@core/mock-api';
 
+import { AuthApiService } from '@features/auth/data-access/auth-api.service';
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 
 import { DashboardShellComponent } from './dashboard-shell.component';
@@ -10,22 +11,28 @@ import { DashboardShellComponent } from './dashboard-shell.component';
 describe('DashboardShellComponent', () => {
   let fixture: ComponentFixture<DashboardShellComponent>;
   let session: jasmine.SpyObj<AuthSessionService>;
+  let authApi: jasmine.SpyObj<AuthApiService>;
 
   beforeEach(async () => {
+    authApi = jasmine.createSpyObj<AuthApiService>('AuthApiService', ['logout']);
+    authApi.logout.and.resolveTo();
     session = jasmine.createSpyObj<AuthSessionService>('AuthSessionService', ['clear'], {
       currentUser: signal({
         id: 'user-id',
         fullName: 'Jane Doe',
+        displayName: 'Jane',
         email: 'jane@example.com',
         username: 'janedoe',
         createdAt: '2026-01-01T00:00:00.000Z',
       }),
+      refreshToken: signal('refresh-token'),
     });
 
     await TestBed.configureTestingModule({
       imports: [DashboardShellComponent],
       providers: [
         provideRouter([]),
+        { provide: AuthApiService, useValue: authApi },
         { provide: AuthSessionService, useValue: session },
         {
           provide: MockStorageService,
@@ -58,6 +65,7 @@ describe('DashboardShellComponent', () => {
     await fixture.whenStable();
 
     expect(session.clear).toHaveBeenCalled();
+    expect(authApi.logout).toHaveBeenCalledWith('refresh-token');
     expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
   });
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MockStorageService } from '@core/mock-api';
 
+import { AuthApiService } from '@features/auth/data-access/auth-api.service';
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 import { BrandComponent } from '@shared/components/brand/brand.component';
 
@@ -33,6 +34,7 @@ interface NavigationItem {
 export class DashboardShellComponent {
   private readonly router = inject(Router);
   private readonly storage = inject(MockStorageService);
+  private readonly authApi = inject(AuthApiService);
   protected readonly session = inject(AuthSessionService);
 
   protected readonly navigationOpen = signal(false);
@@ -87,7 +89,11 @@ export class DashboardShellComponent {
 
   protected async signOut(): Promise<void> {
     this.closeTransientUi();
-    this.session.clear();
-    await this.router.navigate(['/auth/login']);
+    try {
+      await this.authApi.logout(this.session.refreshToken());
+    } finally {
+      this.session.clear();
+      await this.router.navigate(['/auth/login']);
+    }
   }
 }
