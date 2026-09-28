@@ -13,7 +13,7 @@
       <input
         appInput
         type="search"
-        placeholder="Name, email, or invoice ID"
+        placeholder="Name, email, or invoice number"
         [value]="searchTerm()"
         (input)="updateSearch($event)"
       />
@@ -65,7 +65,7 @@
                 (change)="toggleAllFiltered()"
               />
             </th>
-            <th scope="col">Invoice ID</th>
+            <th scope="col">Invoice no.</th>
             <th scope="col">Name</th>
             <th scope="col">Email</th>
             <th scope="col">Date</th>
@@ -80,13 +80,13 @@
               <td class="invoice-list__checkbox">
                 <input
                   type="checkbox"
-                  [attr.aria-label]="'Select invoice ' + invoice.id"
+                  [attr.aria-label]="'Select invoice ' + invoice.number"
                   [checked]="selectedIds().has(invoice.id)"
                   (change)="toggleSelection(invoice.id)"
                 />
               </td>
               <td>
-                <strong>#{{ invoice.id }}</strong>
+                <strong>{{ invoice.number }}</strong>
               </td>
               <td>
                 <span class="invoice-list__customer"
@@ -110,7 +110,7 @@
                   [attr.aria-label]="
                     (invoice.favorite ? 'Remove' : 'Add') +
                     ' invoice ' +
-                    invoice.id +
+                    invoice.number +
                     (invoice.favorite ? ' from' : ' to') +
                     ' favorites'
                   "
@@ -127,7 +127,7 @@
                   type="button"
                   aria-haspopup="menu"
                   [attr.aria-expanded]="openActionId() === invoice.id"
-                  [attr.aria-label]="'Actions for invoice ' + invoice.id"
+                  [attr.aria-label]="'Actions for invoice ' + invoice.number"
                   [disabled]="mutatingId() === invoice.id"
                   (click)="toggleActions(invoice.id)"
                 >
@@ -190,8 +190,8 @@
   <app-confirmation-dialog
     title="Delete invoice?"
     [message]="
-      'Invoice #' +
-      invoice.id +
+      'Invoice ' +
+      invoice.number +
       ' for ' +
       invoice.customerName +
       ' will be permanently removed from this demo workspace.'

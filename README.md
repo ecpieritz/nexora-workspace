@@ -35,7 +35,7 @@ npm run dev:api
 npm run dev:web
 ```
 
-Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. The Angular development server proxies `/api` requests to port `3000`. The database seed creates the portfolio workspace and the demo login `demo@nexora.app` / `Nexora123!`. Authentication, customer management, products and product analytics use the REST API; the remaining Angular business features continue using their browser-backed repositories while their API integrations are implemented.
+Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. The Angular development server proxies `/api` requests to port `3000`. The database seed creates the portfolio workspace and the demo login `demo@nexora.app` / `Nexora123!`. Authentication, customer management, products, product analytics and invoices use the REST API; the remaining Angular business features continue using their browser-backed repositories while their API integrations are implemented.
 
 The root `.env` configures the local PostgreSQL container. `apps/api/.env` configures the API and its `DATABASE_URL`. Both files are ignored by Git; only their `.env.example` templates are versioned. Run `npm run db:status` to confirm the database is healthy and `npm run db:logs` to inspect its logs.
 
@@ -98,7 +98,7 @@ See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENS
 
 ## Frontend data notice
 
-Angular authentication, customer management, products and product analytics are connected to the REST API. Authentication uses persisted server-issued sessions, refresh-token rotation and logout revocation; customer and product CRUD operations are scoped to the authenticated workspace, and product reporting supports server-side date ranges. The remaining business screens still use local repositories while their API integrations are introduced incrementally. The API also exposes authenticated profile endpoints at `/api/users/me`, invoice management at `/api/invoices`, schedule management at `/api/schedules`, range-based calendar events at `/api/calendar/events`, collaborative task management at `/api/tasks`, and dashboard metrics and reports at `/api/dashboard`. Local password recovery links are printed by the API process; production delivery remains disabled until an email provider is configured.
+Angular authentication, customer management, products, product analytics and invoice workflows are connected to the REST API. Authentication uses persisted server-issued sessions and refresh-token rotation; customer, product and invoice operations are scoped to the authenticated workspace, and product reporting supports server-side date ranges. The remaining business screens still use local repositories while their API integrations are introduced incrementally. The API also exposes authenticated profile endpoints at `/api/users/me`, schedule management at `/api/schedules`, range-based calendar events at `/api/calendar/events`, collaborative task management at `/api/tasks`, and dashboard metrics and reports at `/api/dashboard`. Local password recovery links are printed by the API process; production delivery remains disabled until an email provider is configured.
 
 ## Release
 

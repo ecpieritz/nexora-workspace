@@ -89,7 +89,7 @@ export class InvoiceCreateComponent {
       const value = this.form.getRawValue();
       await this.repository.create({
         ...value,
-        issuedAt: new Date(`${value.issuedAt}T00:00:00`).toISOString(),
+        issuedAt: value.issuedAt,
       });
       await this.router.navigateByUrl('/invoices');
     } catch {

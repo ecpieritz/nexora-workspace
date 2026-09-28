@@ -53,7 +53,7 @@ export class InvoiceListComponent implements OnInit {
       const matchesStatus = status === 'all' || invoice.status === status;
       const matchesTerm =
         !term ||
-        invoice.id.includes(term) ||
+        invoice.number.toLowerCase().includes(term) ||
         invoice.customerName.toLowerCase().includes(term) ||
         invoice.email.toLowerCase().includes(term);
       return matchesStatus && matchesTerm;
@@ -131,7 +131,7 @@ export class InvoiceListComponent implements OnInit {
       const updated = await this.repository.updateStatus(id, status);
       this.replaceInvoice(updated);
       this.openActionId.set(null);
-      this.toast.success(`Invoice ${id} marked as ${status}.`);
+      this.toast.success(`Invoice ${updated.number} marked as ${status}.`);
     } catch {
       this.actionError.set('We could not update this invoice. Please try again.');
     } finally {
@@ -144,7 +144,9 @@ export class InvoiceListComponent implements OnInit {
     this.actionError.set(null);
 
     try {
-      this.replaceInvoice(await this.repository.toggleFavorite(id));
+      const invoice = this.invoices().find((item) => item.id === id);
+      if (!invoice) return;
+      this.replaceInvoice(await this.repository.updateFavorite(id, !invoice.favorite));
       this.toast.success('Invoice favorites updated.');
     } catch {
       this.actionError.set('We could not update this invoice. Please try again.');
@@ -185,7 +187,7 @@ export class InvoiceListComponent implements OnInit {
         return next;
       });
       this.pendingDelete.set(null);
-      this.toast.success(`Invoice ${invoice.id} deleted.`);
+      this.toast.success(`Invoice ${invoice.number} deleted.`);
     } catch {
       this.actionError.set('We could not delete this invoice. Please try again.');
       this.toast.error('The invoice could not be deleted.');

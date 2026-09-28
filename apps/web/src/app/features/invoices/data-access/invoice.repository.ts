@@ -1,169 +1,91 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
-import { MockApiError, MockApiService, MockStorageService } from '@core/mock-api';
+import { environment } from '@env/environment';
 
-import { CreateInvoiceInput, Invoice, InvoiceStatus } from '../models/invoice.model';
+import {
+  CreateInvoiceInput,
+  Invoice,
+  InvoiceListOptions,
+  InvoicePage,
+  InvoiceStatus,
+  UpdateInvoiceInput,
+} from '../models/invoice.model';
 
-const INVOICES_STORAGE_KEY = 'nexora:invoices';
-
-const INVOICES: readonly Invoice[] = [
-  {
-    id: '876364',
-    customerName: 'Aurora Gaur',
-    email: 'auroragaur@gmail.com',
-    issuedAt: '2026-07-12T00:00:00.000Z',
-    status: 'complete',
-    favorite: true,
-  },
-  {
-    id: '876123',
-    customerName: 'James Mullican',
-    email: 'jamesmullican@gmail.com',
-    issuedAt: '2026-07-10T00:00:00.000Z',
-    status: 'pending',
-    favorite: true,
-  },
-  {
-    id: '876213',
-    customerName: 'Robert Bacins',
-    email: 'robertbacins@gmail.com',
-    issuedAt: '2026-07-09T00:00:00.000Z',
-    status: 'complete',
-    favorite: false,
-  },
-  {
-    id: '876987',
-    customerName: 'Bethany Jackson',
-    email: 'bethanyjackson@gmail.com',
-    issuedAt: '2026-07-09T00:00:00.000Z',
-    status: 'cancelled',
-    favorite: false,
-  },
-  {
-    id: '871345',
-    customerName: 'Anne Jacob',
-    email: 'annejacob@gmail.com',
-    issuedAt: '2026-07-08T00:00:00.000Z',
-    status: 'complete',
-    favorite: false,
-  },
-  {
-    id: '872345',
-    customerName: 'Bethany Jackson',
-    email: 'bethany.jackson@gmail.com',
-    issuedAt: '2026-07-06T00:00:00.000Z',
-    status: 'pending',
-    favorite: true,
-  },
-  {
-    id: '872346',
-    customerName: 'James Mullican',
-    email: 'james.m@example.com',
-    issuedAt: '2026-07-05T00:00:00.000Z',
-    status: 'complete',
-    favorite: false,
-  },
-  {
-    id: '873245',
-    customerName: 'Jhon Deo',
-    email: 'jhondeo32@gmail.com',
-    issuedAt: '2026-07-04T00:00:00.000Z',
-    status: 'complete',
-    favorite: true,
-  },
-  {
-    id: '876354',
-    customerName: 'Bethany Jackson',
-    email: 'bethany@example.com',
-    issuedAt: '2026-07-02T00:00:00.000Z',
-    status: 'cancelled',
-    favorite: true,
-  },
-  {
-    id: '878769',
-    customerName: 'James Mullican',
-    email: 'james.work@example.com',
-    issuedAt: '2026-07-01T00:00:00.000Z',
-    status: 'pending',
-    favorite: false,
-  },
-];
+interface ApiDataResponse<T> {
+  data: T;
+}
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceRepository {
-  private readonly mockApi = inject(MockApiService);
-  private readonly storage = inject(MockStorageService);
+  private readonly http = inject(HttpClient);
+  private readonly invoicesUrl = `${environment.apiUrl}/invoices`;
 
-  getAll(): Promise<Invoice[]> {
-    return this.mockApi.execute(() => this.readInvoices());
-  }
+  async getAll(): Promise<Invoice[]> {
+    const firstPage = await this.list({ page: 1, limit: 100 });
+    if (firstPage.meta.totalPages <= 1) return firstPage.data;
 
-  create(input: CreateInvoiceInput): Promise<Invoice> {
-    return this.mockApi.execute(() => {
-      const invoices = this.readInvoices();
-      const subtotal = input.items.reduce((total, item) => total + item.rate * item.quantity, 0);
-      const invoice: Invoice = {
-        ...input,
-        id: this.nextId(invoices),
-        status: 'pending',
-        favorite: false,
-        total: subtotal * (1 - input.discount / 100),
-        items: input.items.map((item) => ({ ...item })),
-      };
-
-      this.storage.write(INVOICES_STORAGE_KEY, [invoice, ...invoices]);
-      return { ...invoice, items: invoice.items?.map((item) => ({ ...item })) };
-    });
-  }
-
-  updateStatus(id: string, status: InvoiceStatus): Promise<Invoice> {
-    return this.update(id, (invoice) => ({ ...invoice, status }));
-  }
-
-  toggleFavorite(id: string): Promise<Invoice> {
-    return this.update(id, (invoice) => ({ ...invoice, favorite: !invoice.favorite }));
-  }
-
-  delete(id: string): Promise<void> {
-    return this.mockApi.execute(() => {
-      const invoices = this.readInvoices();
-
-      if (!invoices.some((invoice) => invoice.id === id)) {
-        throw new MockApiError(404, 'Invoice not found.');
-      }
-
-      this.storage.write(
-        INVOICES_STORAGE_KEY,
-        invoices.filter((invoice) => invoice.id !== id),
-      );
-    });
-  }
-
-  private update(id: string, updater: (invoice: Invoice) => Invoice): Promise<Invoice> {
-    return this.mockApi.execute(() => {
-      const invoices = this.readInvoices();
-      const index = invoices.findIndex((invoice) => invoice.id === id);
-
-      if (index < 0) {
-        throw new MockApiError(404, 'Invoice not found.');
-      }
-
-      const updated = updater(invoices[index]);
-      invoices[index] = updated;
-      this.storage.write(INVOICES_STORAGE_KEY, invoices);
-      return { ...updated };
-    });
-  }
-
-  private readInvoices(): Invoice[] {
-    return this.storage.read<Invoice[]>(
-      INVOICES_STORAGE_KEY,
-      INVOICES.map((invoice) => ({ ...invoice })),
+    const remainingPages = await Promise.all(
+      Array.from({ length: firstPage.meta.totalPages - 1 }, (_, index) =>
+        this.list({ page: index + 2, limit: 100 }),
+      ),
     );
+    return [firstPage, ...remainingPages].flatMap((page) => page.data);
   }
 
-  private nextId(invoices: Invoice[]): string {
-    const greatestId = Math.max(...invoices.map(({ id }) => Number(id) || 0), 876000);
-    return String(greatestId + 1);
+  list(options: InvoiceListOptions = {}): Promise<InvoicePage> {
+    let params = new HttpParams()
+      .set('page', options.page ?? 1)
+      .set('limit', options.limit ?? 20)
+      .set('sort', options.sort ?? 'issuedAt')
+      .set('order', options.order ?? 'desc');
+    if (options.search) params = params.set('search', options.search);
+    if (options.status) params = params.set('status', options.status);
+    if (options.favorite !== undefined) params = params.set('favorite', options.favorite);
+    if (options.from) params = params.set('from', options.from);
+    if (options.to) params = params.set('to', options.to);
+    return firstValueFrom(this.http.get<InvoicePage>(this.invoicesUrl, { params }));
+  }
+
+  async getById(id: string): Promise<Invoice> {
+    const response = await firstValueFrom(
+      this.http.get<ApiDataResponse<Invoice>>(`${this.invoicesUrl}/${id}`),
+    );
+    return response.data;
+  }
+
+  async create(input: CreateInvoiceInput): Promise<Invoice> {
+    const response = await firstValueFrom(
+      this.http.post<ApiDataResponse<Invoice>>(this.invoicesUrl, input),
+    );
+    return response.data;
+  }
+
+  async update(id: string, input: UpdateInvoiceInput): Promise<Invoice> {
+    const response = await firstValueFrom(
+      this.http.patch<ApiDataResponse<Invoice>>(`${this.invoicesUrl}/${id}`, input),
+    );
+    return response.data;
+  }
+
+  async updateStatus(id: string, status: InvoiceStatus): Promise<Invoice> {
+    const response = await firstValueFrom(
+      this.http.patch<ApiDataResponse<Invoice>>(`${this.invoicesUrl}/${id}/status`, { status }),
+    );
+    return response.data;
+  }
+
+  async updateFavorite(id: string, favorite: boolean): Promise<Invoice> {
+    const response = await firstValueFrom(
+      this.http.patch<ApiDataResponse<Invoice>>(`${this.invoicesUrl}/${id}/favorite`, {
+        favorite,
+      }),
+    );
+    return response.data;
+  }
+
+  async delete(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete<void>(`${this.invoicesUrl}/${id}`));
   }
 }
