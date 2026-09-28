@@ -28,6 +28,10 @@ export class ProductAnalyticsComponent implements OnInit {
   protected readonly editorOpen = signal(false);
   protected readonly saving = signal(false);
   protected readonly saveError = signal(false);
+  protected readonly dateRangeForm = new FormGroup({
+    from: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    to: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
   protected readonly productForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
@@ -45,7 +49,7 @@ export class ProductAnalyticsComponent implements OnInit {
     }),
   });
   protected readonly maximumMonthlySales = computed(() =>
-    Math.max(...(this.analytics()?.monthlySales.map(({ value }) => value) ?? [1])),
+    Math.max(...(this.analytics()?.monthlySales.map(({ value }) => value) ?? []), 1),
   );
   ngOnInit(): void {
     void this.loadAnalytics();
@@ -54,12 +58,33 @@ export class ProductAnalyticsComponent implements OnInit {
     this.loading.set(true);
     this.loadError.set(false);
     try {
-      this.analytics.set(await this.repository.getAnalytics());
+      const range = this.dateRangeForm.getRawValue();
+      const hasRange = this.dateRangeForm.valid && Boolean(range.from && range.to);
+      const analytics = await this.repository.getAnalytics(hasRange ? range : undefined);
+      this.analytics.set(analytics);
+      this.dateRangeForm.setValue(analytics.range, { emitEvent: false });
     } catch {
       this.loadError.set(true);
     } finally {
       this.loading.set(false);
     }
+  }
+  protected applyDateRange(): void {
+    if (this.dateRangeForm.invalid) return;
+    const { from, to } = this.dateRangeForm.getRawValue();
+    if (from > to) {
+      this.dateRangeForm.controls.to.setErrors({ range: true });
+      return;
+    }
+    void this.loadAnalytics();
+  }
+  protected sparklinePoints(values: readonly number[]): string {
+    if (values.length === 0) return '';
+    const maximum = Math.max(...values, 1);
+    const divisor = Math.max(values.length - 1, 1);
+    return values
+      .map((value, index) => `${(index / divisor) * 180},${65 - (value / maximum) * 55}`)
+      .join(' ');
   }
   protected currency(value: number): string {
     return new Intl.NumberFormat('en-US', {
@@ -93,18 +118,8 @@ export class ProductAnalyticsComponent implements OnInit {
     this.saving.set(true);
     this.saveError.set(false);
     try {
-      const product = await this.repository.create({ ...value, price: value.price });
-      this.analytics.update((data) =>
-        data
-          ? {
-              ...data,
-              ranking: [product, ...data.ranking],
-              metrics: data.metrics.map((metric) =>
-                metric.id === 'products' ? { ...metric, value: metric.value + 1 } : metric,
-              ),
-            }
-          : data,
-      );
+      await this.repository.create({ ...value, price: value.price });
+      await this.loadAnalytics();
       this.editorOpen.set(false);
       this.toast.success('Product created.');
     } catch {

@@ -4,9 +4,9 @@
       <p>Nexora commerce</p>
       <h1 id="product-title">Product Analytics</h1>
     </div>
-    <div class="product-analytics__actions">
-      <label>From <input type="date" value="2026-06-10" /></label
-      ><label>To <input type="date" value="2026-10-10" /></label
+    <div class="product-analytics__actions" [formGroup]="dateRangeForm">
+      <label>From <input formControlName="from" type="date" (change)="applyDateRange()" /></label
+      ><label>To <input formControlName="to" type="date" (change)="applyDateRange()" /></label
       ><button type="button" (click)="openEditor()">+ Add product</button>
     </div>
   </header>
@@ -40,24 +40,7 @@
                 </div>
                 <strong>{{ metric.value.toLocaleString('en-US') }}</strong
                 ><svg viewBox="0 0 180 70" aria-hidden="true">
-                  <polyline
-                    [attr.points]="
-                      '0,' +
-                      metric.trend[0] +
-                      ' 30,' +
-                      metric.trend[1] +
-                      ' 60,' +
-                      metric.trend[2] +
-                      ' 90,' +
-                      metric.trend[3] +
-                      ' 120,' +
-                      metric.trend[4] +
-                      ' 150,' +
-                      metric.trend[5] +
-                      ' 180,' +
-                      metric.trend[6]
-                    "
-                  />
+                  <polyline [attr.points]="sparklinePoints(metric.trend)" />
                 </svg>
               </article>
             }
@@ -111,7 +94,7 @@
         </div>
         <aside class="product-analytics__side">
           <article>
-            <h2>Products added by month</h2>
+            <h2>Product sales by month</h2>
             <ul class="product-analytics__bars">
               @for (month of data.monthlySales; track month.month) {
                 <li>
