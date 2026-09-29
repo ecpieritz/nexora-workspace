@@ -21,6 +21,7 @@ export class ToastService {
     this.show(message, 'success');
   }
   error(message: string): void {
+    if (this.messages().some(({ tone }) => tone === 'error')) return;
     this.show(message, 'error', 6000);
   }
   dismiss(id: number): void {

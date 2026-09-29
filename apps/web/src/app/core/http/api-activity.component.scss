@@ -1,0 +1,52 @@
+:host {
+  position: fixed;
+  z-index: calc(var(--z-toast) + 1);
+  top: 0;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.api-activity {
+  position: relative;
+  height: 0.2rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-primary-500) 18%, transparent);
+}
+
+.api-activity__bar {
+  position: absolute;
+  width: 38%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-500);
+  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--color-primary-500) 55%, transparent);
+  animation: api-activity-progress 1.15s ease-in-out infinite;
+}
+
+.api-activity__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes api-activity-progress {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(365%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api-activity__bar {
+    width: 100%;
+    animation: none;
+  }
+}

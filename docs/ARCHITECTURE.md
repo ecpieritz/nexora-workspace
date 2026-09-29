@@ -30,11 +30,11 @@ Product management applies the same workspace and role boundaries, with validate
 
 ## Data flow
 
-Pages request typed data from feature repositories. Repositories simulate latency through `MockApiService` and persist user-created records with `MockStorageService` in browser local storage. Signals hold view state; computed signals derive filters and selections.
+Pages request typed data from feature repositories, which communicate with the Express REST API through Angular's `HttpClient`. The global API interceptor wraps the authentication interceptor so each logical request is counted once, even when an expired access token is refreshed and retried. A shared signal drives the application-level progress indicator, while the centralized error service converts API, connectivity and server failures into safe toast messages. Request context tokens allow individual calls to opt out when a feature needs fully custom feedback. Signals hold local view state, and computed signals derive filters and selections.
 
 ## Main areas
 
-- `core`: authentication, guards, interceptors, layout and mock API infrastructure.
+- `core`: authentication, guards, HTTP activity and error handling, interceptors and layout.
 - `features`: authentication, dashboard, invoices, schedules, tasks, calendar, customers and products.
 - `shared`: branded and reusable UI foundations, notifications and dialogs.
 - `styles`: tokens and feature-level responsive layouts.
