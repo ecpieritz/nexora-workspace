@@ -1,146 +1,120 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
-import { MockApiError, MockApiService, MockStorageService } from '@core/mock-api';
+import { environment } from '@env/environment';
 
-import { CreateScheduleInput, ScheduleEntry, SchedulePerson } from '../models/schedule.model';
+import {
+  CalendarEventOptions,
+  CreateScheduleInput,
+  ScheduleEntry,
+  ScheduleListOptions,
+  SchedulePage,
+  SchedulePerson,
+  UpdateScheduleInput,
+} from '../models/schedule.model';
 
-const SCHEDULE_STORAGE_KEY = 'nexora:schedule';
+interface ApiDataResponse<T> {
+  data: T;
+}
 
-const PEOPLE: readonly SchedulePerson[] = [
-  { id: 'eddie', name: 'Eddie Lobanovskiy', email: 'lobanovskiy@gmail.com', color: '#87a8ff' },
-  { id: 'alexey', name: 'Alexey Stave', email: 'alexey@gmail.com', color: '#d996ef' },
-  { id: 'anton', name: 'Anton Tkacheve', email: 'tkacheveanton@gmail.com', color: '#66c7c5' },
-  { id: 'maya', name: 'Maya Chen', email: 'maya@nexora.app', color: '#ff9c87' },
-];
-
-const SCHEDULES: readonly ScheduleEntry[] = [
-  {
-    id: 'schedule-1',
-    title: 'Product planning',
-    startsAt: '2026-08-12T10:15:00.000Z',
-    location: 'Office meeting',
-    attendeeIds: ['eddie', 'alexey'],
-  },
-  {
-    id: 'schedule-2',
-    title: 'Design critique',
-    startsAt: '2026-08-10T11:20:00.000Z',
-    location: 'Home',
-    attendeeIds: ['alexey', 'maya'],
-  },
-  {
-    id: 'schedule-3',
-    title: 'Customer interview',
-    startsAt: '2026-08-09T11:45:00.000Z',
-    location: 'Friends zone',
-    attendeeIds: ['anton'],
-  },
-  {
-    id: 'schedule-4',
-    title: 'Sprint review',
-    startsAt: '2026-08-08T12:15:00.000Z',
-    location: 'Office meeting',
-    attendeeIds: ['eddie', 'anton', 'maya'],
-  },
-  {
-    id: 'schedule-5',
-    title: 'Roadmap sync',
-    startsAt: '2026-08-07T13:20:00.000Z',
-    location: 'Home',
-    attendeeIds: ['maya'],
-  },
-  {
-    id: 'schedule-6',
-    title: 'Team workshop',
-    startsAt: '2026-08-05T10:15:00.000Z',
-    location: 'Meeting outside',
-    attendeeIds: ['eddie', 'alexey', 'anton'],
-  },
-  {
-    id: 'schedule-7',
-    title: 'Weekly check-in',
-    startsAt: '2026-08-04T11:15:00.000Z',
-    location: 'Office meeting',
-    attendeeIds: ['eddie'],
-  },
-  {
-    id: 'schedule-8',
-    title: 'Project kickoff',
-    startsAt: '2026-08-02T10:15:00.000Z',
-    location: 'Friends',
-    attendeeIds: ['alexey', 'anton'],
-  },
-];
+interface ScheduleWritePayload {
+  title?: string;
+  description?: string | null;
+  location?: string | null;
+  kind?: CreateScheduleInput['kind'];
+  startsAt?: string;
+  endsAt?: string | null;
+  attendeeIds?: string[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleRepository {
-  private readonly mockApi = inject(MockApiService);
-  private readonly storage = inject(MockStorageService);
+  private readonly http = inject(HttpClient);
+  private readonly schedulesUrl = `${environment.apiUrl}/schedules`;
+  private readonly calendarEventsUrl = `${environment.apiUrl}/calendar/events`;
 
-  getPeople(): Promise<SchedulePerson[]> {
-    return this.mockApi.execute(() => PEOPLE.map((person) => ({ ...person })));
-  }
-
-  getSchedules(): Promise<ScheduleEntry[]> {
-    return this.mockApi.execute(() => this.readSchedules());
-  }
-
-  create(input: CreateScheduleInput): Promise<ScheduleEntry> {
-    return this.mockApi.execute(() => {
-      const schedules = this.readSchedules();
-      const entry: ScheduleEntry = {
-        id: this.mockApi.createId(),
-        title: input.title,
-        startsAt: `${input.date}T${input.startTime}:00.000Z`,
-        endsAt: `${input.date}T${input.endTime}:00.000Z`,
-        location: input.location,
-        attendeeIds: [...input.attendeeIds],
-        kind: input.kind,
-        description: input.description,
-      };
-      this.storage.write(SCHEDULE_STORAGE_KEY, [...schedules, entry]);
-      return { ...entry, attendeeIds: [...entry.attendeeIds] };
-    });
-  }
-
-  update(id: string, input: CreateScheduleInput): Promise<ScheduleEntry> {
-    return this.mockApi.execute(() => {
-      const schedules = this.readSchedules();
-      const index = schedules.findIndex((entry) => entry.id === id);
-      if (index < 0) throw new MockApiError(404, 'Schedule entry not found.');
-      const updated: ScheduleEntry = {
-        id,
-        title: input.title,
-        startsAt: `${input.date}T${input.startTime}:00.000Z`,
-        endsAt: `${input.date}T${input.endTime}:00.000Z`,
-        location: input.location,
-        attendeeIds: [...input.attendeeIds],
-        kind: input.kind,
-        description: input.description,
-      };
-      schedules[index] = updated;
-      this.storage.write(SCHEDULE_STORAGE_KEY, schedules);
-      return { ...updated, attendeeIds: [...updated.attendeeIds] };
-    });
-  }
-
-  delete(id: string): Promise<void> {
-    return this.mockApi.execute(() => {
-      const schedules = this.readSchedules();
-      if (!schedules.some((entry) => entry.id === id)) {
-        throw new MockApiError(404, 'Schedule entry not found.');
-      }
-      this.storage.write(
-        SCHEDULE_STORAGE_KEY,
-        schedules.filter((entry) => entry.id !== id),
-      );
-    });
-  }
-
-  private readSchedules(): ScheduleEntry[] {
-    return this.storage.read<ScheduleEntry[]>(
-      SCHEDULE_STORAGE_KEY,
-      SCHEDULES.map((entry) => ({ ...entry, attendeeIds: [...entry.attendeeIds] })),
+  async getPeople(): Promise<SchedulePerson[]> {
+    const response = await firstValueFrom(
+      this.http.get<ApiDataResponse<SchedulePerson[]>>(`${this.schedulesUrl}/people`),
     );
+    return response.data;
+  }
+
+  async getSchedules(): Promise<ScheduleEntry[]> {
+    const firstPage = await this.list({ page: 1, limit: 100 });
+    if (firstPage.meta.totalPages <= 1) return firstPage.data;
+
+    const remainingPages = await Promise.all(
+      Array.from({ length: firstPage.meta.totalPages - 1 }, (_, index) =>
+        this.list({ page: index + 2, limit: 100 }),
+      ),
+    );
+    return [firstPage, ...remainingPages].flatMap((page) => page.data);
+  }
+
+  list(options: ScheduleListOptions = {}): Promise<SchedulePage> {
+    let params = new HttpParams()
+      .set('page', options.page ?? 1)
+      .set('limit', options.limit ?? 20)
+      .set('order', options.order ?? 'asc');
+    if (options.search) params = params.set('search', options.search);
+    if (options.kind) params = params.set('kind', options.kind);
+    if (options.attendeeId) params = params.set('attendeeId', options.attendeeId);
+    if (options.from) params = params.set('from', options.from);
+    if (options.to) params = params.set('to', options.to);
+    return firstValueFrom(this.http.get<SchedulePage>(this.schedulesUrl, { params }));
+  }
+
+  async getCalendarEvents(options: CalendarEventOptions): Promise<ScheduleEntry[]> {
+    let params = new HttpParams().set('from', options.from).set('to', options.to);
+    if (options.attendeeId) params = params.set('attendeeId', options.attendeeId);
+    if (options.kind) params = params.set('kind', options.kind);
+    const response = await firstValueFrom(
+      this.http.get<ApiDataResponse<ScheduleEntry[]>>(this.calendarEventsUrl, { params }),
+    );
+    return response.data;
+  }
+
+  async getById(id: string): Promise<ScheduleEntry> {
+    const response = await firstValueFrom(
+      this.http.get<ApiDataResponse<ScheduleEntry>>(`${this.schedulesUrl}/${id}`),
+    );
+    return response.data;
+  }
+
+  async create(input: CreateScheduleInput): Promise<ScheduleEntry> {
+    const response = await firstValueFrom(
+      this.http.post<ApiDataResponse<ScheduleEntry>>(this.schedulesUrl, this.toPayload(input)),
+    );
+    return response.data;
+  }
+
+  async update(id: string, input: UpdateScheduleInput): Promise<ScheduleEntry> {
+    const response = await firstValueFrom(
+      this.http.patch<ApiDataResponse<ScheduleEntry>>(
+        `${this.schedulesUrl}/${id}`,
+        this.toPayload(input),
+      ),
+    );
+    return response.data;
+  }
+
+  async delete(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete<void>(`${this.schedulesUrl}/${id}`));
+  }
+
+  private toPayload(input: UpdateScheduleInput): ScheduleWritePayload {
+    const hasDateAndStart = input.date !== undefined && input.startTime !== undefined;
+    const hasDateAndEnd = input.date !== undefined && input.endTime !== undefined;
+    return {
+      ...(input.title === undefined ? {} : { title: input.title }),
+      ...(input.description === undefined ? {} : { description: input.description || null }),
+      ...(input.location === undefined ? {} : { location: input.location || null }),
+      ...(input.kind === undefined ? {} : { kind: input.kind }),
+      ...(hasDateAndStart ? { startsAt: `${input.date}T${input.startTime}:00.000Z` } : {}),
+      ...(hasDateAndEnd ? { endsAt: `${input.date}T${input.endTime}:00.000Z` } : {}),
+      ...(input.attendeeIds === undefined ? {} : { attendeeIds: input.attendeeIds }),
+    };
   }
 }

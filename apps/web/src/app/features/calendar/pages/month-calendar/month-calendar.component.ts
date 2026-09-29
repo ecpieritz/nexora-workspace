@@ -125,7 +125,7 @@ export class MonthCalendarComponent implements OnInit {
     this.loadError.set(false);
     try {
       const [events, people] = await Promise.all([
-        this.repository.getSchedules(),
+        this.repository.getCalendarEvents(this.activeYearRange()),
         this.repository.getPeople(),
       ]);
       this.events.set(events);
@@ -137,9 +137,11 @@ export class MonthCalendarComponent implements OnInit {
     }
   }
   protected changeMonth(offset: number): void {
+    const previousYear = this.displayedMonth().getUTCFullYear();
     this.displayedMonth.update(
       (month) => new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + offset, 1)),
     );
+    if (this.displayedMonth().getUTCFullYear() !== previousYear) void this.loadEvents();
   }
   protected changeDay(offset: number): void {
     const next = new Date(this.selectedDate());
@@ -150,8 +152,10 @@ export class MonthCalendarComponent implements OnInit {
     this.changeDay(offset * 7);
   }
   protected selectMiniDate(date: Date): void {
+    const previousYear = this.displayedMonth().getUTCFullYear();
     this.selectedDate.set(new Date(date));
     this.displayedMonth.set(new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)));
+    if (date.getUTCFullYear() !== previousYear) void this.loadEvents();
   }
   protected isSelectedMiniDay(day: CalendarDay): boolean {
     return this.activeView() === 'day' && day.key === this.selectedDateKey();
@@ -163,6 +167,7 @@ export class MonthCalendarComponent implements OnInit {
     this.displayedMonth.update(
       (date) => new Date(Date.UTC(date.getUTCFullYear() + offset, date.getUTCMonth(), 1)),
     );
+    void this.loadEvents();
   }
   protected setView(view: CalendarView): void {
     const previousView = this.activeView();
@@ -176,8 +181,10 @@ export class MonthCalendarComponent implements OnInit {
     }
   }
   protected goToToday(): void {
+    const previousYear = this.displayedMonth().getUTCFullYear();
     this.displayedMonth.set(new Date(Date.UTC(2026, 7, 1)));
     this.selectedDate.set(new Date(Date.UTC(2026, 7, 4)));
+    if (previousYear !== 2026) void this.loadEvents();
   }
   protected eventsFor(day: CalendarDay): ScheduleEntry[] {
     return this.visibleEvents().filter((event) => event.startsAt.slice(0, 10) === day.key);
@@ -259,14 +266,37 @@ export class MonthCalendarComponent implements OnInit {
     this.saveError.set(null);
     try {
       const created = await this.repository.create(value);
-      this.events.update((events) => [...events, created]);
+      const previousYear = this.displayedMonth().getUTCFullYear();
+      const createdYear = Number(value.date.slice(0, 4));
       this.displayedMonth.set(new Date(`${value.date}T00:00:00.000Z`));
       this.selectedDate.set(new Date(`${value.date}T00:00:00.000Z`));
+      if (createdYear === previousYear) {
+        this.events.update((events) => [...events, created]);
+      } else {
+        await this.loadEvents();
+      }
       this.createOpen.set(false);
     } catch {
       this.saveError.set('We could not create this event. Please try again.');
     } finally {
       this.saving.set(false);
+    }
+  }
+
+  private activeYearRange(): { from: string; to: string } {
+    const year = this.displayedMonth().getUTCFullYear();
+    return { from: `${year}-01-01`, to: `${year}-12-31` };
+  }
+
+  private async loadEvents(): Promise<void> {
+    this.loading.set(true);
+    this.loadError.set(false);
+    try {
+      this.events.set(await this.repository.getCalendarEvents(this.activeYearRange()));
+    } catch {
+      this.loadError.set(true);
+    } finally {
+      this.loading.set(false);
     }
   }
 

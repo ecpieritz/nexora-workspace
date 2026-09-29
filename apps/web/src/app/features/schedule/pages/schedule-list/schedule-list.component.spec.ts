@@ -14,22 +14,52 @@ describe('ScheduleListComponent', () => {
     repository.getSchedules.and.resolveTo([
       {
         id: 'one',
+        organizerId: 'owner',
+        organizer: { id: 'owner', name: 'Owner', email: 'owner@example.com', avatarUrl: null },
         title: 'Planning',
+        description: null,
         startsAt: '2026-08-04T10:00:00.000Z',
+        endsAt: '2026-08-04T11:00:00.000Z',
         location: 'Office',
+        kind: 'event',
         attendeeIds: ['eddie'],
+        attendees: [],
+        createdAt: '2026-08-01T10:00:00.000Z',
+        updatedAt: '2026-08-01T10:00:00.000Z',
       },
       {
         id: 'two',
+        organizerId: 'owner',
+        organizer: { id: 'owner', name: 'Owner', email: 'owner@example.com', avatarUrl: null },
         title: 'Review',
+        description: null,
         startsAt: '2026-08-05T10:00:00.000Z',
+        endsAt: '2026-08-05T11:00:00.000Z',
         location: 'Home',
+        kind: 'event',
         attendeeIds: ['alexey'],
+        attendees: [],
+        createdAt: '2026-08-01T10:00:00.000Z',
+        updatedAt: '2026-08-01T10:00:00.000Z',
       },
     ]);
     repository.getPeople.and.resolveTo([
-      { id: 'eddie', name: 'Eddie Lobanovskiy', email: 'eddie@example.com', color: '#87a8ff' },
-      { id: 'alexey', name: 'Alexey Stave', email: 'alexey@example.com', color: '#d996ef' },
+      {
+        id: 'eddie',
+        userId: 'eddie-user',
+        name: 'Eddie Lobanovskiy',
+        email: 'eddie@example.com',
+        avatarUrl: null,
+        color: '#87a8ff',
+      },
+      {
+        id: 'alexey',
+        userId: 'alexey-user',
+        name: 'Alexey Stave',
+        email: 'alexey@example.com',
+        avatarUrl: null,
+        color: '#d996ef',
+      },
     ]);
     repository.delete.and.resolveTo();
     await TestBed.configureTestingModule({

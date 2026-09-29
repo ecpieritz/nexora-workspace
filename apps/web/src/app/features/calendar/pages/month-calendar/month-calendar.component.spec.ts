@@ -6,39 +6,74 @@ describe('MonthCalendarComponent', () => {
   let fixture: ComponentFixture<MonthCalendarComponent>;
   beforeEach(async () => {
     const repository = jasmine.createSpyObj<ScheduleRepository>('ScheduleRepository', [
-      'getSchedules',
+      'getCalendarEvents',
       'getPeople',
       'create',
     ]);
-    repository.getSchedules.and.resolveTo([
+    repository.getCalendarEvents.and.resolveTo([
       {
         id: 'one',
+        organizerId: 'owner',
+        organizer: { id: 'owner', name: 'Owner', email: 'owner@example.com', avatarUrl: null },
         title: 'Planning',
+        description: null,
         startsAt: '2026-08-04T10:00:00.000Z',
+        endsAt: '2026-08-04T11:00:00.000Z',
         location: 'Office',
+        kind: 'event',
         attendeeIds: ['eddie'],
+        attendees: [],
+        createdAt: '2026-08-01T10:00:00.000Z',
+        updatedAt: '2026-08-01T10:00:00.000Z',
       },
       {
         id: 'two',
+        organizerId: 'owner',
+        organizer: { id: 'owner', name: 'Owner', email: 'owner@example.com', avatarUrl: null },
         title: 'Review',
+        description: null,
         startsAt: '2026-08-10T10:00:00.000Z',
+        endsAt: '2026-08-10T11:00:00.000Z',
         location: 'Home',
+        kind: 'event',
         attendeeIds: ['alexey'],
+        attendees: [],
+        createdAt: '2026-08-01T10:00:00.000Z',
+        updatedAt: '2026-08-01T10:00:00.000Z',
       },
     ]);
     repository.getPeople.and.resolveTo([
-      { id: 'eddie', name: 'Eddie Lobanovskiy', email: 'eddie@example.com', color: '#87a8ff' },
-      { id: 'alexey', name: 'Alexey Stave', email: 'alexey@example.com', color: '#d996ef' },
+      {
+        id: 'eddie',
+        userId: 'eddie-user',
+        name: 'Eddie Lobanovskiy',
+        email: 'eddie@example.com',
+        avatarUrl: null,
+        color: '#87a8ff',
+      },
+      {
+        id: 'alexey',
+        userId: 'alexey-user',
+        name: 'Alexey Stave',
+        email: 'alexey@example.com',
+        avatarUrl: null,
+        color: '#d996ef',
+      },
     ]);
     repository.create.and.callFake(async (input) => ({
       id: 'created',
+      organizerId: 'owner',
+      organizer: { id: 'owner', name: 'Owner', email: 'owner@example.com', avatarUrl: null },
       title: input.title,
+      description: input.description,
       startsAt: `${input.date}T${input.startTime}:00.000Z`,
       endsAt: `${input.date}T${input.endTime}:00.000Z`,
       location: input.location,
       attendeeIds: input.attendeeIds,
+      attendees: [],
       kind: input.kind,
-      description: input.description,
+      createdAt: '2026-08-01T10:00:00.000Z',
+      updatedAt: '2026-08-01T10:00:00.000Z',
     }));
     await TestBed.configureTestingModule({
       imports: [MonthCalendarComponent],
