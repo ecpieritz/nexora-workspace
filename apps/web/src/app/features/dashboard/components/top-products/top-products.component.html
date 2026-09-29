@@ -30,17 +30,16 @@
           <strong>{{ product.name }}</strong>
           <span
             class="top-products__rating"
-            [attr.aria-label]="product.rating + ' out of 5 stars, ' + product.reviews + ' reviews'"
+            [attr.aria-label]="
+              product.quantity + ' units sold across ' + product.orderCount + ' orders'
+            "
           >
-            @for (star of stars; track star) {
-              <span [class.top-products__star--filled]="star <= product.rating" aria-hidden="true"
-                >★</span
-              >
-            }
+            {{ product.quantity }} units &middot; {{ product.orderCount }} orders
           </span>
-          <span class="top-products__price">{{
-            product.price | currency: 'USD' : 'symbol' : '1.0-0'
-          }}</span>
+          <span class="top-products__price">
+            {{ product.price | currency: 'USD' : 'symbol' : '1.0-0' }} &middot;
+            {{ product.revenue | currency: 'USD' : 'symbol' : '1.0-0' }} revenue
+          </span>
         </span>
       </li>
     }

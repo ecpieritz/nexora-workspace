@@ -14,21 +14,33 @@ describe('TaskListComponent', () => {
     repository.getAll.and.resolveTo([
       {
         id: 'one',
+        createdById: 'owner',
         name: 'UI design',
+        description: null,
         category: 'design',
         startsAt: '2026-08-03T00:00:00.000Z',
         dueAt: '2026-08-05T00:00:00.000Z',
         memberCount: 5,
         status: 'todo',
+        assigneeIds: [],
+        assignees: [],
+        createdAt: '2026-08-01T00:00:00.000Z',
+        updatedAt: '2026-08-01T00:00:00.000Z',
       },
       {
         id: 'two',
+        createdById: 'owner',
         name: 'Web development',
+        description: null,
         category: 'development',
         startsAt: '2026-08-01T00:00:00.000Z',
         dueAt: '2026-08-08T00:00:00.000Z',
         memberCount: 4,
         status: 'doing',
+        assigneeIds: [],
+        assignees: [],
+        createdAt: '2026-08-01T00:00:00.000Z',
+        updatedAt: '2026-08-01T00:00:00.000Z',
       },
     ]);
     repository.updateStatus.and.callFake(async (id, status) => ({

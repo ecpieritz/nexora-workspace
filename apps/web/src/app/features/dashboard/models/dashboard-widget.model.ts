@@ -15,6 +15,7 @@ export interface TopProduct {
   name: string;
   productVisual: ProductVisual;
   price: number;
-  rating: number;
-  reviews: number;
+  quantity: number;
+  orderCount: number;
+  revenue: number;
 }

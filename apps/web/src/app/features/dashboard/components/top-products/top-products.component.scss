@@ -75,12 +75,8 @@
   white-space: nowrap;
 }
 .top-products__rating {
-  color: var(--color-gray-200);
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
-  letter-spacing: 0.08em;
-}
-.top-products__star--filled {
-  color: var(--color-warning-500);
 }
 .top-products__price {
   margin-top: var(--space-1);

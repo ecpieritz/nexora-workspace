@@ -13,8 +13,8 @@
       role="img"
       aria-labelledby="sales-chart-title sales-chart-description"
     >
-      <title id="sales-chart-title">Hourly sales report</title>
-      <desc id="sales-chart-description">Sales values from 10am through 7pm.</desc>
+      <title id="sales-chart-title">Sales report</title>
+      <desc id="sales-chart-description">Sales totals for the selected reporting period.</desc>
       <defs>
         <linearGradient id="sales-area" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#625df5" stop-opacity=".2" />
@@ -22,7 +22,7 @@
         </linearGradient>
       </defs>
 
-      @for (value of gridValues; track value) {
+      @for (value of gridValues(); track value) {
         <line
           class="sales-report__grid"
           x1="48"
@@ -41,7 +41,7 @@
           class="sales-report__point"
           tabindex="0"
           role="button"
-          [attr.aria-label]="point.label + ': ' + point.value + ' sales'"
+          [attr.aria-label]="point.label + ': ' + point.value + ' in sales'"
           (mouseenter)="activeIndex.set(index)"
           (mouseleave)="activeIndex.set(null)"
           (focus)="activeIndex.set(index)"
@@ -60,7 +60,7 @@
           [attr.transform]="'translate(' + (point.x - 34) + ' ' + (point.y - 42) + ')'"
         >
           <rect width="68" height="30" rx="7" />
-          <text x="34" y="20">{{ point.value }} sales</text>
+          <text x="34" y="20">{{ point.value }}</text>
         </g>
       }
     </svg>
