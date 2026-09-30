@@ -108,7 +108,10 @@ describe('AuthApiService', () => {
 
   it('should request and complete password recovery through the API', async () => {
     const recovery = api.requestPasswordReset('jane@example.com');
-    httpTesting.expectOne('/api/auth/forgot-password').flush({ data: { message: 'Accepted.' } });
+    const recoveryRequest = httpTesting.expectOne('/api/auth/forgot-password');
+    expect(recoveryRequest.request.method).toBe('POST');
+    expect(recoveryRequest.request.body).toEqual({ email: 'jane@example.com' });
+    recoveryRequest.flush({ data: { message: 'Accepted.' } });
     await expectAsync(recovery).toBeResolved();
 
     const reset = api.resetPassword('a'.repeat(64), 'UpdatedPassword1');
@@ -122,5 +125,29 @@ describe('AuthApiService', () => {
       { status: 400, statusText: 'Bad Request' },
     );
     await expectAsync(reset).toBeRejectedWith(jasmine.any(PasswordResetTokenError));
+  });
+
+  it('should reset a password and log out through the API', async () => {
+    const reset = api.resetPassword('a'.repeat(64), 'UpdatedPassword1');
+    const resetRequest = httpTesting.expectOne('/api/auth/reset-password');
+    expect(resetRequest.request.method).toBe('POST');
+    expect(resetRequest.request.body).toEqual({
+      token: 'a'.repeat(64),
+      password: 'UpdatedPassword1',
+    });
+    resetRequest.flush({ data: { message: 'Password updated.' } });
+    await expectAsync(reset).toBeResolved();
+
+    const logout = api.logout('refresh-token');
+    const logoutRequest = httpTesting.expectOne('/api/auth/logout');
+    expect(logoutRequest.request.method).toBe('POST');
+    expect(logoutRequest.request.body).toEqual({ refreshToken: 'refresh-token' });
+    logoutRequest.flush(null, { status: 204, statusText: 'No Content' });
+    await expectAsync(logout).toBeResolved();
+  });
+
+  it('should skip the logout request when there is no refresh token', async () => {
+    await expectAsync(api.logout(null)).toBeResolved();
+    httpTesting.expectNone('/api/auth/logout');
   });
 });

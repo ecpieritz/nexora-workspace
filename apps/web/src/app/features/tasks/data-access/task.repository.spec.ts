@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { CreateTaskInput, TaskAssignee, WorkspaceTask } from '../models/task.model';
 import { TaskRepository } from './task.repository';
@@ -72,6 +72,23 @@ describe('TaskRepository', () => {
 
     expect((await result).data).toEqual([task]);
   });
+
+  it('should combine every task page required by the workspace views', fakeAsync(() => {
+    const secondTask = { ...task, id: 'task-2', name: 'API integration' };
+    let tasks: WorkspaceTask[] | undefined;
+    void repository.getAll().then((result) => (tasks = result));
+
+    httpTesting
+      .expectOne((request) => request.url === '/api/tasks' && request.params.get('page') === '1')
+      .flush({ data: [task], meta: { page: 1, limit: 100, total: 2, totalPages: 2 } });
+    tick();
+    httpTesting
+      .expectOne((request) => request.url === '/api/tasks' && request.params.get('page') === '2')
+      .flush({ data: [secondTask], meta: { page: 2, limit: 100, total: 2, totalPages: 2 } });
+    tick();
+
+    expect(tasks).toEqual([task, secondTask]);
+  }));
 
   it('should load people and a task by id', async () => {
     const people = repository.getPeople();

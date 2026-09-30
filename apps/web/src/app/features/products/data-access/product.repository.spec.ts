@@ -71,6 +71,16 @@ describe('ProductRepository', () => {
     await expectAsync(result).toBeResolvedTo(analytics);
   });
 
+  it('should load analytics without date filters when no range is selected', async () => {
+    const result = repository.getAnalytics();
+    const request = httpTesting.expectOne('/api/products/analytics');
+
+    expect(request.request.params.keys()).toEqual([]);
+    request.flush({ data: analytics });
+
+    await expectAsync(result).toBeResolvedTo(analytics);
+  });
+
   it('should list and retrieve products through the API', async () => {
     const listed = repository.list({
       search: 'note',
@@ -92,6 +102,19 @@ describe('ProductRepository', () => {
     const retrieved = repository.getById(product.id);
     httpTesting.expectOne(`/api/products/${product.id}`).flush({ data: product });
     await expectAsync(retrieved).toBeResolvedTo(product);
+  });
+
+  it('should preserve false filters and category filters in product queries', async () => {
+    const result = repository.list({ category: 'Computers', active: false });
+    const request = httpTesting.expectOne((candidate) => candidate.url === '/api/products');
+
+    expect(request.request.params.get('category')).toBe('Computers');
+    expect(request.request.params.get('active')).toBe('false');
+    expect(request.request.params.get('page')).toBe('1');
+    expect(request.request.params.get('limit')).toBe('20');
+    request.flush({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } });
+
+    expect((await result).data).toEqual([]);
   });
 
   it('should create products with API defaults', async () => {
