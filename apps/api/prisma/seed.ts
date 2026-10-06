@@ -15,7 +15,11 @@ import {
 } from '../src/generated/prisma/client.js';
 
 const defaultDatabaseUrl = 'postgresql://nexora:nexora@localhost:5432/nexora';
-const demoPassword = 'Nexora123!';
+const demoCredentials = {
+  email: 'demo@nexora.app',
+  password: 'Nexora123!',
+} as const;
+const seedReference = new Date();
 
 const ids = {
   workspace: '10000000-0000-4000-8000-000000000001',
@@ -40,7 +44,7 @@ const ids = {
 const demoUsers = [
   {
     id: ids.users.emilyn,
-    email: 'demo@nexora.app',
+    email: demoCredentials.email,
     username: 'emilyn',
     fullName: 'Emilyn Pieritz',
     displayName: 'Emilyn',
@@ -481,7 +485,29 @@ const schedules = [
 ] as const;
 
 function atMidnight(date: string): Date {
-  return new Date(`${date}T00:00:00.000Z`);
+  return inSeedMonth(date, 0, 0, 0);
+}
+
+function recentSeedDate(date: string, endOfDay = false): Date {
+  const source = new Date(`${date}T00:00:00.000Z`);
+  const result = new Date(seedReference);
+  result.setUTCDate(seedReference.getUTCDate() - (13 - source.getUTCDate()));
+  result.setUTCHours(endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0, 0);
+  return result;
+}
+
+function inSeedMonth(date: string, hour?: number, minute?: number, second?: number): Date {
+  const source = new Date(date.includes('T') ? date : `${date}T00:00:00.000Z`);
+  return new Date(
+    Date.UTC(
+      seedReference.getUTCFullYear(),
+      seedReference.getUTCMonth(),
+      source.getUTCDate(),
+      hour ?? source.getUTCHours(),
+      minute ?? source.getUTCMinutes(),
+      second ?? source.getUTCSeconds(),
+    ),
+  );
 }
 
 async function seedDatabase(tx: Prisma.TransactionClient, passwordHash: string): Promise<void> {
@@ -497,6 +523,12 @@ async function seedDatabase(tx: Prisma.TransactionClient, passwordHash: string):
       dateFormat: 'MM/dd/yyyy',
       currency: 'USD',
       emailVerifiedAt: new Date('2026-01-01T12:00:00.000Z'),
+      ...(user.id === ids.users.emilyn
+        ? {
+            phone: '+55 85 99999-0000',
+            bio: 'Portfolio demo account with representative Nexora workspace data.',
+          }
+        : {}),
     };
 
     await tx.user.upsert({
@@ -596,8 +628,8 @@ async function seedDatabase(tx: Prisma.TransactionClient, passwordHash: string):
       createdById: ids.users.emilyn,
       customerName,
       email,
-      issuedAt: atMidnight(issuedAt),
-      dueAt: new Date(`${issuedAt}T23:59:59.000Z`),
+      issuedAt: recentSeedDate(issuedAt),
+      dueAt: recentSeedDate(issuedAt, true),
       status,
       favorite,
       currency: 'USD',
@@ -663,7 +695,7 @@ async function seedDatabase(tx: Prisma.TransactionClient, passwordHash: string):
   for (const schedule of schedules) {
     const [id, title, startsAt, location, attendeeKeys] = schedule;
     const attendees = attendeeKeys.map((key) => ({ memberId: ids.members[key] }));
-    const start = new Date(startsAt);
+    const start = inSeedMonth(startsAt);
     const data = {
       organizerId: ids.users.emilyn,
       title,
@@ -688,14 +720,14 @@ async function main(): Promise<void> {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    const passwordHash = await hash(demoPassword, 12);
+    const passwordHash = await hash(demoCredentials.password, 12);
     await prisma.$transaction((tx) => seedDatabase(tx, passwordHash), {
       maxWait: 10_000,
       timeout: 30_000,
     });
 
     console.info('Nexora portfolio demo data seeded successfully.');
-    console.info('Demo login: demo@nexora.app / Nexora123!');
+    console.info(`Demo login: ${demoCredentials.email} / ${demoCredentials.password}`);
   } finally {
     await prisma.$disconnect();
   }

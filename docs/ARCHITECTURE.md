@@ -18,7 +18,7 @@ Authenticated profile endpoints expose explicit public projections for the curre
 
 Runtime configuration is centralized in `apps/api/src/config/environment.ts`. Environment values are parsed once during startup and exposed through an immutable, typed object. Invalid ports, API prefixes, environments or CORS origins stop the process before it accepts traffic.
 
-Local infrastructure is defined in the root `compose.yaml`. It runs PostgreSQL 17 with a persistent named volume and a readiness healthcheck. Docker credentials and port mapping come from the root `.env`, while the API receives its PostgreSQL connection string through `apps/api/.env`. Database schemas and migrations will be introduced with the persistence layer.
+Local infrastructure is defined in the root `compose.yaml`. It runs PostgreSQL 17 with a persistent named volume and a readiness healthcheck, plus an isolated in-memory profile for integration tests. Docker credentials and port mapping come from the root `.env`, while the API receives its PostgreSQL connection string through `apps/api/.env`.
 
 Prisma ORM provides the typed persistence boundary. Its schema and migration history live in `apps/api/prisma`, while `prisma.config.ts` resolves the connection used by the CLI. The generated client is excluded from version control and recreated during installation and API builds. A single shared client in `src/database/prisma.ts` owns the PostgreSQL driver adapter, startup connectivity check and graceful disconnection.
 
@@ -27,6 +27,16 @@ The relational model is scoped by workspace. Memberships own authorization roles
 Customer management follows the same route-service-repository boundary. Reads are paginated, searchable and filtered inside PostgreSQL; every query includes the authenticated workspace identifier. Members may read customer data, while creation, editing and deletion require an owner or administrator role. Only profile fields are writable, leaving performance metrics under backend control.
 
 Product management applies the same workspace and role boundaries, with validated inventory, pricing and catalog fields. Its analytics endpoint derives totals, monthly sales, invoice-status distribution and top-product ranking from completed invoice items over a bounded date range. This keeps reporting values tied to transactional records instead of storing duplicated counters.
+
+Invoice, schedule and task modules follow the same route-service-repository separation. All persistence queries include the authenticated workspace identifier, mutations are role-protected, and calendar/dashboard projections are computed by the API rather than reconstructed from browser storage.
+
+## Production topology
+
+The root `Dockerfile` provides three release targets. `api` contains only the compiled Express runtime and production dependencies, `web` serves the optimized Angular output from Nginx, and `api-migrate` retains Prisma tooling for a one-shot migration job. The migration job must complete before the API starts; Nginx starts only after the API health check passes.
+
+`compose.production.yaml` places PostgreSQL and Express on an internal network. Only Nginx publishes port `8080`, serving the SPA and proxying `/api` to Express so browser traffic stays on one origin. PostgreSQL data uses a persistent volume, while credentials and signing secrets are supplied at runtime through an ignored `.env.production` file.
+
+Production seeding is explicit. Container startup applies migrations but never rewrites demo credentials or representative dates automatically. Operators opt into the idempotent seed only for environments intended to host the portfolio demo account.
 
 ## Data flow
 
@@ -41,4 +51,4 @@ Pages request typed data from feature repositories, which communicate with the E
 
 ## Quality strategy
 
-The project uses ESLint, Prettier, strict Angular template checks, Jasmine/Karma tests, production bundle budgets and a GitHub Actions quality gate.
+The project uses ESLint, Prettier, strict Angular template checks, Node's test runner, Supertest, Jasmine/Karma tests and production bundle budgets. GitHub Actions separates static/unit quality checks, real PostgreSQL migration and API integration coverage, and fullstack plus production-container builds. A failure in any gate prevents the final build job from succeeding.

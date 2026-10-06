@@ -2,14 +2,35 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, development]
   pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   quality:
+    name: Code quality and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run db:validate
+      - run: npm run test:ci
+
+  api-integration:
+    name: API migrations and integration tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -27,16 +48,35 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
+      DATABASE_URL: postgresql://nexora:nexora@localhost:5432/nexora_test
       TEST_DATABASE_URL: postgresql://nexora:nexora@localhost:5432/nexora_test
+      JWT_ACCESS_SECRET: nexora-ci-access-secret-at-least-32-bytes
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.19
           cache: npm
       - run: npm ci
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm run test:ci
-      - run: npm run test:integration
+      - name: Apply database migrations
+        run: npm run db:deploy
+      - name: Run API integration tests
+        run: npm run test:integration:execute --workspace=@nexora/api
+
+  fullstack-build:
+    name: Fullstack and production images
+    needs: [quality, api-integration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19
+          cache: npm
+      - run: npm ci
       - run: npm run build
+      - name: Build production API image
+        run: docker build --target api --tag nexora-api:ci .
+      - name: Build production web image
+        run: docker build --target web --tag nexora-web:ci .

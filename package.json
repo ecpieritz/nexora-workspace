@@ -1,6 +1,6 @@
 {
   "name": "nexora-workspace",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "workspaces": [
     "apps/*"
@@ -26,6 +26,11 @@
     "db:studio": "npm run prisma:studio --workspace=@nexora/api",
     "db:migrate": "npm run prisma:migrate --workspace=@nexora/api",
     "db:deploy": "npm run prisma:migrate:deploy --workspace=@nexora/api",
+    "prod:config": "docker compose --env-file .env.production -f compose.production.yaml config",
+    "prod:build": "docker compose --env-file .env.production -f compose.production.yaml build",
+    "prod:up": "docker compose --env-file .env.production -f compose.production.yaml up -d --build",
+    "prod:down": "docker compose --env-file .env.production -f compose.production.yaml down",
+    "prod:logs": "docker compose --env-file .env.production -f compose.production.yaml logs -f",
     "build": "npm run build --workspaces --if-present",
     "watch": "npm run watch --workspace=@nexora/web",
     "test": "npm run test --workspace=@nexora/web",

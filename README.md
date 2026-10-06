@@ -1,6 +1,6 @@
 # Nexora Workspace
 
-Nexora is a responsive business workspace being evolved into a fullstack application. Its Angular 19 frontend brings dashboards, invoices, schedules, tasks, calendars, customers and product analytics into a polished portfolio experience, while its Node.js and Express API provides the backend foundation.
+Nexora is a fullstack business workspace. Its Angular 19 frontend brings dashboards, invoices, schedules, tasks, calendars, customers and product analytics into a polished portfolio experience, while its Node.js and Express API persists workspace-scoped data in PostgreSQL through Prisma ORM.
 
 ## Highlights
 
@@ -8,7 +8,7 @@ Nexora is a responsive business workspace being evolved into a fullstack applica
 - Responsive dashboard based on the supplied Figma screens.
 - Authentication and guarded workspace routes.
 - Invoice, schedule, task, calendar, customer and product workflows.
-- Mock latency and browser persistence without an external backend.
+- REST API persistence with workspace-scoped PostgreSQL data.
 - Accessible keyboard navigation, feedback states, toasts and confirmation dialogs.
 - Unit, integration and component tests plus automated CI checks.
 
@@ -22,7 +22,7 @@ The interface was implemented from the community Figma design [SAAS Dashboard Co
 
 ## Getting started
 
-Requires Node.js 20.19+, npm and Docker Compose.
+Requires Node.js 20.19+, npm, Docker Desktop or Docker Engine, and Docker Compose.
 
 ```bash
 npm ci
@@ -35,7 +35,20 @@ npm run dev:api
 npm run dev:web
 ```
 
-Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. The Angular development server proxies `/api` requests to port `3000`. The database seed creates the portfolio workspace and the demo login `demo@nexora.app` / `Nexora123!`. Authentication, customers, products, analytics, invoices, schedules, calendars, tasks, and dashboard reporting use the REST API. User preferences remain browser-backed for this portfolio demo.
+Open `http://localhost:4200`. The API is available at `http://localhost:3000/api`, and PostgreSQL is exposed locally on port `5432` by default. The Angular development server proxies `/api` requests to port `3000`. Authentication, customers, products, analytics, invoices, schedules, calendars, tasks, and dashboard reporting use the REST API.
+
+## Demo account
+
+Run `npm run db:seed` and sign in with the populated portfolio account:
+
+| Field    | Value             |
+| -------- | ----------------- |
+| Email    | `demo@nexora.app` |
+| Password | `Nexora123!`      |
+
+The idempotent seed creates a workspace with team members, customers, products, invoices, tasks, and calendar entries. Time-sensitive records are positioned around the date on which the seed runs so the dashboard and calendar remain useful. See [the demo account guide](docs/DEMO_ACCOUNT.md) for the complete dataset and deployment instructions.
+
+Public registration remains enabled. Visitors can use **Create account** to receive a separate personal workspace without the seeded portfolio records and test Nexora from a clean state.
 
 The root `.env` configures the local PostgreSQL container. `apps/api/.env` configures the API and its `DATABASE_URL`. Both files are ignored by Git; only their `.env.example` templates are versioned. Run `npm run db:status` to confirm the database is healthy and `npm run db:logs` to inspect its logs.
 
@@ -50,7 +63,20 @@ With the API running locally, open [http://localhost:3000/api/docs](http://local
 | Development (Vercel Preview) | [dev-nexora-workspace-delta.vercel.app](https://dev-nexora-workspace-delta.vercel.app/) |
 | Production                   | [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/)         |
 
-Set `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT`, `CORS_ORIGINS`, `DATABASE_URL`, `DATABASE_CONNECTION_TIMEOUT_MS`, `PASSWORD_HASH_ROUNDS`, `JWT_ACCESS_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_ACCESS_TTL_SECONDS`, `REFRESH_TOKEN_TTL_DAYS`, `PASSWORD_RESET_TTL_MINUTES` and `PASSWORD_RESET_URL` independently in Vercel Preview and Production. Use a separate database and JWT secret for each environment. Do not commit `.env` files; only `.env.example` is versioned.
+The listed Vercel URLs deploy the Angular frontend. Configure `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT`, `CORS_ORIGINS`, `DATABASE_URL`, `DATABASE_CONNECTION_TIMEOUT_MS`, `PASSWORD_HASH_ROUNDS`, `JWT_ACCESS_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_ACCESS_TTL_SECONDS`, `REFRESH_TOKEN_TTL_DAYS`, `PASSWORD_RESET_TTL_MINUTES` and `PASSWORD_RESET_URL` on the API host. Preview and production must use separate databases and JWT secrets. Do not commit private environment files; only example templates are versioned.
+
+## Production containers
+
+The multi-stage Docker build produces separate Express and Angular/Nginx images. Production Compose starts PostgreSQL, applies committed Prisma migrations in a one-shot container, waits for the API health check and then exposes the complete application through Nginx on port `8080`.
+
+```bash
+cp .env.production.example .env.production
+# Replace every placeholder in .env.production.
+npm run prod:config
+npm run prod:up
+```
+
+Open `http://localhost:8080` and verify the API at `http://localhost:8080/api/health`. Production startup intentionally does not seed demo data. See the [fullstack deployment guide](docs/DEPLOYMENT.md) for topology, secrets, seeding and Vercel considerations.
 
 ## Commands
 
@@ -69,6 +95,11 @@ npm run db:migrate  # create and apply a development migration
 npm run db:deploy   # apply pending migrations in a deployed environment
 npm run db:test:up  # start the isolated integration-test database
 npm run db:test:down # stop the integration-test database
+npm run prod:config # validate the production Compose configuration
+npm run prod:build  # build the production API and web images
+npm run prod:up     # migrate and start the production stack
+npm run prod:down   # stop the production stack and preserve database data
+npm run prod:logs   # follow logs for the production stack
 npm run lint       # static analysis
 npm test           # interactive unit tests
 npm run test:ci    # headless tests with coverage
@@ -81,20 +112,21 @@ npm run validate   # complete local quality gate
 
 ```text
 apps/
-├── api/            # Node.js and Express API
-└── web/            # Angular application
-docs/               # Architecture and visual documentation
+├── api/             # Node.js, Express and Prisma API
+└── web/             # Angular application
+docker/              # Production Nginx configuration
+docs/                # Architecture, deployment and visual documentation
 ```
 
 The repository uses npm workspaces. Root scripts orchestrate the applications, so the existing development and CI commands remain unchanged as the backend is introduced. Prisma Client is generated automatically during dependency installation and before API builds.
 
 API integration tests exercise the real Express routes, JWT sessions, Prisma repositories and PostgreSQL schema. Run `npm run db:test:up` followed by `npm run test:integration`; the test runner only accepts a database name containing `test` and defaults to the isolated container at `localhost:5433/nexora_test`. GitHub Actions provisions its own temporary PostgreSQL service and applies migrations before the integration suite.
 
-The initial migration creates the authentication, workspace membership, customer, product, invoice, task and schedule tables. After starting PostgreSQL for the first time, apply it locally with `npm run db:migrate`, then run `npm run db:seed`. The idempotent seed can be rerun to restore the portfolio account, workspace and representative business data without creating duplicates. Deployed environments use `npm run db:deploy` so existing migration files are applied without creating new ones; seed each non-production environment explicitly when demo data is desired.
+The initial migration creates the authentication, workspace membership, customer, product, invoice, task and schedule tables. After starting PostgreSQL for the first time, apply it locally with `npm run db:migrate`, then run `npm run db:seed`. The idempotent seed can be rerun to restore the portfolio account, reset its documented password and refresh its representative business dates without creating duplicates or removing independently registered accounts. Deployed environments use `npm run db:deploy` so existing migration files are applied without creating new ones; seed each environment explicitly when demo data is desired.
 
 ## Architecture and screenshots
 
-See [architecture](docs/ARCHITECTURE.md) and the [screenshot guide](docs/SCREENSHOTS.md).
+See [architecture](docs/ARCHITECTURE.md), [deployment](docs/DEPLOYMENT.md) and the [screenshot guide](docs/SCREENSHOTS.md).
 
 ## Frontend data notice
 
@@ -102,6 +134,6 @@ Angular authentication, customer management, products, analytics, invoices, sche
 
 ## Release
 
-Current portfolio release: **v1.0.0**.
+Current fullstack portfolio release: **v2.0.0**.
 
-The production frontend is deployed on Vercel at [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/). Root-level Vercel configuration keeps the Angular SPA deployable while backend capabilities are added incrementally.
+The Angular frontend is deployed on Vercel at [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/). The root Vercel configuration builds the SPA; the Express API and PostgreSQL require a separate persistent backend deployment or the provided Docker topology.
