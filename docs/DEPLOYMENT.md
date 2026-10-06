@@ -50,7 +50,7 @@ Public registration remains enabled whether or not the demo seed is installed.
 
 ## Vercel fullstack deployment
 
-The root `api/[...path].ts` file exports the same Express application as a catch-all Vercel Function. Filesystem routes take precedence over the Angular SPA rewrite, so `/api/*` reaches Express while application routes continue to fall back to `index.html`. The serverless entry point intentionally does not call `listen()` or disconnect Prisma after each request.
+The root `api/index.ts` file exports the same Express application as a Vercel Function. A prioritized rewrite sends `/api/*` to the function with an internal path parameter; the adapter restores the original `/api` URL before Express routing, while application routes continue to fall back to `index.html`. The serverless entry point intentionally does not call `listen()` or disconnect Prisma after each request.
 
 Configure at least these values independently for Preview and Production:
 

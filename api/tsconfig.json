@@ -6,6 +6,6 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["./[...path].ts", "../apps/api/src/**/*.ts"],
+  "include": ["./index.ts", "../apps/api/src/**/*.ts"],
   "exclude": ["../apps/api/dist", "../apps/api/test", "../node_modules"]
 }

@@ -63,7 +63,7 @@ With the API running locally, open [http://localhost:3000/api/docs](http://local
 | Development (Vercel Preview) | [dev-nexora-workspace-delta.vercel.app](https://dev-nexora-workspace-delta.vercel.app/) |
 | Production                   | [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/)         |
 
-The root `api/[...path].ts` adapter deploys the existing Express application as a Vercel Function alongside the Angular frontend. Configure `DATABASE_URL`, `JWT_ACCESS_SECRET`, `CORS_ORIGINS` and `PASSWORD_RESET_URL` at minimum; the remaining API settings use the documented defaults. Preview and production must use separate databases and JWT secrets. Apply migrations and seed the target database before using the demo login. Do not commit private environment files; only example templates are versioned.
+The root `api/index.ts` adapter deploys the existing Express application as a Vercel Function alongside the Angular frontend. A prioritized rewrite forwards `/api/*` to that function and restores the complete Express route before the SPA fallback runs. Configure `DATABASE_URL`, `JWT_ACCESS_SECRET`, `CORS_ORIGINS` and `PASSWORD_RESET_URL` at minimum; the remaining API settings use the documented defaults. Preview and production must use separate databases and JWT secrets. Apply migrations and seed the target database before using the demo login. Do not commit private environment files; only example templates are versioned.
 
 ## Production containers
 

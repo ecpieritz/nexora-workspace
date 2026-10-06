@@ -38,7 +38,7 @@ The root `Dockerfile` provides three release targets. `api` contains only the co
 
 Production seeding is explicit. Container startup applies migrations but never rewrites demo credentials or representative dates automatically. Operators opt into the idempotent seed only for environments intended to host the portfolio demo account.
 
-Vercel uses `api/[...path].ts` as a thin serverless adapter around the same Express composition root. It omits the network listener and process shutdown hooks from `server.ts`; Vercel owns invocation lifecycle while the module-scoped Prisma client can be reused by warm function instances. PostgreSQL remains external and must be provisioned separately for Preview and Production.
+Vercel uses `api/index.ts` as a thin serverless adapter around the same Express composition root. A rewrite forwards every `/api/*` request to this function, which restores the original route before handing control to Express. It omits the network listener and process shutdown hooks from `server.ts`; Vercel owns invocation lifecycle while the module-scoped Prisma client can be reused by warm function instances. PostgreSQL remains external and must be provisioned separately for Preview and Production.
 
 ## Data flow
 

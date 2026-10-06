@@ -15,10 +15,11 @@ import {
 } from '../src/generated/prisma/client.js';
 
 const defaultDatabaseUrl = 'postgresql://nexora:nexora@localhost:5432/nexora';
-const seedDatabaseUrl =
-  process.env['DIRECT_DATABASE_URL']?.trim() ||
-  process.env['DATABASE_URL']?.trim() ||
-  defaultDatabaseUrl;
+const configuredDatabaseUrl = [
+  process.env['DIRECT_DATABASE_URL']?.trim(),
+  process.env['DATABASE_URL']?.trim(),
+].find((value) => value !== undefined && value.length > 0);
+const seedDatabaseUrl = configuredDatabaseUrl ?? defaultDatabaseUrl;
 const demoCredentials = {
   email: 'demo@nexora.app',
   password: 'Nexora123!',
