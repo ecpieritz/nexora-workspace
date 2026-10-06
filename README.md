@@ -63,7 +63,7 @@ With the API running locally, open [http://localhost:3000/api/docs](http://local
 | Development (Vercel Preview) | [dev-nexora-workspace-delta.vercel.app](https://dev-nexora-workspace-delta.vercel.app/) |
 | Production                   | [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/)         |
 
-The listed Vercel URLs deploy the Angular frontend. Configure `NODE_ENV`, `API_PREFIX`, `JSON_BODY_LIMIT`, `CORS_ORIGINS`, `DATABASE_URL`, `DATABASE_CONNECTION_TIMEOUT_MS`, `PASSWORD_HASH_ROUNDS`, `JWT_ACCESS_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_ACCESS_TTL_SECONDS`, `REFRESH_TOKEN_TTL_DAYS`, `PASSWORD_RESET_TTL_MINUTES` and `PASSWORD_RESET_URL` on the API host. Preview and production must use separate databases and JWT secrets. Do not commit private environment files; only example templates are versioned.
+The root `api/[...path].ts` adapter deploys the existing Express application as a Vercel Function alongside the Angular frontend. Configure `DATABASE_URL`, `JWT_ACCESS_SECRET`, `CORS_ORIGINS` and `PASSWORD_RESET_URL` at minimum; the remaining API settings use the documented defaults. Preview and production must use separate databases and JWT secrets. Apply migrations and seed the target database before using the demo login. Do not commit private environment files; only example templates are versioned.
 
 ## Production containers
 
@@ -136,4 +136,4 @@ Angular authentication, customer management, products, analytics, invoices, sche
 
 Current fullstack portfolio release: **v2.0.0**.
 
-The Angular frontend is deployed on Vercel at [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/). The root Vercel configuration builds the SPA; the Express API and PostgreSQL require a separate persistent backend deployment or the provided Docker topology.
+The Angular frontend and serverless Express adapter are deployed together on Vercel at [nexora-workspace-delta.vercel.app](https://nexora-workspace-delta.vercel.app/). Vercel still requires a managed PostgreSQL database configured through `DATABASE_URL`; the provided Docker topology is the alternative for hosts that support long-running containers.

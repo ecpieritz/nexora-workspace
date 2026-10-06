@@ -48,11 +48,30 @@ docker compose --env-file .env.production -f compose.production.yaml run --rm mi
 
 Public registration remains enabled whether or not the demo seed is installed.
 
-## Vercel frontend
+## Vercel fullstack deployment
 
-The existing Vercel project builds the Angular SPA only. A fullstack deployment requires the Express API and PostgreSQL to run on infrastructure that supports a persistent Node.js service and database. When keeping the frontend on Vercel, route `/api` to that API at the platform or edge-proxy layer and include both Vercel domains in `CORS_ORIGINS`.
+The root `api/[...path].ts` file exports the same Express application as a catch-all Vercel Function. Filesystem routes take precedence over the Angular SPA rewrite, so `/api/*` reaches Express while application routes continue to fall back to `index.html`. The serverless entry point intentionally does not call `listen()` or disconnect Prisma after each request.
 
-The Docker topology avoids cross-origin configuration because Nginx serves the frontend and API from one origin.
+Configure at least these values independently for Preview and Production:
+
+```text
+DATABASE_URL
+DIRECT_DATABASE_URL (when the provider offers a direct connection)
+JWT_ACCESS_SECRET
+CORS_ORIGINS
+PASSWORD_RESET_URL
+```
+
+Use a managed PostgreSQL connection string suitable for serverless workloads. `DATABASE_URL` is the pooled runtime connection; when the provider exposes a separate direct connection, set `DIRECT_DATABASE_URL` for Prisma migrations and seed operations. Preview and Production should never share a database or JWT secret. After configuring the environment, apply migrations and seed from a trusted terminal using the corresponding connection values:
+
+```bash
+npm run db:deploy
+npm run db:seed
+```
+
+The demo account does not exist until the seed succeeds against that exact database. Verify the deployment at `/api/health` before attempting login; a healthy API returns JSON rather than the Angular HTML document.
+
+The Docker topology remains available for a long-running deployment and avoids cross-origin configuration because Nginx serves the frontend and API from one origin.
 
 ## Release checks
 

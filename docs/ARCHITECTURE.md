@@ -38,6 +38,8 @@ The root `Dockerfile` provides three release targets. `api` contains only the co
 
 Production seeding is explicit. Container startup applies migrations but never rewrites demo credentials or representative dates automatically. Operators opt into the idempotent seed only for environments intended to host the portfolio demo account.
 
+Vercel uses `api/[...path].ts` as a thin serverless adapter around the same Express composition root. It omits the network listener and process shutdown hooks from `server.ts`; Vercel owns invocation lifecycle while the module-scoped Prisma client can be reused by warm function instances. PostgreSQL remains external and must be provisioned separately for Preview and Production.
+
 ## Data flow
 
 Pages request typed data from feature repositories, which communicate with the Express REST API through Angular's `HttpClient`. The global API interceptor wraps the authentication interceptor so each logical request is counted once, even when an expired access token is refreshed and retried. A shared signal drives the application-level progress indicator, while the centralized error service converts API, connectivity and server failures into safe toast messages. Request context tokens allow individual calls to opt out when a feature needs fully custom feedback. Signals hold local view state, and computed signals derive filters and selections.

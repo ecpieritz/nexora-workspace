@@ -27,6 +27,7 @@ jobs:
       - run: npm run format:check
       - run: npm run lint
       - run: npm run db:validate
+      - run: npm run typecheck:vercel
       - run: npm run test:ci
 
   api-integration:

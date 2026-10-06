@@ -15,6 +15,10 @@ import {
 } from '../src/generated/prisma/client.js';
 
 const defaultDatabaseUrl = 'postgresql://nexora:nexora@localhost:5432/nexora';
+const seedDatabaseUrl =
+  process.env['DIRECT_DATABASE_URL']?.trim() ||
+  process.env['DATABASE_URL']?.trim() ||
+  defaultDatabaseUrl;
 const demoCredentials = {
   email: 'demo@nexora.app',
   password: 'Nexora123!',
@@ -715,7 +719,7 @@ async function seedDatabase(tx: Prisma.TransactionClient, passwordHash: string):
 
 async function main(): Promise<void> {
   const adapter = new PrismaPg({
-    connectionString: process.env['DATABASE_URL'] ?? defaultDatabaseUrl,
+    connectionString: seedDatabaseUrl,
   });
   const prisma = new PrismaClient({ adapter });
 

@@ -2,6 +2,7 @@
   "name": "nexora-workspace",
   "version": "2.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*"
   ],
@@ -36,11 +37,12 @@
     "test": "npm run test --workspace=@nexora/web",
     "test:ci": "npm run test:ci --workspaces --if-present",
     "test:integration": "npm run test:integration --workspace=@nexora/api",
+    "typecheck:vercel": "tsc -p api/tsconfig.json",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run format:check && npm run lint && npm run db:validate && npm run test:ci && npm run build"
+    "validate": "npm run format:check && npm run lint && npm run db:validate && npm run typecheck:vercel && npm run test:ci && npm run build"
   },
   "devDependencies": {
     "prettier": "^3.9.6"
