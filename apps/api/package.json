@@ -15,7 +15,7 @@
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "prisma db seed",
+    "prisma:seed": "npm run prisma:generate && prisma db seed",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "typecheck": "npm run prisma:generate && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.seed.json && tsc -p tsconfig.test.json",
