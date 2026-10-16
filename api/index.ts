@@ -3,18 +3,20 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createApp } from '../apps/api/src/app.js';
 import { environment } from '../apps/api/src/config/environment.js';
 
-const forwardedPathParameter = '__nexora_path';
+const forwardedPathParameters = ['__nexora_path', 'path'] as const;
 const app = createApp(environment);
 
 function restoreApiRequestUrl(request: IncomingMessage): void {
   const requestUrl = new URL(request.url ?? '/', 'http://nexora.internal');
-  const forwardedPath = requestUrl.searchParams.get(forwardedPathParameter);
+  const forwardedPath = forwardedPathParameters
+    .map((parameter) => requestUrl.searchParams.get(parameter))
+    .find((value): value is string => value !== null);
 
-  if (forwardedPath === null) {
+  if (forwardedPath === undefined) {
     return;
   }
 
-  requestUrl.searchParams.delete(forwardedPathParameter);
+  forwardedPathParameters.forEach((parameter) => requestUrl.searchParams.delete(parameter));
   const normalizedPath = forwardedPath.replace(/^\/+/, '');
   const query = requestUrl.searchParams.toString();
   request.url = `/api/${normalizedPath}${query ? `?${query}` : ''}`;

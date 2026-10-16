@@ -20,6 +20,12 @@ yarn-error.log
 # Generated Prisma Client
 apps/api/src/generated/prisma/
 
+# Local AI agent skills
+apps/api/.agents/
+apps/api/.claude/
+apps/api/.windsurf/
+apps/api/skills-lock.json
+
 # IDEs and editors
 .idea/
 .project

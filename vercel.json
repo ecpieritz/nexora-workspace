@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "/api?__nexora_path=:path*"
+      "destination": "/api"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
