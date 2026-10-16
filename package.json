@@ -37,7 +37,7 @@
     "test": "npm run test --workspace=@nexora/web",
     "test:ci": "npm run test:ci --workspaces --if-present",
     "test:integration": "npm run test:integration --workspace=@nexora/api",
-    "typecheck:vercel": "tsc -p api/tsconfig.json",
+    "typecheck:vercel": "tsc -p tsconfig.json",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write .",
@@ -46,5 +46,8 @@
   },
   "devDependencies": {
     "prettier": "^3.9.6"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
   }
 }

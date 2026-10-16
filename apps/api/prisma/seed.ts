@@ -25,6 +25,8 @@ const demoCredentials = {
   password: 'Nexora123!',
 } as const;
 const seedReference = new Date();
+const seedTemplateYear = 2026;
+const seedTemplateMonth = 7;
 
 const ids = {
   workspace: '10000000-0000-4000-8000-000000000001',
@@ -503,10 +505,15 @@ function recentSeedDate(date: string, endOfDay = false): Date {
 
 function inSeedMonth(date: string, hour?: number, minute?: number, second?: number): Date {
   const source = new Date(date.includes('T') ? date : `${date}T00:00:00.000Z`);
+  const sourceMonthOffset =
+    source.getUTCFullYear() * 12 +
+    source.getUTCMonth() -
+    (seedTemplateYear * 12 + seedTemplateMonth);
+
   return new Date(
     Date.UTC(
       seedReference.getUTCFullYear(),
-      seedReference.getUTCMonth(),
+      seedReference.getUTCMonth() + sourceMonthOffset,
       source.getUTCDate(),
       hour ?? source.getUTCHours(),
       minute ?? source.getUTCMinutes(),
