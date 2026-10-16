@@ -1,27 +1,53 @@
 {
   "name": "nexora-workspace",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "scripts": {
     "ng": "npm run ng --workspace=@nexora/web --",
     "start": "npm run start --workspace=@nexora/web",
-    "build": "npm run build --workspace=@nexora/web",
+    "dev:web": "npm run start --workspace=@nexora/web",
+    "dev:api": "npm run dev --workspace=@nexora/api",
+    "start:api": "npm run start --workspace=@nexora/api",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "db:status": "docker compose ps",
+    "db:test:up": "docker compose --profile test up -d --wait postgres-test",
+    "db:test:down": "docker compose --profile test stop postgres-test",
+    "db:generate": "npm run prisma:generate --workspace=@nexora/api",
+    "db:validate": "npm run prisma:validate --workspace=@nexora/api",
+    "db:seed": "npm run prisma:seed --workspace=@nexora/api",
+    "db:studio": "npm run prisma:studio --workspace=@nexora/api",
+    "db:migrate": "npm run prisma:migrate --workspace=@nexora/api",
+    "db:deploy": "npm run prisma:migrate:deploy --workspace=@nexora/api",
+    "prod:config": "docker compose --env-file .env.production -f compose.production.yaml config",
+    "prod:build": "docker compose --env-file .env.production -f compose.production.yaml build",
+    "prod:up": "docker compose --env-file .env.production -f compose.production.yaml up -d --build",
+    "prod:down": "docker compose --env-file .env.production -f compose.production.yaml down",
+    "prod:logs": "docker compose --env-file .env.production -f compose.production.yaml logs -f",
+    "build": "npm run build --workspaces --if-present",
     "watch": "npm run watch --workspace=@nexora/web",
     "test": "npm run test --workspace=@nexora/web",
-    "test:ci": "npm run test:ci --workspace=@nexora/web",
-    "lint": "npm run lint --workspace=@nexora/web",
-    "lint:fix": "npm run lint:fix --workspace=@nexora/web",
+    "test:ci": "npm run test:ci --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspace=@nexora/api",
+    "typecheck:vercel": "tsc -p tsconfig.json",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run format:check && npm run lint && npm run test:ci && npm run build"
+    "validate": "npm run format:check && npm run lint && npm run db:validate && npm run typecheck:vercel && npm run test:ci && npm run build"
   },
   "devDependencies": {
     "prettier": "^3.9.6"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
   }
 }

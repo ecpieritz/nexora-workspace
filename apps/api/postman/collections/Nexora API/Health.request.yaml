@@ -1,0 +1,22 @@
+$kind: http-request
+name: Health check
+description: Confirms that the API started successfully and can connect to PostgreSQL.
+url: '{{baseUrl}}/health'
+method: GET
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('API is healthy', function () {
+        const response = pm.response.json();
+
+        pm.expect(response.status).to.eql('ok');
+        pm.expect(response.service).to.eql('nexora-api');
+        pm.expect(response.timestamp).to.be.a('string');
+        pm.expect(response.uptime).to.be.a('number');
+      });
+order: 1000

@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthApiService } from '@features/auth/data-access/auth-api.service';
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 import {
   ButtonDirective,
@@ -41,6 +42,7 @@ function taxIdValidator(control: AbstractControl<string>): ValidationErrors | nu
 })
 export class SettingsComponent implements OnInit {
   private readonly repository = inject(SettingsRepository);
+  private readonly authApi = inject(AuthApiService);
   private readonly session = inject(AuthSessionService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -131,7 +133,11 @@ export class SettingsComponent implements OnInit {
   }
   protected async clearData(): Promise<void> {
     await this.repository.clearDemoData();
-    this.session.clear();
-    await this.router.navigate(['/auth/login']);
+    try {
+      await this.authApi.logout(this.session.refreshToken());
+    } finally {
+      this.session.clear();
+      await this.router.navigate(['/auth/login']);
+    }
   }
 }

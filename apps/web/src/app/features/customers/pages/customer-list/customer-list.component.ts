@@ -7,17 +7,22 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonDirective, InputDirective, ToastService } from '@shared/ui';
+import {
+  ButtonDirective,
+  ConfirmationDialogComponent,
+  InputDirective,
+  ToastService,
+} from '@shared/ui';
 import { CustomerRepository } from '../../data-access/customer.repository';
 import { Customer, CustomerGender } from '../../models/customer.model';
 
 @Component({
   selector: 'app-customer-list',
-  imports: [ButtonDirective, InputDirective, ReactiveFormsModule],
+  imports: [ButtonDirective, ConfirmationDialogComponent, InputDirective, ReactiveFormsModule],
   templateUrl: './customer-list.component.html',
   styleUrl: './customer-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '(document:keydown.escape)': 'closeEditor()' },
+  host: { '(document:keydown.escape)': 'closeOverlays()' },
 })
 export class CustomerListComponent implements OnInit {
   private readonly repository = inject(CustomerRepository);
@@ -31,6 +36,8 @@ export class CustomerListComponent implements OnInit {
   protected readonly editingId = signal<string | null>(null);
   protected readonly saving = signal(false);
   protected readonly saveError = signal(false);
+  protected readonly pendingDelete = signal<Customer | null>(null);
+  protected readonly deleting = signal(false);
   protected readonly customerForm = new FormGroup({
     firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -58,6 +65,9 @@ export class CustomerListComponent implements OnInit {
   });
   protected readonly selectedCustomer = computed(
     () => this.customers().find(({ id }) => id === this.selectedId()) ?? null,
+  );
+  protected readonly editingCustomer = computed(
+    () => this.customers().find(({ id }) => id === this.editingId()) ?? null,
   );
   ngOnInit(): void {
     void this.load();
@@ -118,6 +128,12 @@ export class CustomerListComponent implements OnInit {
   protected closeEditor(): void {
     if (!this.saving()) this.editorOpen.set(false);
   }
+  protected closeOverlays(): void {
+    if (!this.saving() && !this.deleting()) {
+      this.editorOpen.set(false);
+      this.pendingDelete.set(null);
+    }
+  }
   protected async saveCustomer(): Promise<void> {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
@@ -143,6 +159,36 @@ export class CustomerListComponent implements OnInit {
       this.toast.error('The customer could not be saved.');
     } finally {
       this.saving.set(false);
+    }
+  }
+
+  protected requestDelete(customer: Customer): void {
+    this.pendingDelete.set(customer);
+  }
+
+  protected cancelDelete(): void {
+    if (!this.deleting()) this.pendingDelete.set(null);
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    const customer = this.pendingDelete();
+    if (!customer) return;
+
+    this.deleting.set(true);
+    try {
+      await this.repository.delete(customer.id);
+      const remaining = this.customers().filter(({ id }) => id !== customer.id);
+      this.customers.set(remaining);
+      if (this.selectedId() === customer.id) {
+        this.selectedId.set(remaining[0]?.id ?? null);
+      }
+      this.pendingDelete.set(null);
+      this.editorOpen.set(false);
+      this.toast.success('Customer deleted.');
+    } catch {
+      this.toast.error('The customer could not be deleted.');
+    } finally {
+      this.deleting.set(false);
     }
   }
 }

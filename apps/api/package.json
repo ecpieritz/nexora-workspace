@@ -1,0 +1,52 @@
+{
+  "name": "@nexora/api",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "npm run prisma:generate && tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "tsx --test test/api-services.unit.test.ts test/auth-registration.test.ts test/auth-session.test.ts test/authentication-authorization.test.ts test/customer-management.test.ts test/dashboard-reporting.test.ts test/error-handler.test.ts test/invoice-management.test.ts test/openapi.test.ts test/password-recovery.test.ts test/product-management.test.ts test/request-validation.test.ts test/schedule-calendar.test.ts test/schema-validation.unit.test.ts test/task-management.test.ts test/user-profile.test.ts",
+    "test:ci": "npm run test",
+    "test:integration": "tsx test/run-integration-tests.ts",
+    "test:integration:execute": "tsx --test --test-concurrency=1 test/integration/auth-resources.integration.test.ts",
+    "postinstall": "prisma generate",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "prisma db seed",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "typecheck": "npm run prisma:generate && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.seed.json && tsc -p tsconfig.test.json",
+    "lint": "eslint src prisma test --max-warnings=0",
+    "lint:fix": "eslint src prisma test --fix --max-warnings=0",
+    "format": "prettier --ignore-path ../../.prettierignore --write \"src/**/*.ts\" \"prisma/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
+    "format:check": "prettier --ignore-path ../../.prettierignore --check \"src/**/*.ts\" \"prisma/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\""
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "bcryptjs": "3.0.2",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jose": "6.2.12",
+    "pg": "8.16.3",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.30",
+    "@types/pg": "8.15.5",
+    "@types/supertest": "6.0.3",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "prisma": "7.10.0",
+    "supertest": "7.1.4",
+    "tsx": "^4.20.3",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "8.33.1"
+  }
+}

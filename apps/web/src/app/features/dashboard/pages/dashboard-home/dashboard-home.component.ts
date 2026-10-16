@@ -47,19 +47,12 @@ export class DashboardHomeComponent implements OnInit {
     this.loadError.set(false);
 
     try {
-      const [summary, salesReport, transactionAnalytics, recentOrders, topProducts] =
-        await Promise.all([
-          this.dashboardRepository.getSummary(),
-          this.dashboardRepository.getSalesReport(),
-          this.dashboardRepository.getTransactionAnalytics(),
-          this.dashboardRepository.getRecentOrders(),
-          this.dashboardRepository.getTopProducts(),
-        ]);
-      this.summary.set(summary);
-      this.salesReport.set(salesReport);
-      this.transactionAnalytics.set(transactionAnalytics);
-      this.recentOrders.set(recentOrders);
-      this.topProducts.set(topProducts);
+      const dashboard = await this.dashboardRepository.getDashboard();
+      this.summary.set(dashboard.summary);
+      this.salesReport.set(dashboard.salesReport);
+      this.transactionAnalytics.set(dashboard.transactionAnalytics);
+      this.recentOrders.set(dashboard.recentOrders);
+      this.topProducts.set(dashboard.topProducts);
     } catch {
       this.loadError.set(true);
     } finally {

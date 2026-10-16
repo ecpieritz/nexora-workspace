@@ -4,6 +4,7 @@ import { ProductAnalyticsComponent } from './product-analytics.component';
 
 class ProductRepositoryStub {
   getAnalytics = jasmine.createSpy().and.resolveTo({
+    range: { from: '2026-03-01', to: '2026-09-28' },
     metrics: [
       {
         id: 'products',
@@ -62,6 +63,6 @@ describe('ProductAnalyticsComponent', () => {
     await component.saveProduct();
     fixture.detectChanges();
     expect(TestBed.inject(ProductRepository).create).toHaveBeenCalled();
-    expect(fixture.nativeElement.textContent).toContain('Notebook');
+    expect(TestBed.inject(ProductRepository).getAnalytics).toHaveBeenCalledTimes(2);
   });
 });

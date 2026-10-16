@@ -1,0 +1,3 @@
+$kind: collection
+name: Nexora API
+description: Requests for developing and validating the Nexora Express API locally.

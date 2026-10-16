@@ -17,6 +17,8 @@ const CUSTOMERS: Customer[] = [
     satisfaction: 70,
     retention: 60,
     color: '#87a8ff',
+    createdAt: '2026-09-28T12:00:00.000Z',
+    updatedAt: '2026-09-28T12:00:00.000Z',
   },
   {
     id: 'two',
@@ -31,6 +33,8 @@ const CUSTOMERS: Customer[] = [
     satisfaction: 80,
     retention: 75,
     color: '#ff9da8',
+    createdAt: '2026-09-28T12:00:00.000Z',
+    updatedAt: '2026-09-28T12:00:00.000Z',
   },
 ];
 describe('CustomerListComponent', () => {
@@ -40,6 +44,7 @@ describe('CustomerListComponent', () => {
       'getAll',
       'create',
       'update',
+      'delete',
     ]);
     repository.getAll.and.resolveTo(CUSTOMERS);
     repository.create.and.callFake(async (input) => ({
@@ -49,11 +54,14 @@ describe('CustomerListComponent', () => {
       satisfaction: 72,
       retention: 65,
       color: '#625df5',
+      createdAt: '2026-09-28T12:00:00.000Z',
+      updatedAt: '2026-09-28T12:00:00.000Z',
     }));
     repository.update.and.callFake(async (id, input) => ({
       ...CUSTOMERS.find((customer) => customer.id === id)!,
       ...input,
     }));
+    repository.delete.and.resolveTo();
     await TestBed.configureTestingModule({
       imports: [CustomerListComponent],
       providers: [{ provide: CustomerRepository, useValue: repository }],
@@ -128,5 +136,29 @@ describe('CustomerListComponent', () => {
     expect(fixture.nativeElement.querySelector('.customer-editor').textContent).toContain(
       'Edit customer',
     );
+  });
+  it('should delete a customer after confirmation', async () => {
+    const repository = TestBed.inject(CustomerRepository) as jasmine.SpyObj<CustomerRepository>;
+    const action: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[aria-label="Actions for John Deo"]',
+    );
+    action.click();
+    fixture.detectChanges();
+
+    const deleteButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.customer-editor__delete',
+    );
+    deleteButton.click();
+    fixture.detectChanges();
+    const confirmButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.confirmation-dialog__confirm',
+    );
+    confirmButton.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(repository.delete).toHaveBeenCalledWith('one');
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(1);
+    expect(fixture.nativeElement.textContent).not.toContain('John Deo');
   });
 });

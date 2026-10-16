@@ -12,5 +12,4 @@ import { TopProduct } from '../../models/dashboard-widget.model';
 })
 export class TopProductsComponent {
   readonly products = input.required<readonly TopProduct[]>();
-  protected readonly stars = [1, 2, 3, 4, 5];
 }

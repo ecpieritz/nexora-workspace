@@ -168,6 +168,17 @@
         </p>
       }
       <footer>
+        @if (editingCustomer(); as customer) {
+          <button
+            appButton
+            type="button"
+            variant="danger"
+            class="customer-editor__delete"
+            (click)="requestDelete(customer)"
+          >
+            Delete
+          </button>
+        }
         <button appButton type="button" variant="secondary" (click)="closeEditor()">Cancel</button
         ><button appButton type="submit" [loading]="saving()" loadingLabel="Saving customer">
           {{ editingId() ? 'Save changes' : 'Add customer' }}
@@ -175,4 +186,15 @@
       </footer>
     </form>
   </aside>
+}
+
+@if (pendingDelete(); as customer) {
+  <app-confirmation-dialog
+    title="Delete customer?"
+    [message]="'This will permanently delete ' + fullName(customer) + '.'"
+    confirmLabel="Delete customer"
+    [busy]="deleting()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 }

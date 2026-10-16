@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
-import { MockAuthRepository } from '../../data-access/mock-auth.repository';
+import { AuthApiService } from '../../data-access/auth-api.service';
 
 @Component({
   selector: 'app-recover-password',
@@ -14,7 +14,7 @@ import { MockAuthRepository } from '../../data-access/mock-auth.repository';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecoverPasswordComponent {
-  private readonly authRepository = inject(MockAuthRepository);
+  private readonly authApi = inject(AuthApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
   protected readonly form = this.formBuilder.group({
@@ -22,7 +22,6 @@ export class RecoverPasswordComponent {
   });
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly requested = signal(false);
-  protected readonly resetToken = signal<string | null>(null);
   protected readonly submitted = signal(false);
   protected readonly submitting = signal(false);
 
@@ -38,8 +37,7 @@ export class RecoverPasswordComponent {
     this.submitting.set(true);
 
     try {
-      const token = await this.authRepository.requestPasswordReset(this.form.getRawValue().email);
-      this.resetToken.set(token);
+      await this.authApi.requestPasswordReset(this.form.getRawValue().email);
       this.requested.set(true);
     } catch {
       this.errorMessage.set('We could not process your request. Please try again.');

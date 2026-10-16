@@ -4,8 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ButtonDirective, FormFieldComponent, InputDirective } from '@shared/ui';
 
+import { AuthApiService, AuthenticationError } from '../../data-access/auth-api.service';
 import { AuthSessionService } from '../../data-access/auth-session.service';
-import { AuthenticationError, MockAuthRepository } from '../../data-access/mock-auth.repository';
 
 type LoginField = 'email' | 'password';
 
@@ -17,7 +17,7 @@ type LoginField = 'email' | 'password';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
-  private readonly authRepository = inject(MockAuthRepository);
+  private readonly authApi = inject(AuthApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -47,8 +47,8 @@ export class LoginComponent {
     this.submitting.set(true);
 
     try {
-      const user = await this.authRepository.authenticate({ email, password });
-      this.session.start(user, rememberMe);
+      const account = await this.authApi.login({ email, password });
+      this.session.start(account, rememberMe);
       this.form.controls.password.reset();
       await this.router.navigateByUrl(this.getSafeReturnUrl());
     } catch (error: unknown) {
@@ -62,11 +62,15 @@ export class LoginComponent {
     }
   }
 
-  protected signOut(): void {
-    this.session.clear();
-    this.form.reset();
-    this.errorMessage.set(null);
-    this.submitted.set(false);
+  protected async signOut(): Promise<void> {
+    try {
+      await this.authApi.logout(this.session.refreshToken());
+    } finally {
+      this.session.clear();
+      this.form.reset();
+      this.errorMessage.set(null);
+      this.submitted.set(false);
+    }
   }
 
   protected togglePasswordVisibility(): void {

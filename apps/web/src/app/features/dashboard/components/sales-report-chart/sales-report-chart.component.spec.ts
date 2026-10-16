@@ -25,6 +25,6 @@ describe('SalesReportChartComponent', () => {
 
     expect(path.getAttribute('d')).toContain('M');
     expect(points.length).toBe(3);
-    expect(points[0].getAttribute('aria-label')).toContain('10am: 40 sales');
+    expect(points[0].getAttribute('aria-label')).toContain('10am: 40 in sales');
   });
 });

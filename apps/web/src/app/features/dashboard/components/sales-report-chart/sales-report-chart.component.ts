@@ -16,8 +16,16 @@ interface ChartPoint extends SalesReportPoint {
 export class SalesReportChartComponent {
   readonly data = input.required<readonly SalesReportPoint[]>();
 
-  protected readonly gridValues = [0, 20, 40, 60, 80, 100];
   protected readonly activeIndex = signal<number | null>(null);
+  protected readonly chartMaximum = computed(() => {
+    const maximum = Math.max(...this.data().map(({ value }) => value), 0);
+    if (maximum <= 100) return 100;
+    const magnitude = 10 ** Math.floor(Math.log10(maximum));
+    return Math.ceil(maximum / magnitude) * magnitude;
+  });
+  protected readonly gridValues = computed(() =>
+    Array.from({ length: 6 }, (_, index) => (this.chartMaximum() / 5) * index),
+  );
   protected readonly points = computed<ChartPoint[]>(() => {
     const data = this.data();
     const step = data.length > 1 ? 640 / (data.length - 1) : 0;
@@ -39,6 +47,6 @@ export class SalesReportChartComponent {
   });
 
   protected valueToY(value: number): number {
-    return 220 - (value / 100) * 180;
+    return 220 - (value / this.chartMaximum()) * 180;
   }
 }

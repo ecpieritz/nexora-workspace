@@ -8,6 +8,7 @@ import {
 } from '@angular/router';
 
 import { authInterceptor } from '@core/auth';
+import { apiInterceptor } from '@core/http';
 
 import { routes } from './app.routes';
 
@@ -19,6 +20,6 @@ export const appConfig: ApplicationConfig = {
       withPreloading(PreloadAllModules),
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
     ),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([apiInterceptor, authInterceptor])),
   ],
 };

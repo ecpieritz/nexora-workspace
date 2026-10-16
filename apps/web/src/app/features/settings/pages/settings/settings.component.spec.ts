@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { AuthApiService } from '@features/auth/data-access/auth-api.service';
 import { AuthSessionService } from '@features/auth/data-access/auth-session.service';
 import { SettingsRepository } from '../../data-access/settings.repository';
 import { UserSettings } from '../../models/user-settings.model';
@@ -27,6 +28,7 @@ const SETTINGS: UserSettings = {
 describe('SettingsComponent', () => {
   let fixture: ComponentFixture<SettingsComponent>;
   let repository: jasmine.SpyObj<SettingsRepository>;
+  let authApi: jasmine.SpyObj<AuthApiService>;
   beforeEach(async () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -37,17 +39,39 @@ describe('SettingsComponent', () => {
     ]);
     repository.get.and.resolveTo(SETTINGS);
     repository.save.and.callFake(async (_id, value) => value);
+    authApi = jasmine.createSpyObj<AuthApiService>('AuthApiService', ['logout']);
+    authApi.logout.and.resolveTo();
     await TestBed.configureTestingModule({
       imports: [SettingsComponent],
-      providers: [provideRouter([]), { provide: SettingsRepository, useValue: repository }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthApiService, useValue: authApi },
+        { provide: SettingsRepository, useValue: repository },
+      ],
     }).compileComponents();
     TestBed.inject(AuthSessionService).start(
       {
-        id: 'one',
-        fullName: 'Jane Doe',
-        username: 'jane',
-        email: 'jane@example.com',
-        createdAt: '2026-01-01T00:00:00.000Z',
+        user: {
+          id: 'one',
+          fullName: 'Jane Doe',
+          displayName: 'Jane',
+          username: 'jane',
+          email: 'jane@example.com',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+        workspace: {
+          id: 'workspace-id',
+          name: "Jane's Workspace",
+          slug: 'jane-workspace',
+          role: 'owner',
+        },
+        tokens: {
+          accessToken: 'access-token',
+          refreshToken: 'refresh-token',
+          tokenType: 'Bearer',
+          expiresIn: 900,
+          refreshExpiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+        },
       },
       false,
     );

@@ -12,11 +12,22 @@ describe('InvoiceCreateComponent', () => {
     repository = jasmine.createSpyObj<InvoiceRepository>('InvoiceRepository', ['create']);
     repository.create.and.resolveTo({
       id: '900001',
+      number: 'INV-2026-900001',
+      customerId: null,
       customerName: 'Jane Doe',
       email: 'jane@example.com',
+      address: '123 Main Street',
       issuedAt: '2026-08-04T00:00:00.000Z',
+      dueAt: null,
       status: 'pending',
       favorite: false,
+      currency: 'USD',
+      discount: 0,
+      subtotal: 500,
+      total: 500,
+      items: [],
+      createdAt: '2026-08-04T00:00:00.000Z',
+      updatedAt: '2026-08-04T00:00:00.000Z',
     });
     await TestBed.configureTestingModule({
       imports: [InvoiceCreateComponent],
